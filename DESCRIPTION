@@ -1,10 +1,16 @@
 Package: RSQLServer
 Type: Package
-Title: What the package does (short line)
-Version: 1.0
-Date: 2014-01-10
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
-Depends: methods, RJDBC
+Title: SQL Server DBI interface for R, based on JDBC
+Version: 0.1
+Date: 2014-10-01
+Authors@R: as.person(c(
+    "Shan Huang <openhuangs@gmail.com> [aut,cre]",
+    "Imanuel Costigan <i.costigan@me.com> [aut]"))
+Maintainer: Imanuel Costigan <i.costigan@me.com>
+Description: Implements a DBI compliant interface to SQL Server based on
+  Microsoft's SQL Server JDBC drivers.
+License: GPL-2
+Depends:
+  methods
+Imports:
+  RJDBC (>= 0.2-4)

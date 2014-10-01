@@ -6,7 +6,6 @@ setClass("SQLServerDriver", contains = "JDBCDriver")
 
 SQLServer <- function (identifier.quote=NA)
 {
-  require(RJDBC)
   drv <- JDBC("com.microsoft.sqlserver.jdbc.SQLServerDriver",
     system.file("java", "sqljdbc4.jar", package="RSQLServer"))
   new("SQLServerDriver", identifier.quote=as.character(identifier.quote),
