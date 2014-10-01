@@ -1,0 +1,14 @@
+exportPattern("^[[:alpha:]]+")
+exportMethods(
+    "dbConnect",
+    "dbHasCompleted",
+    "dbSendQuery",
+    "dbExistsTable"
+)
+exportClasses(
+    "SQLServerConnection",
+     "SQLServerDriver",
+     "SQLServerResult" 
+)
+export(SQLServer)
+import(RJDBC)
