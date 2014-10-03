@@ -26,12 +26,27 @@ setClass("SQLServerDriver", contains = "JDBCDriver")
 #' SQLServer()
 #' }
 #' @rdname SQLServerDriver-class
+#' @aliases SQLServer
 #' @export
 SQLServer <- function (identifier.quote="[")
 {
   drv <- RJDBC::JDBC(driverClass = "com.microsoft.sqlserver.jdbc.SQLServerDriver",
     classPath = jdbc_class_path())
-  new("SQLServerDriver", identifier.quote = identifier.quote, jdrv= drv@jdrv)
+  new("JDBCDriver", identifier.quote = identifier.quote, jdrv= drv@jdrv)
 }
 
+#' Unload SQLServer driver
+#'
+#' Not implemented. Simply returns \code{TRUE}. See
+#' \code{\link[RJDBC]{JDBCDriver-methods}}.
+#'
+#' @param drv Object created by \code{\link{SQLServer}}
+#' @return Always logical \code{TRUE}.
+#' @examples
+#' \dontrun{
+#' drv <- SQLServer()
+#' dbUnloadDriver(drv)
+#' }
+#' @export
 
+setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) TRUE)
