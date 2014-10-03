@@ -3,7 +3,7 @@ NULL
 
 #' RSQLServer
 #'
-#' DBI to SQL Server, using RJDBC.
+#' Wrapper around RJDBC DBI applied specifically to SQL Server.
 #'
 #' @docType package
 #' @name RSQLServer
