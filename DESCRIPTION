@@ -16,3 +16,9 @@ Depends:
 Imports:
     rJava (>= 0.9-6),
     RJDBC (>= 0.2-4)
+Collate:
+    'DBDriver.R'
+    'DBConnection.R'
+    'RSQLServer.R'
+    'Utils.R'
+    'class.R'
