@@ -1,32 +1,3 @@
-#
-#
-#
-# #' Initialise the SQL Server engine
-# #'
-# #' This function initialises the SQL Server engine using the
-# #' \code{\link[RJDBC]{JDBC}} interface.
-# #'
-# #' @param identifier.quote  quote character for a SQL Server identifier can be a
-# #' single quotation mark (\code{\'}), a left or right bracket (\code{[]},
-# #' defaults to \code{[}), or a double quotation mark (\code{\"}).
-# #' @return An object of class \linkS4class{SQLServerDriver}.
-# #' @references
-# #' \href{http://msdn.microsoft.com/en-us/library/ms378526(v=sql.110).aspx}{Using the JDBC (SQL Server) Driver}
-# #' @examples
-# #' \dontrun{
-# #' SQLServer()
-# #' }
-# #' @export
-# SQLServer <- function (identifier.quote="[")
-# {
-#   drv <- RJDBC::JDBC(
-#     driverClass = "com.microsoft.sqlserver.jdbc.SQLServerDriver",
-#     classPath = jdbc_class_path())
-#   new("SQLServerDriver", identifier.quote=as.character(identifier.quote),
-#     jdrv= drv@jdrv)
-# }
-#
-#
 # ################################################################################
 # ## Class: DBIConnection
 # ################################################################################
@@ -163,19 +134,3 @@
 # #   }
 # # }
 #
-# jre_version <- function ()
-# {
-#   key <- readRegistry('SOFTWARE\\JavaSoft\\Java Runtime Environment\\')
-#   as.numeric(key$CurrentVersion)
-# }
-#
-# jdbc_root_path <- function ()
-#   system.file('java', package = 'RSQLServer')
-#
-# jdbc_class_path <- function ()
-# {
-#   if (jre_version() <= 1.5)
-#     file.path(jdbc_root_path(), 'sqljdbc.jar')
-#   else
-#     file.path(jdbc_root_path(), 'sqljdbc4.jar')
-# }

@@ -5,6 +5,6 @@
 \alias{RSQLServer-package}
 \title{RSQLServer}
 \description{
-DBI to SQL Server, using RJDBC.
+Wrapper around RJDBC DBI applied specifically to SQL Server.
 }
 
