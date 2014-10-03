@@ -8,9 +8,12 @@ Authors@R: as.person(c(
     "Imanuel Costigan <i.costigan@me.com> [aut]"))
 Maintainer: Imanuel Costigan <i.costigan@me.com>
 Description: Implements a DBI compliant interface to SQL Server based on
-  Microsoft's SQL Server JDBC drivers.
+    Microsoft's SQL Server JDBC drivers.
 License: GPL-2
 Depends:
-  methods
+    methods,
+    DBI (>= 0.3.1)
 Imports:
-  RJDBC (>= 0.2-4)
+    rJava (>= 0.9-6),
+    RJDBC (>= 0.2-4),
+    assertthat
