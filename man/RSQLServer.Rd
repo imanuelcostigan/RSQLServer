@@ -6,12 +6,15 @@
 \title{RSQLServer}
 \description{
 Wrapper around RJDBC DBI applied specifically to SQL Server. You will need the
-\href{https://www.java.com/en/download/index.jsp}{Java Runtime Environment (version 6 or higher)}.
+\href{https://www.java.com/en/download/index.jsp}{Java Runtime Environment}.
 }
 \details{
 If you intend to use integrated security (Windows Authentication) to
-authenticate your server session, you will need to download \href{http://www.microsoft.com/en-us/download/details.aspx?id=11774}{Microsoft's JDBC Driver for SQL Server package}
-and copy the bundled driver file (\code{sqljdbc_auth.dll}) to your java
-library path (e.g. \code{C:\Program Files (x86)\Java\jre7\bin\client}).
+authenticate your server session, you will need to download \href{http://sourceforge.net/projects/jtds/files/}{jTDS}
+and copy the native single sign on library (\code{ntlmauth.dll}) to any file
+on your system's \code{PATH} (e.g. \code{Sys.getenv("PATH")}). This
+functionality seems a little flaky in my testing, but it could just be my
+setup. Full installation instructions are available in the \code{README.SSO}
+file in the jTDS download bundle.
 }
 
