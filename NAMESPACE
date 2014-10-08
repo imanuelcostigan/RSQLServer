@@ -3,6 +3,7 @@
 export(SQLServer)
 exportClasses(SQLServerConnection)
 exportClasses(SQLServerDriver)
+exportClasses(SQLServerResult)
 exportMethods(dbConnect)
 exportMethods(dbGetInfo)
 exportMethods(dbListConnections)

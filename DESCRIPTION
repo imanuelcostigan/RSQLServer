@@ -12,13 +12,14 @@ Description: Implements a DBI compliant interface to SQL Server based on
 License: GPL-2
 Depends:
     methods,
-    DBI (>= 0.3.1)
+    DBI (>= 0.3.1),
+    rJava (>= 0.9-6)
 Imports:
-    rJava (>= 0.9-6),
     RJDBC (>= 0.2-4)
 Collate:
     'DBDriver.R'
     'DBConnection.R'
+    'DBResult.R'
     'RSQLServer.R'
     'Utils.R'
     'class.R'
