@@ -11,8 +11,6 @@ NULL
 #' single quotation mark (\code{\'}), a left or right bracket (\code{[]}), or a
 #' double quotation mark (\code{\"}). Usually inherited from
 #' \code{\linkS4class{SQLServerDriver}}.
-#' @references
-#' \href{http://msdn.microsoft.com/en-us/library/ms175874.aspx}{SQL Server identifiers}
 #' @export
 
 setClass("SQLServerConnection", contains = 'JDBCConnection')
@@ -23,104 +21,135 @@ setClass("SQLServerConnection", contains = 'JDBCConnection')
 #' \code{\linkS4class{SQLServerConnection}}. If a connection, the connection
 #' will be cloned.
 #' @param server The address of the server to connect to.
-#' @param port The port to connect to on \code{server}. The default \code{NULL}
-#' which maps to \code{1433} in the MS JDBC Driver API. You do not have to
-#' precede the port with a \code{:}.
-#' @param instance The instance to connect to on \code{server}. If not specified,
-#' a connection to the default instance is made.
-#' @param ... One or more \href{http://msdn.microsoft.com/en-us/library/ms378988(v=sql.110).aspx}{optional connection properties.}.
-#' Note if you intend to set the integratedSecurity property to \code{'true'}
+#' @param ... One or more \href{http://jtds.sourceforge.net/faq.html#urlFormat}{optional connection properties.}.
+#' Note if you intend to set the \code{useNTLMv2} property to \code{'true'}
 #' from the default API value of \code{'false'}, you will need to make a specific
-#' authentication driver available to the Java Virtual Machine. See
-#' \code{\link{RSQLServer}}
+#' authentication driver available to the SQL Server driver. See
+#' \code{\link{RSQLServer}} for more details
 #' @return a \code{linkS4Class{SQLServerConnection}} object
 #' @examples
 #' \dontrun{
-#' dbConnect(SQLServer(), ServerName, 1437, user = 'username', integratedSecurity = 'true')
+#' dbConnect(SQLServer(), 'ServerName')
 #' }
-#' @references
-#' \href{http://msdn.microsoft.com/en-us/library/ms378428(v=sql.110).aspx}{Building the Connection URL}
-#' \href{http://msdn.microsoft.com/en-us/library/ms378988(v=sql.110).aspx}{Setting the Connection Properties}
 #' @export
 
 setMethod(f = 'dbConnect', signature = "SQLServerDriver",
-  definition = function (drv, server, port = NULL, instance = NULL, ...)
+  definition = function (drv, server, ...)
   {
-    dots <- list(...)
-    properties <- rJava::.jnew('java/util/Properties')
-    for (property in names(dots))
-    {
-      rJava::.jcall(properties, "Ljava/lang/Object;", "setProperty", property,
-        dots[[property]])
-    }
-    url <- build_ss_connection_url(server, port, instance)
-    jc <- rJava::.jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", url,
+    url <- build_url(server, ...)
+    properties <- .jnew('java/util/Properties')
+    jc <- .jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", url,
       properties)
-    new("SQLServerConnection", jc = jc, identifier.quote = drv@identifier.quote)
+    new("JDBCConnection", jc = jc, identifier.quote = drv@identifier.quote)
   }
 )
 
-# # setMethod("dbSendQuery",
-# #   signature(conn = "SQLServerConnection", statement = "character"),
-# #   def = function (conn, statement, ..., list=NULL)
-# #   {
-# #     statement <- as.character(statement)[1L]
-# #     ## if the statement starts with {call or {?= call then we use
-# #     ## CallableStatement
-# #     if (isTRUE(as.logical(grepl("^\\{(call|\\?= *call)", statement))))
-# #     {
-# #       s <- .jcall(conn@jc, "Ljava/sql/CallableStatement;", "prepareCall",
-# #         statement, check=FALSE)
-# #       .verify.JDBC.result(s, "Unable to execute JDBC callable statement ",
-# #         statement)
-# #       if (length(list(...)))
-# #         .fillStatementParameters(s, list(...))
-# #       if (!is.null(list))
-# #         .fillStatementParameters(s, list)
-# #       r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
-# #       .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ",
-# #         statement)
-# #     } else if (length(list(...)) || length(list))
-# #     {
-# #       ## use prepared statements if there are additional arguments
-# #       s <- .jcall(conn@jc, "Ljava/sql/PreparedStatement;", "prepareStatement",
-# #         statement, check=FALSE)
-# #       .verify.JDBC.result(s, "Unable to execute JDBC prepared statement ",
-# #         statement)
-# #       if (length(list(...)))
-# #         .fillStatementParameters(s, list(...))
-# #       if (!is.null(list))
-# #         .fillStatementParameters(s, list)
-# #       r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
-# #       .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ",
-# #         statement)
-# #     } else
-# #     {
-# #       ## otherwise use a simple statement some DBs fail with the above)
-# #       s <- .jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
-# #       .verify.JDBC.result(s, "Unable to create simple JDBC statement ",
-# #         statement)
-# #       r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery",
-# #         as.character(statement)[1], check=FALSE)
-# #       .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ",
-# #         statement)
-# #     }
-# #     md <- .jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check=FALSE)
-# #     .verify.JDBC.result(md, "Unable to retrieve JDBC result set meta data for ",
-# #       statement, " in dbSendQuery")
-# #     new("SQLServerResult", jr=r, md=md, stat=s, pull=.jnull())
-# #   }
-# # )
-# #
-# # setMethod("dbExistsTable", "SQLServerConnection",
-# #   def=function (conn, name, ...)
-# #   {
-# #     s <- .jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
-# #     .verify.JDBC.result(s, "Unable to create simple JDBC statement ", statement)
-# #     r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery",
-# #       paste0("SELECT TOP 0 * FROM ", name), check=FALSE)
-# #     .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ", statement)
-# #     TRUE
-# #   }
-# # )
-# #
+# dbDisconnect: Inherits from JDBCConnection
+
+setMethod("dbSendQuery",
+  signature(conn = "SQLServerConnection", statement = "character"),
+  def = function (conn, statement, ..., list=NULL)
+  {
+    statement <- as.character(statement)[1L]
+    if (isTRUE(as.logical(grepl("^\\{(call|\\?= *call)", statement))))
+    {
+      s <- .jcall(conn@jc, "Ljava/sql/CallableStatement;", "prepareCall",
+        statement, check=FALSE)
+      .verify.JDBC.result(s, "Unable to execute JDBC callable statement ",
+        statement)
+      if (length(list(...)))
+        .fillStatementParameters(s, list(...))
+      if (!is.null(list))
+        .fillStatementParameters(s, list)
+      r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
+      .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ",
+        statement)
+    } else if (length(list(...)) || length(list))
+    {
+      s <- .jcall(conn@jc, "Ljava/sql/PreparedStatement;", "prepareStatement",
+        statement, check=FALSE)
+      .verify.JDBC.result(s, "Unable to execute JDBC prepared statement ",
+        statement)
+      if (length(list(...)))
+        .fillStatementParameters(s, list(...))
+      if (!is.null(list))
+        .fillStatementParameters(s, list)
+      r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
+      .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ",
+        statement)
+    } else
+    {
+      s <- .jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
+      .verify.JDBC.result(s, "Unable to create simple JDBC statement ",
+        statement)
+      r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery",
+        as.character(statement)[1], check=FALSE)
+      .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ",
+        statement)
+    }
+    md <- .jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check=FALSE)
+    .verify.JDBC.result(md, "Unable to retrieve JDBC result set meta data for ",
+      statement, " in dbSendQuery")
+    new("SQLServerResult", jr=r, md=md, stat=s, pull=.jnull())
+  }
+)
+
+#' Get connection info
+#'
+#' @param dbObj Object of type \code{\link{SQLServerConnection}} representing a
+#' connection
+#' @return a named list containing database product name, database version,
+#' user, and whether the connection is read only.
+#' \dontrun{
+#' dbGetInfo(dbConnect(SQLServer(), 'DatabaseName'))
+#' }
+#' @export
+setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
+  definition = function (dbObj, ...)
+  {
+    meta <- dbObj@jc$getMetaData()
+    list(dbname = meta$getDatabaseProductName(),
+      db.version = meta$getDatabaseMajorVersion(),
+      user = meta$getUserName(),
+      is.read.only = meta$isReadOnly())
+  }
+)
+
+# dbGetQuery: Inherits from JDBCConnection
+# dbGetException: Inherits from JDBCConnection
+# dbListResults: Inherits from JDBCConnection
+# dbListTables: Inherits from JDBCConnection
+# dbReadTable: Inherits from JDBCConnection
+# dbWriteTable: Inherits from JDBCConnection
+# dbExistsTable: Inherits from JDBCConnection
+# dbRemoveTable: Inherits from JDBCConnection
+# dbListFields: Inherits from JDBCConnection
+# dbCommit: Inherits from JDBCConnection
+# dbRollback: Inherits from JDBCConnection
+# dbCallProc: Not yet implemented
+
+# Copied from RJDBC:
+# https://github.com/s-u/RJDBC/blob/01c55dfe76e039a37ccda732d7332325222da8c8/R/class.R
+.verify.JDBC.result <- function (result, ...) {
+  if (is.jnull(result)) {
+    x <- .jgetEx(TRUE)
+    if (is.jnull(x))
+      stop(...)
+    else
+      stop(...," (",.jcall(x, "S", "getMessage"),")")
+  }
+}
+.fillStatementParameters <- function(s, l) {
+  for (i in 1:length(l)) {
+    v <- l[[i]]
+    if (is.na(v)) { # map NAs to NULLs (courtesy of Axel Klenk)
+      sqlType <- if (is.integer(v)) 4 else if (is.numeric(v)) 8 else 12
+      .jcall(s, "V", "setNull", i, as.integer(sqlType))
+    } else if (is.integer(v))
+      .jcall(s, "V", "setInt", i, v[1])
+    else if (is.numeric(v))
+      .jcall(s, "V", "setDouble", i, as.double(v)[1])
+    else
+      .jcall(s, "V", "setString", i, as.character(v)[1])
+  }
+}

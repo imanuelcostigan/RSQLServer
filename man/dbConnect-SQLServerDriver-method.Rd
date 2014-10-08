@@ -13,18 +13,11 @@ will be cloned.}
 
 \item{server}{The address of the server to connect to.}
 
-\item{...}{One or more \href{http://msdn.microsoft.com/en-us/library/ms378988(v=sql.110).aspx}{optional connection properties.}.
-Note if you intend to set the integratedSecurity property to \code{'true'}
+\item{...}{One or more \href{http://jtds.sourceforge.net/faq.html#urlFormat}{optional connection properties.}.
+Note if you intend to set the \code{useNTLMv2} property to \code{'true'}
 from the default API value of \code{'false'}, you will need to make a specific
-authentication driver available to the Java Virtual Machine. See
-\code{\link{RSQLServer}}}
-
-\item{port}{The port to connect to on \code{server}. The default \code{NULL}
-which maps to \code{1433} in the MS JDBC Driver API. You do not have to
-precede the port with a \code{:}.}
-
-\item{instance}{The instance to connect to on \code{server}. If not specified,
-a connection to the default instance is made.}
+authentication driver available to the SQL Server driver. See
+\code{\link{RSQLServer}} for more details}
 }
 \value{
 a \code{linkS4Class{SQLServerConnection}} object
@@ -34,11 +27,7 @@ Connect to/disconnect from a SQL Server database.
 }
 \examples{
 \dontrun{
-dbConnect(SQLServer(), 'ServerName', port = 1437, domain = 'domain', useNTLMv2 = 'true')
+dbConnect(SQLServer(), 'ServerName')
 }
-}
-\references{
-\href{http://msdn.microsoft.com/en-us/library/ms378428(v=sql.110).aspx}{Building the Connection URL}
-\href{http://msdn.microsoft.com/en-us/library/ms378988(v=sql.110).aspx}{Setting the Connection Properties}
 }
 
