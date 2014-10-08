@@ -40,11 +40,9 @@ setMethod(f = 'dbConnect', signature = "SQLServerDriver",
     properties <- .jnew('java/util/Properties')
     jc <- .jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", url,
       properties)
-    new("JDBCConnection", jc = jc, identifier.quote = drv@identifier.quote)
+    new("SQLServerConnection", jc = jc, identifier.quote = drv@identifier.quote)
   }
 )
-
-# dbDisconnect: Inherits from JDBCConnection
 
 setMethod("dbSendQuery",
   signature(conn = "SQLServerConnection", statement = "character"),
@@ -115,6 +113,7 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
   }
 )
 
+# dbDisconnect: Inherits from JDBCConnection
 # dbGetQuery: Inherits from JDBCConnection
 # dbGetException: Inherits from JDBCConnection
 # dbListResults: Inherits from JDBCConnection
