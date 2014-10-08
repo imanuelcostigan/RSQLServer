@@ -15,6 +15,7 @@
 #' \href{http://msdn.microsoft.com/en-us/library/ms378526(v=sql.110).aspx}{Using the JDBC (SQL Server) Driver}
 #' \href{http://msdn.microsoft.com/en-us/library/ms175874.aspx}{SQL Server identifiers}
 #' @export
+
 setClass("SQLServerDriver", contains = "JDBCDriver")
 
 #' @param identifier.quote  quote character for a SQL Server identifier can be a
@@ -28,12 +29,49 @@ setClass("SQLServerDriver", contains = "JDBCDriver")
 #' @rdname SQLServerDriver-class
 #' @aliases SQLServer
 #' @export
-SQLServer <- function (identifier.quote="[")
+
+SQLServer <- function (sqlserver_version, identifier.quote="[")
 {
-  drv <- RJDBC::JDBC(driverClass = "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+  drv <- RJDBC::JDBC(driverClass = "net.sourceforge.jtds.jdbc.Driver",
     classPath = jdbc_class_path())
-  new("JDBCDriver", identifier.quote = identifier.quote, jdrv= drv@jdrv)
+  new("SQLServerDriver", identifier.quote = identifier.quote, jdrv= drv@jdrv)
 }
+
+#' List active connections
+#'
+#' @param drv Object created by \code{\link{SQLServer}}
+#' @return An empty list as JDBC driver doesn't maintain a list of active
+#' connections
+#' @examples
+#' \dontrun{
+#' dbListConnection(SQLServer())
+#' }
+#' @export
+
+setMethod(f = 'dbListConnections', signature = 'SQLServerDriver',
+  definition = function (drv, ...)
+  {
+    warning ("JDBC driver maintains no list of active connections.")
+    list()
+  }
+)
+
+#' Get driver info
+#'
+#' @param drv Object created by \code{\link{SQLServer}}
+#' @return A list containing the name and driver version used by \code{drv}
+#' @examples
+#' \dontrun{
+#' dbGetInfo(SQLServer())
+#' }
+#' @export
+
+setMethod(f = 'dbGetInfo', signature = 'SQLServerDriver',
+  definition = function (drv, ...)
+  {
+    list(name = 'RSQLServer (jTDS)', driver.version = drv@jdrv$getVersion())
+  }
+)
 
 #' Unload SQLServer driver
 #'
