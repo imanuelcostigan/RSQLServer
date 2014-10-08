@@ -10,4 +10,9 @@
 #' @slot stat Java reference to the JDBC statement which generated this result
 #' @export
 
-setClass("SQLServerResult", contains = 'JDBCResult')
+setClass ("SQLServerResult", contains = 'JDBCResult')
+
+# fetch: Inherits from JDBCResult
+# dbClearResult: Inherits from JDBCResult
+# dbGetInfo: Inherits from JDBCResult
+# dbColumnInfo: Inherits from JDBCResult
