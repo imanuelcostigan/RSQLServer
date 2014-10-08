@@ -19,7 +19,7 @@ An object of class \linkS4class{SQLServerDriver}.
 This class extends the \code{\link[RJDBC:JDBCDriver-class]{JDBCDriver}} class
 to represent a SQL Server driver used to access SQL Server databases. This
 should always be initialised with \code{SQLServer()}. JDBCDriver extends
-DBIDriver.
+DBIDriver. The package uses the jTDS driver set.
 }
 \section{Slots}{
 
@@ -38,7 +38,6 @@ SQLServer()
 }
 }
 \references{
-\href{http://msdn.microsoft.com/en-us/library/ms378526(v=sql.110).aspx}{Using the JDBC (SQL Server) Driver}
-\href{http://msdn.microsoft.com/en-us/library/ms175874.aspx}{SQL Server identifiers}
+\href{http://jtds.sourceforge.net/}{jTDS project}
 }
 

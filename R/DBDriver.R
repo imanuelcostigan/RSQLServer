@@ -3,7 +3,7 @@
 #' This class extends the \code{\link[RJDBC:JDBCDriver-class]{JDBCDriver}} class
 #' to represent a SQL Server driver used to access SQL Server databases. This
 #' should always be initialised with \code{SQLServer()}. JDBCDriver extends
-#' DBIDriver.
+#' DBIDriver. The package uses the jTDS driver set.
 #'
 #' @slot identifier.quote quote character for a SQL Server identifier can be a
 #' single quotation mark (\code{\'}), a left or right bracket (\code{[]},
@@ -12,8 +12,7 @@
 #' the driver can be instantiated by a default constructor. This object is only
 #' used as a fall-back when the driver manager fails to find a driver.
 #' @references
-#' \href{http://msdn.microsoft.com/en-us/library/ms378526(v=sql.110).aspx}{Using the JDBC (SQL Server) Driver}
-#' \href{http://msdn.microsoft.com/en-us/library/ms175874.aspx}{SQL Server identifiers}
+#' \href{http://jtds.sourceforge.net/}{jTDS project}
 #' @export
 
 setClass("SQLServerDriver", contains = "JDBCDriver")
@@ -30,7 +29,7 @@ setClass("SQLServerDriver", contains = "JDBCDriver")
 #' @aliases SQLServer
 #' @export
 
-SQLServer <- function (sqlserver_version, identifier.quote="[")
+SQLServer <- function (identifier.quote="[")
 {
   drv <- RJDBC::JDBC(driverClass = "net.sourceforge.jtds.jdbc.Driver",
     classPath = jdbc_class_path())
@@ -67,9 +66,9 @@ setMethod(f = 'dbListConnections', signature = 'SQLServerDriver',
 #' @export
 
 setMethod(f = 'dbGetInfo', signature = 'SQLServerDriver',
-  definition = function (drv, ...)
+  definition = function (dbObj, ...)
   {
-    list(name = 'RSQLServer (jTDS)', driver.version = drv@jdrv$getVersion())
+    list(name = 'RSQLServer (jTDS)', driver.version = dbObj@jdrv$getVersion())
   }
 )
 
