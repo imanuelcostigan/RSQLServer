@@ -4,7 +4,7 @@ Title: Microsoft SQL Server R Database Interface (DBI)
 Version: 0.1
 Date: 2014-10-01
 Authors@R: as.person(c("Imanuel Costigan <i.costigan@me.com> [aut,cre]",
-    "The jTDS Project (for JDBC SQL Server driver) [ctb]",
+    "The jTDS Project (for MSSQL Server driver) [aut]",
     "Simon Urbanek <Simon.Urbanek@r-project.org> [ctb]"))
 Maintainer: Imanuel Costigan <i.costigan@me.com>
 Description: This package wraps the jTDS Project's JDBC 3.0 Microsoft SQL Server
