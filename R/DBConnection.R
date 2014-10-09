@@ -44,6 +44,17 @@ setMethod(f = 'dbConnect', signature = "SQLServerDriver",
   }
 )
 
+#' Send query to SQL Server
+#'
+#' This is basically a copy of RJDBC's \code{\link[RJDBC]{dbSendQuery-method}}
+#' for JDBCConnection.
+#'
+#' @param conn connection object
+#' @param statement SQL statement to execute
+#' @param ...
+#' @param list
+#' @return a \code{\linkS4class{SQLServerResult}} object
+#' @export
 setMethod("dbSendQuery",
   signature(conn = "SQLServerConnection", statement = "character"),
   def = function (conn, statement, ..., list=NULL)
