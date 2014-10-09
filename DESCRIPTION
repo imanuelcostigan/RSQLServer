@@ -5,7 +5,7 @@ Version: 0.1
 Date: 2014-10-01
 Authors@R: as.person(c("Imanuel Costigan <i.costigan@me.com> [aut,cre]",
     "The jTDS Project (for JDBC SQL Server driver) [ctb]",
-    "Simon Urbanek <Simon.Urbanek@r-project.org> [cph]"))
+    "Simon Urbanek <Simon.Urbanek@r-project.org> [ctb]"))
 Maintainer: Imanuel Costigan <i.costigan@me.com>
 Description: This package wraps the jTDS SQL Server driver and extends the RJDBC
     classes and DBI methods. It defines a SQLServerDriver, SQLServerConnection &
