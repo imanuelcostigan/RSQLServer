@@ -127,6 +127,19 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
   }
 )
 
+#' Checks whether Connection is closed
+#'
+#' @param dbObj An object inheriting from \code{\linkS4class{SQLServerConnection}}.
+#' @return logical \code{TRUE} if the connection is closed and vice-versa
+#' @export
+
+setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
+  definition = function (dbObj, ...)
+  {
+    dbObj@jc$isClosed()
+  }
+)
+
 # dbDisconnect: Inherits from JDBCConnection
 # dbGetQuery: Inherits from JDBCConnection
 # dbGetException: Inherits from JDBCConnection
