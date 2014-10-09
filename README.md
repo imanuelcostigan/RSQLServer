@@ -12,3 +12,18 @@ This will be submitted to CRAN in due course. However, you can install and try t
 install.packages('devtools')
 devtools::install_github('imanuelcostigan/RSQLServer')
 ```
+
+## Usage
+
+This package uses the standard R DBI generics:
+
+```
+library(DBI)
+conn <- dbConnect(RSQLServer::SQLServer(), 'DatabaseName')
+dbListTables(conn)
+dbListFields(conn, 'tablename')
+res <- dbSendQuery(conn, 'SELECT TOP 10 * FROM tablename')
+dbFetch(res)
+dbClearResult(res)
+dbDisconnect(res)
+```
