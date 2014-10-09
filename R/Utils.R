@@ -1,6 +1,3 @@
-jdbc_class_path <- function ()
-  file.path(system.file('java', package = 'RSQLServer'), 'jtds-1.3.1.jar')
-
 build_url <- function (server, ...)
 {
   # jTDS FAQ
