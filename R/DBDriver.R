@@ -31,7 +31,8 @@ setClass("SQLServerDriver", contains = "JDBCDriver")
 
 SQLServer <- function (identifier.quote="[")
 {
-  drv <- RJDBC::JDBC(driverClass = "net.sourceforge.jtds.jdbc.Driver")
+  drv <- RJDBC::JDBC(driverClass = "net.sourceforge.jtds.jdbc.Driver",
+    classPath = jdbc_class_path())
   new("SQLServerDriver", identifier.quote = identifier.quote, jdrv= drv@jdrv)
 }
 
