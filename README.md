@@ -17,7 +17,7 @@ devtools::install_github('imanuelcostigan/RSQLServer')
 
 This package uses the standard R DBI generics:
 
-```
+```R
 library(DBI)
 conn <- dbConnect(RSQLServer::SQLServer(), 'DatabaseName')
 dbListTables(conn)
