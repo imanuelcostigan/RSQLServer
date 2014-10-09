@@ -27,5 +27,3 @@ Collate:
     'RSQLServer.R'
     'Utils.R'
     'onLoad.R'
-Suggests:
-    testthat
