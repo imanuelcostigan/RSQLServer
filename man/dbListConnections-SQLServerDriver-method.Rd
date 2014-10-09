@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{drv}{Object created by \code{\link{SQLServer}}}
+
+\item{...}{Other arguments passed on to methods. Not used here.}
 }
 \value{
 An empty list as JDBC driver doesn't maintain a list of active

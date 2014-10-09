@@ -21,7 +21,7 @@ setClass("SQLServerConnection", contains = 'JDBCConnection')
 #' \code{\linkS4class{SQLServerConnection}}. If a connection, the connection
 #' will be cloned.
 #' @param server The address of the server to connect to.
-#' @param ... One or more \href{http://jtds.sourceforge.net/faq.html#urlFormat}{optional connection properties.}.
+#' @param ... One or more \href{http://jtds.sourceforge.net/faq.html}{optional connection properties.}.
 #' Note if you intend to set the \code{useNTLMv2} property to \code{'true'}
 #' from the default API value of \code{'false'}, you will need to make a specific
 #' authentication driver available to the SQL Server driver. See
@@ -94,10 +94,12 @@ setMethod("dbSendQuery",
 
 #' Get connection info
 #'
-#' @param dbObj Object of type \code{\link{SQLServerConnection}} representing a
+#' @param dbObj Object of type \code{\linkS4class{SQLServerConnection}} representing a
 #' connection
+#' @param ... other arguments to methods. Not used here.
 #' @return a named list containing database product name, database version,
 #' user, and whether the connection is read only.
+#' @examples
 #' \dontrun{
 #' dbGetInfo(dbConnect(SQLServer(), 'DatabaseName'))
 #' }

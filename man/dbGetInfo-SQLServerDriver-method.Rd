@@ -7,7 +7,9 @@
 \S4method{dbGetInfo}{SQLServerDriver}(dbObj, ...)
 }
 \arguments{
-\item{drv}{Object created by \code{\link{SQLServer}}}
+\item{dbObj}{Object created by \code{\link{SQLServer}}}
+
+\item{...}{other arguments to methods. Not used here.}
 }
 \value{
 A list containing the name and driver version used by \code{drv}

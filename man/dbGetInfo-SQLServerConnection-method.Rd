@@ -7,17 +7,21 @@
 \S4method{dbGetInfo}{SQLServerConnection}(dbObj, ...)
 }
 \arguments{
-\item{dbObj}{Object of type \code{\link{SQLServerConnection}} representing a
+\item{dbObj}{Object of type \code{\linkS4class{SQLServerConnection}} representing a
 connection}
+
+\item{...}{other arguments to methods. Not used here.}
 }
 \value{
 a named list containing database product name, database version,
 user, and whether the connection is read only.
-\dontrun{
-dbGetInfo(dbConnect(SQLServer(), 'DatabaseName'))
-}
 }
 \description{
 Get connection info
+}
+\examples{
+\dontrun{
+dbGetInfo(dbConnect(SQLServer(), 'DatabaseName'))
+}
 }
 

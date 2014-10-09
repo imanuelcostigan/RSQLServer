@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{drv}{Object created by \code{\link{SQLServer}}}
+
+\item{...}{any other arguments are passed to the driver. Not used here.}
 }
 \value{
 Always logical \code{TRUE}.

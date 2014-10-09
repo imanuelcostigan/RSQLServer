@@ -13,7 +13,7 @@ will be cloned.}
 
 \item{server}{The address of the server to connect to.}
 
-\item{...}{One or more \href{http://jtds.sourceforge.net/faq.html#urlFormat}{optional connection properties.}.
+\item{...}{One or more \href{http://jtds.sourceforge.net/faq.html}{optional connection properties.}.
 Note if you intend to set the \code{useNTLMv2} property to \code{'true'}
 from the default API value of \code{'false'}, you will need to make a specific
 authentication driver available to the SQL Server driver. See

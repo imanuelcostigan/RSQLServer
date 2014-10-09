@@ -39,6 +39,7 @@ SQLServer <- function (identifier.quote="[")
 #' List active connections
 #'
 #' @param drv Object created by \code{\link{SQLServer}}
+#' @param ... Other arguments passed on to methods. Not used here.
 #' @return An empty list as JDBC driver doesn't maintain a list of active
 #' connections
 #' @examples
@@ -57,7 +58,8 @@ setMethod(f = 'dbListConnections', signature = 'SQLServerDriver',
 
 #' Get driver info
 #'
-#' @param drv Object created by \code{\link{SQLServer}}
+#' @param dbObj Object created by \code{\link{SQLServer}}
+#' @param ... other arguments to methods. Not used here.
 #' @return A list containing the name and driver version used by \code{drv}
 #' @examples
 #' \dontrun{
@@ -78,6 +80,7 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerDriver',
 #' \code{\link[RJDBC]{JDBCDriver-methods}}.
 #'
 #' @param drv Object created by \code{\link{SQLServer}}
+#' @param ... any other arguments are passed to the driver. Not used here.
 #' @return Always logical \code{TRUE}.
 #' @examples
 #' \dontrun{
