@@ -23,4 +23,4 @@ Collate:
     'DBResult.R'
     'RSQLServer.R'
     'Utils.R'
-    'class.R'
+    'onLoad.R'
