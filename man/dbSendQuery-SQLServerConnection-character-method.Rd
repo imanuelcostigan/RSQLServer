@@ -12,15 +12,15 @@
 
 \item{statement}{SQL statement to execute}
 
-\item{...}{}
+\item{...}{additional arguments to prepared statement substituted for "?"}
 
-\item{list}{}
+\item{list}{undocumented}
 }
 \value{
 a \code{\linkS4class{SQLServerResult}} object
 }
 \description{
-This is basically a copy of RJDBC's \code{\link[RJDBC]{dbSendQuery-method}}
-for JDBCConnection.
+This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendQuery}}
+method for JDBCConnection.
 }
 
