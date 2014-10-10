@@ -1,5 +1,4 @@
-Amended initial submission following Prof Ripley's feedback:
+Amended submission again following Prof Ripley's feedback:
 
-1. DESCRIPTION updated to explain that this package pertains to MS SQL Server at the moment, but that this can be extended to the other other SQL Server vendor, Sybase, as the bundled jTDS driver supports **both**.
-2. Java source files from jTDS included in java/. 
-3. jTDS now listed as authors and not just contributors given the significance of their driver (like RSQLite's hat tip to SQLite drivers)
+1. DESCRIPTION includes copyright recognition to "The Legion of Bouncy Castle"
+2. Removed superfluous "This package" from the Description field
