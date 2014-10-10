@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{dbObj}{An object inheriting from \code{\linkS4class{SQLServerConnection}}.}
+
+\item{...}{other parameters. Not used.}
 }
 \value{
 logical \code{TRUE} if the connection is closed and vice-versa

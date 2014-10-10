@@ -1,13 +1,14 @@
 Package: RSQLServer
 Type: Package
 Title: SQL Server R Database Interface (DBI)
-Version: 0.1
-Date: 2014-10-01
+Version: 0.1.1
+Date: 2014-10-10
 Authors@R: as.person(c("Imanuel Costigan <i.costigan@me.com> [aut,cre]",
     "The jTDS Project (for MSSQL Server driver) [aut]",
-    "Simon Urbanek <Simon.Urbanek@r-project.org> [ctb]"))
+    "Simon Urbanek <Simon.Urbanek@r-project.org> [ctb]",
+    "The Legion Of The Bouncy Castle [cph,ctb]"))
 Maintainer: Imanuel Costigan <i.costigan@me.com>
-Description: This package wraps the jTDS Project's JDBC 3.0 SQL Server
+Description: RSQLServer wraps the jTDS Project's JDBC 3.0 SQL Server
     driver and extends the RJDBC classes and DBI methods. It defines a
     SQLServerDriver, SQLServerConnection & SQLServerRsult S4 classes as
     extensions of the RJDBC equivalent classes. Most of the DBI methods will

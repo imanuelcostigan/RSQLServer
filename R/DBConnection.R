@@ -130,6 +130,7 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
 #' Checks whether Connection is closed
 #'
 #' @param dbObj An object inheriting from \code{\linkS4class{SQLServerConnection}}.
+#' @param ... other parameters. Not used.
 #' @return logical \code{TRUE} if the connection is closed and vice-versa
 #' @export
 
