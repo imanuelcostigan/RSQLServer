@@ -6,11 +6,17 @@ This package wraps the jTDS SQL Server driver and extends the [RJDBC](https://gi
 
 ## Installation
 
-This will be submitted to CRAN in due course. However, you can install and try this out in the meantime:
+You can install the package from CRAN:
+
+```R
+install.packages("RSQLServer")
+```
+
+Or try the bleeding edge:
 
 ```R
 install.packages('devtools')
-devtools::install_github('imanuelcostigan/RSQLServer')
+devtools::install_github('imanuelcostigan/RSQLServer@develop')
 ```
 
 ## Usage
