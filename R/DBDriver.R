@@ -44,7 +44,7 @@ SQLServer <- function (identifier.quote="[")
 #' connections
 #' @examples
 #' \dontrun{
-#' dbListConnection(SQLServer())
+#' dbListConnections(SQLServer())
 #' }
 #' @export
 
