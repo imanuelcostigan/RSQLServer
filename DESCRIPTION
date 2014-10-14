@@ -20,9 +20,11 @@ License: GPL-2
 Depends:
     methods,
     DBI (>= 0.3.1),
-    rJava (>= 0.9-6)
+    rJava (>= 0.9-6),
+    dplyr (>= 0.3.0)
 Imports:
-    RJDBC (>= 0.2-4)
+    RJDBC (>= 0.2-4),
+    assertthat (>= 0.1)
 SystemRequirements: Java (>= 1.3)
 Collate:
     'DBDriver.R'
@@ -31,3 +33,4 @@ Collate:
     'RSQLServer.R'
     'Utils.R'
     'onLoad.R'
+    'src-sqlserver.R'
