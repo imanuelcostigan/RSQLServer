@@ -21,7 +21,7 @@ setClass ("SQLServerResult", contains = 'JDBCResult')
 setMethod (f = 'dbIsValid', signature = 'SQLServerResult',
   definition = function (dbObj)
   {
-    dbObj@jr$@isClosed()
+    dbObj@jr@isClosed()
   }
 )
 
