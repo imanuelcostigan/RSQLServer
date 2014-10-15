@@ -16,7 +16,7 @@ Or try the bleeding edge:
 
 ```R
 install.packages('devtools')
-devtools::install_github('imanuelcostigan/RSQLServer@develop')
+devtools::install_github('imanuelcostigan/RSQLServer')
 ```
 
 ## Usage
