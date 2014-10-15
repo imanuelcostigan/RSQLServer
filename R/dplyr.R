@@ -1,8 +1,6 @@
 #' @export
 src_sqlserver <- function (server, ...)
 {
-  if (!require("RSQLServer"))
-    stop("RSQLServer package required to connect to SQL Server", call. = FALSE)
   con <- dbConnect(SQLServer(), server = server, ...)
   info <- dbGetInfo(con)
   src_sql("sqlserver", con, info = info,
