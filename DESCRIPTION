@@ -32,5 +32,5 @@ Collate:
     'DBResult.R'
     'RSQLServer.R'
     'Utils.R'
+    'dplyr.R'
     'onLoad.R'
-    'src-sqlserver.R'

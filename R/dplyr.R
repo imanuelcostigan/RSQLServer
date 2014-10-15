@@ -3,8 +3,7 @@ src_sqlserver <- function (server, ...)
 {
   con <- dbConnect(SQLServer(), server = server, ...)
   info <- dbGetInfo(con)
-  src_sql("sqlserver", con, info = info,
-    disco = db_disconnector(con, "sqlserver"))
+  dplyr::src_sql("sqlserver", con, info = info)
 }
 
 #' @export
@@ -42,15 +41,12 @@ head.tbl_sqlserver <- function(x, n = 6L, ...) {
 
 
 # DB backend methods ------------------------------------------------------------------
-#' @export
 db_list_tables.SQLServerConnection <- function (con)
   DBI::dbListTables(con)
 
-#' @export
 db_has_table.SQLServerConnection <- function (con, table)
   table %in% db_list_tables(con)
 
-#' @export
 db_query_fields.SQLServerConnection <- function (con, sql, ...)
 {
   rs <- dbSendQuery(con, paste0("SELECT * FROM ", sql))
@@ -66,7 +62,6 @@ db_explain.SQLServerConnection <- function (con, sql, ...)
 }
 
 # SQL backend methods --------------------------------------------------------------
-#' @export
 sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
   group_by = NULL, having = NULL, order_by = NULL, limit = NULL,
   offset = NULL, top = NULL, ...) {

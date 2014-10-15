@@ -20,7 +20,7 @@ List active connections
 }
 \examples{
 \dontrun{
-dbListConnection(SQLServer())
+dbListConnections(SQLServer())
 }
 }
 
