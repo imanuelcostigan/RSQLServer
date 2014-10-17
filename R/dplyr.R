@@ -49,7 +49,7 @@ compute.tbl_sqlserver <- function (x, name = dplyr:::random_table_name(),
 
 # DB backend methods ------------------------------------------------------------------
 db_list_tables.SQLServerConnection <- function (con)
-  DBI::dbListTables(con)
+  c(dbListTables(con), .dbListTempTables(con))
 
 db_has_table.SQLServerConnection <- function (con, table)
   table %in% db_list_tables(con)

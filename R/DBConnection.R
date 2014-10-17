@@ -104,30 +104,6 @@ setMethod("dbSendQuery",
   }
 )
 
-setMethod (f = dbListTables, "SQLServerConnection",
-  definition = function (conn, ...)
-  {
-    # http://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getTables(java.lang.String,%20java.lang.String,%20java.lang.String,%20java.lang.String[])
-    .local <- function (conn, pattern = "%",
-      type = c("TABLE", "VIEW", "LOCAL TEMPORARY"), ...)
-    {
-      md <- .jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData",
-        check = FALSE)
-      .verify.JDBC.result(md, "Unable to retrieve JDBC database metadata")
-      r <- .jcall(md, "Ljava/sql/ResultSet;", "getTables",
-        .jnull("java/lang/String"), .jnull("java/lang/String"),
-        pattern, type, check = FALSE)
-      .verify.JDBC.result(r, "Unable to retrieve JDBC tables list")
-      on.exit(.jcall(r, "V", "close"))
-      ts <- character()
-      while (.jcall(r, "Z", "next")) ts <- c(ts, .jcall(r,
-        "S", "getString", "TABLE_NAME"))
-      ts
-    }
-    .local(conn, ...)
-  }
-)
-
 #' Get connection info
 #'
 #' @param dbObj Object of type \code{\linkS4class{SQLServerConnection}} representing a
@@ -140,6 +116,7 @@ setMethod (f = dbListTables, "SQLServerConnection",
 #' dbGetInfo(dbConnect(SQLServer(), 'DatabaseName'))
 #' }
 #' @export
+
 setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
   definition = function (dbObj, ...)
   {
@@ -204,3 +181,14 @@ setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
       .jcall(s, "V", "setString", i, as.character(v)[1])
   }
 }
+.list_temp_tables <- function (version)
+{
+  if (version < 9)
+    build_sql("SELECT LEFT(NAME, CHARINDEX('_', NAME) - 1) as NAME ",
+      "FROM tempdb..sysobjects WHERE CHARINDEX('_', NAME) > 0 AND XTYPE = 'U'")
+  else
+    build_sql("SELECT LEFT(NAME, CHARINDEX('_', NAME) - 1) as NAME ",
+      "FROM tempdb.sys.objects WHERE CHARINDEX('_', NAME) > 0 AND XTYPE = 'U'")
+}
+.dbListTempTables <- function (con)
+  dbGetQuery(con, .list_temp_tables(con@jc$getDatabaseMajorVersion()))$NAME
