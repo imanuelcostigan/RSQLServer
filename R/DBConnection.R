@@ -38,8 +38,7 @@ setMethod(f = 'dbConnect', signature = "SQLServerDriver",
   {
     url <- build_url(server, ...)
     properties <- .jnew('java/util/Properties')
-    jc <- .jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", url,
-      properties)
+    jc <- .jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", url, properties)
     new("SQLServerConnection", jc = jc, identifier.quote = drv@identifier.quote)
   }
 )
