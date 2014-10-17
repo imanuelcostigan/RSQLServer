@@ -105,6 +105,30 @@ setMethod("dbSendQuery",
   }
 )
 
+setMethod (f = dbListTables, "SQLServerConnection",
+  definition = function (conn, ...)
+  {
+    # http://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getTables(java.lang.String,%20java.lang.String,%20java.lang.String,%20java.lang.String[])
+    .local <- function (conn, pattern = "%",
+      type = c("TABLE", "VIEW", "LOCAL TEMPORARY"), ...)
+    {
+      md <- .jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData",
+        check = FALSE)
+      .verify.JDBC.result(md, "Unable to retrieve JDBC database metadata")
+      r <- .jcall(md, "Ljava/sql/ResultSet;", "getTables",
+        .jnull("java/lang/String"), .jnull("java/lang/String"),
+        pattern, type, check = FALSE)
+      .verify.JDBC.result(r, "Unable to retrieve JDBC tables list")
+      on.exit(.jcall(r, "V", "close"))
+      ts <- character()
+      while (.jcall(r, "Z", "next")) ts <- c(ts, .jcall(r,
+        "S", "getString", "TABLE_NAME"))
+      ts
+    }
+    .local(conn, ...)
+  }
+)
+
 #' Get connection info
 #'
 #' @param dbObj Object of type \code{\linkS4class{SQLServerConnection}} representing a
@@ -124,7 +148,6 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
     info <- list(db.product.name = meta$getDatabaseProductName(),
       db.version = meta$getDatabaseMajorVersion(),
       user = meta$getUserName())
-    info$tbls <- dbGetQuery(dbObj, .tbl_info_qry(info$db.version))
     return (info)
   }
 )
@@ -181,25 +204,4 @@ setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
     else
       .jcall(s, "V", "setString", i, as.character(v)[1])
   }
-}
-.tbl_info_qry <- function (version) {
-  # How to determine the version and edition of SQL Server and its components
-  # http://support2.microsoft.com/kb/321185
-  # Mapping SQL Server 2000 System Tables to SQL Server 2005 System Views
-  # http://msdn.microsoft.com/en-us/library/fooa616fce9-b4c1-49da-87a7-9d6f74911d8f.aspx
-  # sysobjects (2000):
-  # http://technet.microsoft.com/en-us/library/aa260447(v=SQL.80).aspx
-  # sys.sysobjects (2005>=)
-  # http://msdn.microsoft.com/en-us/library/ms177596.aspx
-  if (version < 9)
-    paste0("SELECT so.name as Name, si.rows as Records ",
-      "FROM sysobjects so, sysindexes si ",
-      "WHERE so.xtype = 'U' AND si.id = so.id and si.indid in (0,1) ",
-      "ORDER BY so.name")
-  else
-    paste0("SELECT so.name as Name, sp.rows as Records ",
-      "FROM sys.objects so, sys.partitions sp ",
-      "WHERE so.type = 'U' AND so.object_id = sp.object_id ",
-      "AND sp.index_id in (0,1)",
-      "ORDER BY so.name")
 }
