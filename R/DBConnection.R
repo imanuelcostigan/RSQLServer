@@ -89,6 +89,7 @@ setMethod("dbSendQuery",
         statement)
     } else
     {
+
       s <- .jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
       .verify.JDBC.result(s, "Unable to create simple JDBC statement ",
         statement)

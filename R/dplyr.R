@@ -32,9 +32,18 @@ tbl.src_sqlserver <- function (src, from, ...)
   dplyr::tbl_sql("sqlserver", src = src, from = from, ...)
 
 #' @export
-head.tbl_sqlserver <- function(x, n = 6L, ...) {
+head.tbl_sqlserver <- function (x, n = 6L, ...) {
   assertthat::assert_that(length(n) == 1, n > 0L)
   build_query(x)$fetch(n)
+}
+
+#' @export
+compute.tbl_sqlserver <- function (x, name = dplyr:::random_table_name(),
+  temporary = TRUE, ...)
+{
+  name <- paste0(if (temporary) sql("#"), name)
+  db_save_query(x$src$con, x$query$sql, name = name, temporary = temporary)
+  update(dplyr::tbl(x$src, name), group_by = dplyr::groups(x))
 }
 
 
@@ -55,10 +64,19 @@ db_query_fields.SQLServerConnection <- function (con, sql, ...)
 db_query_rows.SQLServerConnection <- function(con, sql, ...)
 {
   qry <- build_sql(sql, con = con)
-  res <- dbGetQuery(con, qry)
+  dbSendQuery(con, qry)
   qry <- build_sql("SELECT @@ROWCOUNT")
-  res <- dbGetQuery(con, qry)
-  as.integer(res)
+  as.integer(dbGetQuery(con, qry))
+}
+
+db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
+  ...)
+{
+  tt_sql <- build_sql("SELECT * ", "INTO ", ident(name),
+    " FROM (", sql, ") AS MASTER")
+  js <- J(con@jc, "createStatement")
+  J(js, "execute", as.character(tt_sql)[1])
+  name
 }
 
 db_explain.SQLServerConnection <- function (con, sql, ...)
@@ -66,6 +84,7 @@ db_explain.SQLServerConnection <- function (con, sql, ...)
   stop ('SQL Server does not provide an explain statement.', call. = FALSE)
   # Though may be possible to use SHOWPLAN
   # http://msdn.microsoft.com/en-us/library/ms187735.aspx
+  # Maybe use same strategy as db_query_rows
 }
 
 # SQL backend methods --------------------------------------------------------------
