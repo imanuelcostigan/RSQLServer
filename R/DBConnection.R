@@ -183,6 +183,7 @@ setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
 }
 .list_temp_tables <- function (version)
 {
+  # Modified from: http://stackoverflow.com/a/7075585
   if (version < 9)
     build_sql("SELECT LEFT(NAME, CHARINDEX('_', NAME) - 1) as NAME ",
       "FROM tempdb..sysobjects WHERE CHARINDEX('_', NAME) > 0 AND XTYPE = 'U'")
