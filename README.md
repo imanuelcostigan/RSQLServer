@@ -24,8 +24,8 @@ devtools::install_github('imanuelcostigan/RSQLServer')
 This package uses the standard R DBI generics:
 
 ```R
-library(DBI)
-conn <- dbConnect(RSQLServer::SQLServer(), 'DatabaseName')
+library(RSQLServer)
+conn <- dbConnect(SQLServer(), 'DatabaseName')
 dbListTables(conn)
 dbListFields(conn, 'tablename')
 res <- dbSendQuery(conn, 'SELECT TOP 10 * FROM tablename')
@@ -33,3 +33,20 @@ dbFetch(res)
 dbClearResult(res)
 dbDisconnect(res)
 ```
+
+It also has access to dplyr's interface:
+
+```R
+# Create SQL Server source
+db_src <- src_sqlserver('DatabaseName')
+# Print src info + list of tables (incl. temps)
+print(db_src)
+# Create a SQL Server table
+db_tbl <- tbl(db_src, 'tablename')
+# Print table's column names
+colnames(db_tbl)
+# Prints first ten rows
+db_tbl
+```
+
+You can then use any of the standard dplyr methods. Database methods that are unsupported by SQL Server (or by a version of SQL Server) will be stopped with a message (e.g. `intersect()` is a shim around the `INTERSECT` directive but the latter is unsupported by SQL Server 2000).
