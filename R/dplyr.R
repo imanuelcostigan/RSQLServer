@@ -232,7 +232,7 @@ sql_join.SQLServerConnection <- function(con, x, y, type = "inner",
   # Ensure tables have unique names
   x_names <- dplyr:::auto_names(x$select)
   y_names <- dplyr:::auto_names(y$select)
-  uniques <- dplyr:::unique_names(x_names, y_names, by$x[by$x == by$y])
+  uniques <- unique_names(x_names, y_names, by$x[by$x == by$y])
 
   if (is.null(uniques)) {
     sel_vars <- c(x_names, y_names)
@@ -266,3 +266,20 @@ sql_join.SQLServerConnection <- function(con, x, y, type = "inner",
 
   from
 }
+
+unique_names <- function(x_names, y_names, by, x_suffix = ".x", y_suffix = ".y") {
+  # See: https://github.com/hadley/dplyr/issues/709
+  common <- intersect(x_names, y_names)
+  if (length(common) == 0) return(NULL)
+
+  x_match <- match(common, x_names)
+  x_new <- x_names
+  x_new[x_match] <- paste0(x_names[x_match], x_suffix)
+
+  y_match <- match(common, y_names)
+  y_new <- y_names
+  y_new[y_match] <- paste0(y_names[y_match], y_suffix)
+
+  list(x = setNames(x_new, x_names), y = setNames(y_new, y_names))
+}
+
