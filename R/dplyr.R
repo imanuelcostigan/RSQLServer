@@ -56,7 +56,7 @@ intersect.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
 }
 
 #' @export
-setdiff.tbl_sql <- function(x, y, copy = FALSE, ...) {
+setdiff.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
   # SQL Server 2000 does not support INTERSECT or EXCEPT
   assertthat::assert_that(x$src$info$db.version > 8, y$src$info$db.version > 8)
   y <- auto_copy(x, y, copy)
