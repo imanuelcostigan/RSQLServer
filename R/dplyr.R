@@ -46,6 +46,23 @@ compute.tbl_sqlserver <- function (x, name = dplyr:::random_table_name(),
   update(dplyr::tbl(x$src, name), group_by = dplyr::groups(x))
 }
 
+#' @export
+intersect.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
+  # SQL Server 2000 does not support INTERSECT or EXCEPT
+  assertthat::assert_that(x$src$info$db.version > 8, y$src$info$db.version > 8)
+  y <- auto_copy(x, y, copy)
+  sql <- sql_set_op(x$src$con, x, y, "INTERSECT")
+  update(tbl(x$src, sql), group_by = groups(x))
+}
+
+#' @export
+setdiff.tbl_sql <- function(x, y, copy = FALSE, ...) {
+  # SQL Server 2000 does not support INTERSECT or EXCEPT
+  assertthat::assert_that(x$src$info$db.version > 8, y$src$info$db.version > 8)
+  y <- auto_copy(x, y, copy)
+  sql <- sql_set_op(x$src$con, x, y, "EXCEPT")
+  update(tbl(x$src, sql), group_by = groups(x))
+}
 
 # DB backend methods ------------------------------------------------------------------
 db_list_tables.SQLServerConnection <- function (con)
@@ -81,7 +98,7 @@ db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
 
 db_explain.SQLServerConnection <- function (con, sql, ...)
 {
-  stop ('SQL Server does not provide an explain statement.', call. = FALSE)
+  message('SQL Server does not provide an EXPLAIN statement.')
   # Though may be possible to use SHOWPLAN
   # http://msdn.microsoft.com/en-us/library/ms187735.aspx
   # Maybe use same strategy as db_query_rows
@@ -282,4 +299,3 @@ unique_names <- function(x_names, y_names, by, x_suffix = ".x", y_suffix = ".y")
 
   list(x = setNames(x_new, x_names), y = setNames(y_new, y_names))
 }
-
