@@ -1,3 +1,9 @@
+Version 0.2
+
+- Added dplyr support (#4).
+- Updated SQLServerConnection list names and dropped is.read.only element
+- Able to list temporary SQL Server table names.
+
 Version 0.1.1
 
 - implemented and exported dbIsValid methods for SQLServerConnection and SQLServerResult (#1)
