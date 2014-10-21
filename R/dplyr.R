@@ -3,7 +3,7 @@ src_sqlserver <- function (server, ...)
 {
   con <- dbConnect(SQLServer(), server = server, ...)
   info <- dbGetInfo(con)
-  dplyr::src_sql("sqlserver", con, info = info)
+  src_sql("sqlserver", con, info = info)
 }
 
 #' @export
@@ -16,20 +16,20 @@ src_desc.src_sqlserver <- function (x)
 #' @export
 src_translate_env.src_sqlserver <- function (x)
 {
-  dplyr::sql_variant(
+  sql_variant(
     base_scalar,
-    dplyr::sql_translator(.parent = dplyr::base_agg,
-      n = function() dplyr::sql("COUNT(*)"),
-      mean = dplyr::sql_prefix('AVG'),
-      sd = dplyr::sql_prefix("STDEV")
+    sql_translator(.parent = base_agg,
+      n = function() sql("COUNT(*)"),
+      mean = sql_prefix('AVG'),
+      sd = sql_prefix("STDEV")
     ),
-    dplyr::base_win
+    base_win
   )
 }
 
 #' @export
 tbl.src_sqlserver <- function (src, from, ...)
-  dplyr::tbl_sql("sqlserver", src = src, from = from, ...)
+  tbl_sql("sqlserver", src = src, from = from, ...)
 
 #' @export
 head.tbl_sqlserver <- function (x, n = 6L, ...) {
@@ -43,7 +43,7 @@ compute.tbl_sqlserver <- function (x, name = dplyr:::random_table_name(),
 {
   name <- paste0(if (temporary) sql("#"), name)
   db_save_query(x$src$con, x$query$sql, name = name, temporary = temporary)
-  update(dplyr::tbl(x$src, name), group_by = dplyr::groups(x))
+  update(tbl(x$src, name), group_by = groups(x))
 }
 
 #' @export
@@ -123,38 +123,38 @@ sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
       # This is the only way to predictably indicate which rows are affected by
       # TOP.
       # Source: http://msdn.microsoft.com/en-us/library/ms189463.aspx
-      order_by <- dplyr::build_sql("ORDER BY ",
-        dplyr::escape(order_by, collapse = ", ", con = con))
+      order_by <- build_sql("ORDER BY ",
+        escape(order_by, collapse = ", ", con = con))
     }
   }
   assertthat::assert_that(is.character(select), length(select) > 0L)
-  out$select <- dplyr::build_sql("SELECT ", top,
-    dplyr::escape(select, collapse = ", ", con = con))
+  out$select <- build_sql("SELECT ", top,
+    escape(select, collapse = ", ", con = con))
   assertthat::assert_that(is.character(from), length(from) == 1L)
-  out$from <- dplyr::build_sql("FROM ", from, con = con)
+  out$from <- build_sql("FROM ", from, con = con)
 
   if (length(where) > 0L) {
     assertthat::assert_that(is.character(where))
-    out$where <- dplyr::build_sql("WHERE ",
-      dplyr::escape(where, collapse = " AND ", con = con))
+    out$where <- build_sql("WHERE ",
+      escape(where, collapse = " AND ", con = con))
   }
 
   if (!is.null(group_by)) {
     assertthat::assert_that(is.character(group_by), length(group_by) > 0L)
-    out$group_by <- dplyr::build_sql("GROUP BY ",
-      dplyr::escape(group_by, collapse = ", ", con = con))
+    out$group_by <- build_sql("GROUP BY ",
+      escape(group_by, collapse = ", ", con = con))
   }
 
   if (!is.null(having)) {
     assertthat::assert_that(is.character(having), length(having) == 1L)
-    out$having <- dplyr::build_sql("HAVING ",
-      dplyr::escape(having, collapse = ", ", con = con))
+    out$having <- build_sql("HAVING ",
+      escape(having, collapse = ", ", con = con))
   }
 
   if (!is.null(order_by)) {
     assertthat::assert_that(is.character(order_by), length(order_by) > 0L)
-    out$order_by <- dplyr::build_sql("ORDER BY ",
-      dplyr::escape(order_by, collapse = ", ", con = con))
+    out$order_by <- build_sql("ORDER BY ",
+      escape(order_by, collapse = ", ", con = con))
   }
 
   if (!is.null(offset)) {
@@ -165,7 +165,7 @@ sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
     # OFFSET/FETCH: http://msdn.microsoft.com/en-us/library/ms188385(v=sql.110).aspx
     assertthat::assert_that(!is.null(order_by), dbGetInfo(con)$db.version >= 11,
       is.integer(offset), length(offset) == 1L)
-    out$offset <- dplyr::build_sql("OFFSET ", offset, con = con)
+    out$offset <- build_sql("OFFSET ", offset, con = con)
   }
 
   if (!is.null(fetch)) {
@@ -173,9 +173,9 @@ sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
     # out$offset will be non-NULL if it is set and SQL Server dependency is met.
     assertthat::assert_that(!is.null(out$offset), is.integer(fetch),
       length(fetch) == 1L)
-    out$fetch <- dplyr::build_sql("FETCH NEXT ", fetch, " ONLY", con = con)
+    out$fetch <- build_sql("FETCH NEXT ", fetch, " ONLY", con = con)
   }
-  dplyr::escape(unname(dplyr:::compact(out)), collapse = "\n", parens = FALSE,
+  escape(unname(dplyr:::compact(out)), collapse = "\n", parens = FALSE,
     con = con)
 }
 
@@ -183,7 +183,7 @@ build_query <- function (x, top = NULL)
 {
   assertthat::assert_that(is.null(top) || (is.numeric(top) && length(top) == 1))
   translate <- function (expr, ...)
-    dplyr::translate_sql_q(expr, tbl = x, env = NULL, ...)
+    translate_sql_q(expr, tbl = x, env = NULL, ...)
 
   if (x$summarise) {
     # Summarising, so SELECT needs to contain grouping variables
@@ -218,18 +218,18 @@ build_query <- function (x, top = NULL)
   } else {
     # window functions in WHERE need to be performed in subquery
     where <- dplyr:::translate_window_where(x$where, x, con = x$src$con)
-    base_query <- dplyr::update(x, group_by = NULL, where = NULL,
+    base_query <- update(x, group_by = NULL, where = NULL,
       select = c(x$select, where$comp))$query
 
-    from_sql <- dplyr::build_sql("(", base_query$sql, ") AS ",
-      dplyr::ident(unique_name()), con = x$src$con)
+    from_sql <- build_sql("(", base_query$sql, ") AS ",
+      ident(unique_name()), con = x$src$con)
     where_sql <- translate(where$expr)
   }
 
   sql <- sql_select(x$src$con, from = from_sql, select = select_sql,
     where = where_sql, order_by = order_by_sql, group_by = group_by_sql,
     top = top)
-  dplyr::query(x$src$con, sql, vars)
+  query(x$src$con, sql, vars)
 }
 
 #' @export
