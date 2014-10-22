@@ -34,3 +34,5 @@ Collate:
     'Utils.R'
     'dplyr.R'
     'onLoad.R'
+BugReports:
+    https://github.com/imanuelcostigan/RSQLServer/issues
