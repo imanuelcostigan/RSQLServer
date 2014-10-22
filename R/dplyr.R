@@ -14,7 +14,7 @@ src_desc.src_sqlserver <- function (x)
   paste0(info$db.product.name, ' version ', info$db.version, " [", info$user, "]")
 }
 
-#' @importFrom dplyr src_translate
+#' @importFrom dplyr src_translate_env
 #' @export
 src_translate_env.src_sqlserver <- function (x)
 {
