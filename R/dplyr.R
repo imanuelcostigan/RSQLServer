@@ -29,6 +29,7 @@ src_translate_env.src_sqlserver <- function (x)
   )
 }
 
+#' @importFrom dplyr tbl
 #' @export
 tbl.src_sqlserver <- function (src, from, ...)
   dplyr::tbl_sql("sqlserver", src = src, from = from, ...)
