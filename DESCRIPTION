@@ -34,5 +34,7 @@ Collate:
     'Utils.R'
     'dplyr.R'
     'onLoad.R'
+URL:
+    https://github.com/imanuelcostigan/RSQLServer
 BugReports:
     https://github.com/imanuelcostigan/RSQLServer/issues
