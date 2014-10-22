@@ -24,8 +24,7 @@ Depends:
 Imports:
     RJDBC (>= 0.2-4),
     assertthat (>= 0.1)
-Enhances:
-    dplyr (>= 0.3.0.2)
+Enhances: dplyr (>= 0.3.0.2)
 SystemRequirements: Java (>= 1.3)
 Collate:
     'DBDriver.R'
@@ -35,7 +34,5 @@ Collate:
     'Utils.R'
     'dplyr.R'
     'onLoad.R'
-URL:
-    https://github.com/imanuelcostigan/RSQLServer
-BugReports:
-    https://github.com/imanuelcostigan/RSQLServer/issues
+URL: https://github.com/imanuelcostigan/RSQLServer
+BugReports: https://github.com/imanuelcostigan/RSQLServer/issues

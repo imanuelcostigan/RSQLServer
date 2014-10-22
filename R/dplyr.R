@@ -6,6 +6,7 @@ src_sqlserver <- function (server, ...)
   dplyr::src_sql("sqlserver", con, info = info)
 }
 
+#' @importFrom dplyr src_desc
 #' @export
 src_desc.src_sqlserver <- function (x)
 {
@@ -13,6 +14,7 @@ src_desc.src_sqlserver <- function (x)
   paste0(info$db.product.name, ' version ', info$db.version, " [", info$user, "]")
 }
 
+#' @importFrom dplyr src_translate
 #' @export
 src_translate_env.src_sqlserver <- function (x)
 {
@@ -37,6 +39,7 @@ head.tbl_sqlserver <- function (x, n = 6L, ...) {
   build_query(x)$fetch(n)
 }
 
+#' @importFrom dplyr compute
 #' @export
 compute.tbl_sqlserver <- function (x, name = dplyr:::random_table_name(),
   temporary = TRUE, ...)
@@ -65,12 +68,19 @@ setdiff.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
 }
 
 # DB backend methods ------------------------------------------------------------------
+
+#' @importFrom dplyr db_list_tables
+#' @export
 db_list_tables.SQLServerConnection <- function (con)
   c(dbListTables(con), .dbListTempTables(con))
 
+#' @importFrom dplyr db_has_table
+#' @export
 db_has_table.SQLServerConnection <- function (con, table)
   table %in% db_list_tables(con)
 
+#' @importFrom dplyr db_query_fields
+#' @export
 db_query_fields.SQLServerConnection <- function (con, sql, ...)
 {
   rs <- dbSendQuery(con, paste0("SELECT * FROM ", sql))
@@ -78,6 +88,8 @@ db_query_fields.SQLServerConnection <- function (con, sql, ...)
   names(fetch(rs, 1L))
 }
 
+#' @importFrom dplyr db_query_rows
+#' @export
 db_query_rows.SQLServerConnection <- function(con, sql, ...)
 {
   qry <- build_sql(sql, con = con)
@@ -86,6 +98,8 @@ db_query_rows.SQLServerConnection <- function(con, sql, ...)
   as.integer(dbGetQuery(con, qry))
 }
 
+#' @importFrom dplyr db_save_query
+#' @export
 db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
   ...)
 {
@@ -96,6 +110,8 @@ db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
   name
 }
 
+#' @importFrom dplyr db_explain
+#' @export
 db_explain.SQLServerConnection <- function (con, sql, ...)
 {
   message('SQL Server does not provide an EXPLAIN statement.')
@@ -105,6 +121,8 @@ db_explain.SQLServerConnection <- function (con, sql, ...)
 }
 
 # SQL backend methods --------------------------------------------------------------
+
+#' @importFrom dplyr sql_select
 #' @export
 sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
   group_by = NULL, having = NULL, order_by = NULL, top = NULL,
@@ -232,6 +250,7 @@ build_query <- function (x, top = NULL)
   dplyr::query(x$src$con, sql, vars)
 }
 
+#' @importFrom dplyr sql_join
 #' @export
 sql_join.SQLServerConnection <- function(con, x, y, type = "inner",
   by = NULL, ...)
