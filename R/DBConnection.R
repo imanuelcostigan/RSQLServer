@@ -181,14 +181,15 @@ setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
       .jcall(s, "V", "setString", i, as.character(v)[1])
   }
 }
+#' @importFrom dplyr build_sql
 .list_temp_tables <- function (version)
 {
   # Modified from: http://stackoverflow.com/a/7075585
   if (version < 9)
-    build_sql("SELECT LEFT(NAME, CHARINDEX('_', NAME) - 1) as NAME ",
+    dplyr::build_sql("SELECT LEFT(NAME, CHARINDEX('_', NAME) - 1) as NAME ",
       "FROM tempdb..sysobjects WHERE CHARINDEX('_', NAME) > 0 AND XTYPE = 'U'")
   else
-    build_sql("SELECT LEFT(NAME, CHARINDEX('_', NAME) - 1) as NAME ",
+    dplyr::build_sql("SELECT LEFT(NAME, CHARINDEX('_', NAME) - 1) as NAME ",
       "FROM tempdb.sys.objects WHERE CHARINDEX('_', NAME) > 0 AND XTYPE = 'U'")
 }
 .dbListTempTables <- function (con)
