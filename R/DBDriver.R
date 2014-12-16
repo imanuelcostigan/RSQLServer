@@ -70,7 +70,8 @@ setMethod(f = 'dbListConnections', signature = 'SQLServerDriver',
 setMethod(f = 'dbGetInfo', signature = 'SQLServerDriver',
   definition = function (dbObj, ...)
   {
-    list(name = 'RSQLServer (jTDS)', driver.version = dbObj@jdrv$getVersion())
+    list(name = 'RSQLServer (jTDS)',
+      driver.version = .jcall(dbObj@jdrv, "I", "getVersion"))
   }
 )
 
