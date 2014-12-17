@@ -36,3 +36,4 @@ Collate:
     'onLoad.R'
 URL: https://github.com/imanuelcostigan/RSQLServer
 BugReports: https://github.com/imanuelcostigan/RSQLServer/issues
+Suggests: secure
