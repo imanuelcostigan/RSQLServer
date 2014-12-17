@@ -71,7 +71,7 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerDriver',
   definition = function (dbObj, ...)
   {
     list(name = 'RSQLServer (jTDS)',
-      driver.version = .jcall(dbObj@jdrv, "I", "getVersion"))
+      driver.version = .jcall(dbObj@jdrv, "S", "getVersion"))
   }
 )
 
