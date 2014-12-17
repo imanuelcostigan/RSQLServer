@@ -120,11 +120,10 @@ setMethod("dbSendQuery",
 setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
   definition = function (dbObj, ...)
   {
-    meta <- dbObj@jc$getMetaData()
-    info <- list(db.product.name = meta$getDatabaseProductName(),
-      db.version = meta$getDatabaseMajorVersion(),
-      user = meta$getUserName())
-    return (info)
+    meta <- .jcall(dbObj@jc, "Ljava/sql/DatabaseMetaData", "getMetaData")
+    list(db.product.name = .jcall(meta, "S", "getDatabaseProductName"),
+      db.version = .jcall(meta, "I", "getDatabaseMajorVersion"),
+      user = .jcall(meta, "S","getUserName"))
   }
 )
 
