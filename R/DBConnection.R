@@ -43,6 +43,54 @@ setMethod(f = 'dbConnect', signature = "SQLServerDriver",
   }
 )
 
+#' Get connection info
+#'
+#' @param dbObj Object of type \code{\linkS4class{SQLServerConnection}} representing a
+#' connection
+#' @param ... other arguments to methods. Not used here.
+#' @return a named list containing database product name, database version,
+#' user, and whether the connection is read only.
+#' @examples
+#' \dontrun{
+#' dbGetInfo(dbConnect(SQLServer(), 'DatabaseName'))
+#' }
+#' @export
+
+setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
+  definition = function (dbObj, ...)
+  {
+    meta <- .jcall(dbObj@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData")
+    list(db.product.name = .jcall(meta, "S", "getDatabaseProductName"),
+      db.version = .jcall(meta, "I", "getDatabaseMajorVersion"),
+      user = .jcall(meta, "S","getUserName"))
+  }
+)
+
+#' Checks whether Connection is open
+#'
+#' @param dbObj An object inheriting from \code{\linkS4class{SQLServerConnection}}.
+#' @param ... other parameters. Not used.
+#' @return logical \code{TRUE} if the connection is open and vice-versa
+#' @export
+
+setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
+  definition = function (dbObj, ...) !.jcall(dbObj@jc, "Z", "isClosed")
+)
+
+# dbDisconnect: Inherits from JDBCConnection
+# dbGetQuery: Inherits from JDBCConnection
+# dbGetException: Inherits from JDBCConnection
+# dbListResults: Inherits from JDBCConnection
+# dbListTables: Inherits from JDBCConnection
+# dbReadTable: Inherits from JDBCConnection
+# dbWriteTable: Inherits from JDBCConnection
+# dbExistsTable: Inherits from JDBCConnection
+# dbRemoveTable: Inherits from JDBCConnection
+# dbListFields: Inherits from JDBCConnection
+# dbCommit: Inherits from JDBCConnection
+# dbRollback: Inherits from JDBCConnection
+# dbCallProc: Not yet implemented
+
 #' Send query to SQL Server
 #'
 #' This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendQuery}}
@@ -104,56 +152,6 @@ setMethod("dbSendQuery",
   }
 )
 
-#' Get connection info
-#'
-#' @param dbObj Object of type \code{\linkS4class{SQLServerConnection}} representing a
-#' connection
-#' @param ... other arguments to methods. Not used here.
-#' @return a named list containing database product name, database version,
-#' user, and whether the connection is read only.
-#' @examples
-#' \dontrun{
-#' dbGetInfo(dbConnect(SQLServer(), 'DatabaseName'))
-#' }
-#' @export
-
-setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
-  definition = function (dbObj, ...)
-  {
-    meta <- .jcall(dbObj@jc, "Ljava/sql/DatabaseMetaData", "getMetaData")
-    list(db.product.name = .jcall(meta, "S", "getDatabaseProductName"),
-      db.version = .jcall(meta, "I", "getDatabaseMajorVersion"),
-      user = .jcall(meta, "S","getUserName"))
-  }
-)
-
-#' Checks whether Connection is closed
-#'
-#' @param dbObj An object inheriting from \code{\linkS4class{SQLServerConnection}}.
-#' @param ... other parameters. Not used.
-#' @return logical \code{TRUE} if the connection is closed and vice-versa
-#' @export
-
-setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
-  definition = function (dbObj, ...)
-  {
-    dbObj@jc$isClosed()
-  }
-)
-
-# dbDisconnect: Inherits from JDBCConnection
-# dbGetQuery: Inherits from JDBCConnection
-# dbGetException: Inherits from JDBCConnection
-# dbListResults: Inherits from JDBCConnection
-# dbListTables: Inherits from JDBCConnection
-# dbReadTable: Inherits from JDBCConnection
-# dbWriteTable: Inherits from JDBCConnection
-# dbExistsTable: Inherits from JDBCConnection
-# dbRemoveTable: Inherits from JDBCConnection
-# dbListFields: Inherits from JDBCConnection
-# dbCommit: Inherits from JDBCConnection
-# dbRollback: Inherits from JDBCConnection
-# dbCallProc: Not yet implemented
 
 # Copied from RJDBC:
 # https://github.com/s-u/RJDBC/blob/01c55dfe76e039a37ccda732d7332325222da8c8/R/class.R
@@ -180,7 +178,6 @@ setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
       .jcall(s, "V", "setString", i, as.character(v)[1])
   }
 }
-#' @importFrom dplyr build_sql
 .list_temp_tables <- function (version)
 {
   # Modified from: http://stackoverflow.com/a/7075585
