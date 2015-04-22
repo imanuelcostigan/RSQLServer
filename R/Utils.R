@@ -55,10 +55,13 @@ jtds_url <- function (server, type = "sqlserver", port = "", database = "", ...)
 #' @export
 
 get_server_details <- function (server, file = NULL) {
+  assertthat::assert_that(assertthat::is.string(server), file.exists(file))
   if (is.null(file)) {
     file <- file.path(Sys.getenv("HOME"), "sql.yaml")
   }
-  yaml::yaml.load_file(file)[[server]]
+  server_details <- yaml::yaml.load_file(file)
+  assertthat::assert_that(assertthat::has_name(server_details, server))
+  server_details[[server]]
 }
 
 jdbc_class_path <- function () {
