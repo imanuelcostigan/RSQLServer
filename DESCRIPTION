@@ -23,7 +23,8 @@ Depends:
     rJava (>= 0.9-6)
 Imports:
     RJDBC (>= 0.2-4),
-    assertthat (>= 0.1)
+    assertthat (>= 0.1),
+    yaml
 Enhances: dplyr (>= 0.3.0.2)
 SystemRequirements: Java (>= 1.3), Windows (>= 6.1)
 Collate:
@@ -36,5 +37,5 @@ Collate:
     'onLoad.R'
 URL: https://github.com/imanuelcostigan/RSQLServer
 BugReports: https://github.com/imanuelcostigan/RSQLServer/issues
-Suggests: secure,
+Suggests:
     testthat

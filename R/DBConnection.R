@@ -36,7 +36,7 @@ setClass("SQLServerConnection", contains = 'JDBCConnection')
 setMethod(f = 'dbConnect', signature = "SQLServerDriver",
   definition = function (drv, server, ...)
   {
-    url <- build_url(server, ...)
+    url <- jtds_url(server, ...)
     properties <- .jnew('java/util/Properties')
     jc <- .jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", url, properties)
     new("SQLServerConnection", jc = jc, identifier.quote = drv@identifier.quote)
