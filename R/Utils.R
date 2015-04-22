@@ -32,6 +32,25 @@ jtds_url <- function (server, type = "sqlserver", port = "", database = "", ...)
     unlist(properties, use.names = FALSE), collapse=';'))
 }
 
+#' Get server details from YAML file
+#'
+#' The \code{sql.yaml} file in a user's \code{HOME} directory can store
+#' server details and login credentials (in plaintext). This works around
+#' the instability associated with jTDS's single-sign on functionality.
+#' The YAML file format is documented in this package's \code{README} file, while
+#' an example is provided in \code{extdata/sql.yaml} (see example). At a
+#' high level, each server should be documented in its own associative array
+#' with each aspect of the server documented in an associative array.
+#'
+#' @param server corresponds to the server name key in the YAML \code{file}
+#' @param file defaults to using \code{sql.yaml} in a user's \code{HOME}
+#' directory (\code{Sys.getenv("HOME")}).
+#' @return a named list of \code{server} details
+#' @examples
+#' file <- system.file("extdata", "sql.yaml", package = "RSQLServer")
+#' get_server_details("SQL_PROD", file)
+#' @export
+
 get_server_details <- function (server, file = NULL) {
   if (is.null(file)) {
     file <- file.path(Sys.getenv("HOME"), "sql.yaml")
