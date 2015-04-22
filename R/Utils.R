@@ -28,11 +28,15 @@ OPTIONAL_JTDS_FIELDS <-  c("port", "database", "appName", "autoCommit",
 jtds_url <- function (server, type = "sqlserver", port = "", database = "", ...) {
   assertthat::assert_that(type %in% c("sqlserver", "sybase"))
   url <- paste0('jdbc:jtds:sqlserver://', server,
-    paste0(':', port), paste0('/', database), ';')
+    paste0(':', port), paste0('/', database))
   properties <- list(...)
-  assertthat::assert_that(all(names(properties) %in% OPTIONAL_JTDS_FIELDS))
-  paste0(url, paste0(names(properties), '=',
-    unlist(properties, use.names = FALSE), collapse=';'))
+  if (!identical(properties, list())) {
+    assertthat::assert_that(all(names(properties) %in% OPTIONAL_JTDS_FIELDS))
+    properties <- paste0(names(properties), '=',
+      unlist(properties, use.names = FALSE), collapse=';')
+    url <- paste0(url, ";", properties)
+  }
+  url
 }
 
 #' Get server details from YAML file
@@ -45,10 +49,12 @@ jtds_url <- function (server, type = "sqlserver", port = "", database = "", ...)
 #' high level, each server should be documented in its own associative array
 #' with each aspect of the server documented in an associative array.
 #'
-#' @param server corresponds to the server name key in the YAML \code{file}
+#' @param server corresponds to the server name key in the YAML \code{file} and
+#' should be a string.
 #' @param file defaults to using \code{sql.yaml} in a user's \code{HOME}
 #' directory (\code{Sys.getenv("HOME")}).
-#' @return a named list of \code{server} details
+#' @return a named list of \code{server} details if YAML file contains the
+#' \code{server} key. Otherwise, stops and returns error.
 #' @examples
 #' file <- system.file("extdata", "sql.yaml", package = "RSQLServer")
 #' get_server_details("SQL_PROD", file)
