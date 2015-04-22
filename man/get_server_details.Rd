@@ -7,13 +7,15 @@
 get_server_details(server, file = NULL)
 }
 \arguments{
-\item{server}{corresponds to the server name key in the YAML \code{file}}
+\item{server}{corresponds to the server name key in the YAML \code{file} and
+should be a string.}
 
 \item{file}{defaults to using \code{sql.yaml} in a user's \code{HOME}
 directory (\code{Sys.getenv("HOME")}).}
 }
 \value{
-a named list of \code{server} details
+a named list of \code{server} details if YAML file contains the
+\code{server} key. Otherwise, stops and returns error.
 }
 \description{
 The \code{sql.yaml} file in a user's \code{HOME} directory can store
@@ -27,5 +29,8 @@ with each aspect of the server documented in an associative array.
 \examples{
 file <- system.file("extdata", "sql.yaml", package = "RSQLServer")
 get_server_details("SQL_PROD", file)
+}
+\seealso{
+\href{https://github.com/yaml/yaml}{YAML}
 }
 

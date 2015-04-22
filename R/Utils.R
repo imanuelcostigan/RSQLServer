@@ -58,6 +58,8 @@ jtds_url <- function (server, type = "sqlserver", port = "", database = "", ...)
 #' @examples
 #' file <- system.file("extdata", "sql.yaml", package = "RSQLServer")
 #' get_server_details("SQL_PROD", file)
+#' @seealso
+#' \href{https://github.com/yaml/yaml}{YAML}
 #' @export
 
 get_server_details <- function (server, file = NULL) {
