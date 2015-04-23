@@ -28,11 +28,8 @@ an example is provided in \code{extdata/sql.yaml} (see example). At a
 high level, each server should be documented in its own associative array
 with each aspect of the server documented in an associative array.
 }
-\examples{
-file <- system.file("extdata", "sql.yaml", package = "RSQLServer")
-get_server_details("SQL_PROD", file)
-}
 \seealso{
 \href{https://github.com/yaml/yaml}{YAML}
 }
+\keyword{internal}
 

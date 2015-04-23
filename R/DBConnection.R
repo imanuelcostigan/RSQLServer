@@ -22,7 +22,7 @@ setClass("SQLServerConnection", contains = 'JDBCConnection')
 #' the connection will be cloned.
 #' @param server the server address or recognised alias thereof.
 #' @param file defaults to using the server details file in
-#' \code{\$HOME/sql.yaml}. The server details including \code{type}, \code{port}
+#' \code{$HOME/sql.yaml}. The server details including \code{type}, \code{port}
 #' and any optional \code{properties} can be sourced from this file. If the
 #' \code{server} name is found in \code{file}, the details therein are used
 #' (and in particular, those provided in other arguments to this function are

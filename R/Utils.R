@@ -60,12 +60,9 @@ jtds_url <- function (server, type = "sqlserver", port = "", database = "",
 #' \code{file}. It stops and returns an error if \code{port} and \code{type}
 #' keys are not specified for found \code{server}. If the \code{file} does not
 #' contain the \code{server} key an empty list is returned.
-#' @examples
-#' file <- system.file("extdata", "sql.yaml", package = "RSQLServer")
-#' get_server_details("SQL_PROD", file)
 #' @seealso
 #' \href{https://github.com/yaml/yaml}{YAML}
-#' @export
+#' @keywords internal
 
 get_server_details <- function (server, file = NULL) {
   assertthat::assert_that(assertthat::is.string(server))
