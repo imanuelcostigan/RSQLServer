@@ -25,16 +25,19 @@ OPTIONAL_JTDS_FIELDS <-  c("port", "database", "appName", "autoCommit",
   "ssl", "tcpNoDelay", "TDS", "useCursors", "useJCIFS", "useLOBs",
   "useNTLMv2", "user", "wsid", "xaEmulation")
 
-jtds_url <- function (server, type = "sqlserver", port = "", database = "", ...) {
+jtds_url <- function (server, type = "sqlserver", port = "", database = "",
+  properties = list()) {
   assertthat::assert_that(type %in% c("sqlserver", "sybase"))
-  url <- paste0('jdbc:jtds:sqlserver://', server,
-    paste0(':', port), paste0('/', database))
-  properties <- list(...)
+  url <- paste0('jdbc:jtds:sqlserver://', server)
+  if (!identical(port, ""))
+    url <- paste0(url, ':', port)
+  if (!identical(database, ""))
+    url <- paste0(url, '/', database)
   if (!identical(properties, list())) {
     assertthat::assert_that(all(names(properties) %in% OPTIONAL_JTDS_FIELDS))
-    properties <- paste0(names(properties), '=',
-      unlist(properties, use.names = FALSE), collapse=';')
-    url <- paste0(url, ";", properties)
+    properties <- paste0(paste0(";", names(properties)), '=',
+      unlist(properties, use.names = FALSE), collapse='')
+    url <- paste0(url, properties)
   }
   url
 }
