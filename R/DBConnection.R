@@ -47,7 +47,7 @@ setClass("SQLServerConnection", contains = 'JDBCConnection')
 #' \code{'true'}, \code{domain} to your domain and \code{user} and
 #' \code{password} to your username and password on \code{domain}. jTDS'
 #' SSO functionality is flaky.
-#' @return a \code{linkS4Class{SQLServerConnection}}
+#' @return a \code{\linkS4Class{SQLServerConnection}}
 #' @examples
 #' # View sql.yaml file bundled in package
 #' file <- system.file("extdata", "sql.yaml", package = "RSQLServer")
