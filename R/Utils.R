@@ -90,5 +90,5 @@ have_test_server <- function (type = 'sqlserver') {
 }
 
 jdbc_class_path <- function () {
-  file.path(system.file('java', package = 'RSQLServer'), 'jtds-1.3.1.jar')
+  file.path(system.file('java', package = 'RSQLServer'), 'jtds-1.2.8.jar')
 }
