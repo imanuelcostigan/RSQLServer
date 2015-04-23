@@ -89,17 +89,7 @@ setMethod(f = 'dbConnect', signature = "SQLServerDriver",
   }
 )
 
-#' Get connection info
-#'
-#' @param dbObj Object of type \code{\linkS4class{SQLServerConnection}} representing a
-#' connection
-#' @param ... other arguments to methods. Not used here.
-#' @return a named list containing database product name, database version,
-#' user, and whether the connection is read only.
-#' @examples
-#' \dontrun{
-#' dbGetInfo(dbConnect(SQLServer(), 'DatabaseName'))
-#' }
+#' @rdname SQLServerConnection-class
 #' @export
 
 setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
@@ -112,11 +102,7 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
   }
 )
 
-#' Checks whether Connection is open
-#'
-#' @param dbObj An object inheriting from \code{\linkS4class{SQLServerConnection}}.
-#' @param ... other parameters. Not used.
-#' @return logical \code{TRUE} if the connection is open and vice-versa
+#' @rdname SQLServerConnection-class
 #' @export
 
 setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',

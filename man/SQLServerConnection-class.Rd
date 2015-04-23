@@ -3,7 +3,14 @@
 \docType{class}
 \name{SQLServerConnection-class}
 \alias{SQLServerConnection-class}
+\alias{dbGetInfo,SQLServerConnection-method}
+\alias{dbIsValid,SQLServerConnection-method}
 \title{An S4 class to represent a SQL Server connection}
+\usage{
+\S4method{dbGetInfo}{SQLServerConnection}(dbObj, ...)
+
+\S4method{dbIsValid}{SQLServerConnection}(dbObj, ...)
+}
 \description{
 This class extends the \code{\link[RJDBC:JDBCConnection-class]{JDBCConnection}}
 class to represent a SQL Server connection.
