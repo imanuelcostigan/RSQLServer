@@ -81,6 +81,21 @@ get_server_details <- function (server, file = NULL) {
   }
 }
 
+#' Checks availability of TEST server
+#'
+#' SQL Server details can be specified in a \code{~/sql.yaml} file.
+#' To be able to run examples and some tests in the package, it is necessary for
+#' there to be a valid server with name TEST in this file.
+#'
+#' @param type specifies whether the server type is \code{"sqlserver"} (default)
+#' or \code{"sybase"}
+#' @return boolean \code{TRUE} if TEST server details are available. Otherwise,
+#' \code{FALSE}
+#' @examples
+#' have_test_server()
+#' @seealso \code{\link{get_server_details}} \code{\link{dbConnect-SQLServerDriver-class}}
+#' @export
+
 have_test_server <- function (type = 'sqlserver') {
   yaml_file <- file.path(Sys.getenv("HOME"), "sql.yaml")
   assertthat::assert_that(file.exists(yaml_file))
