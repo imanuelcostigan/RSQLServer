@@ -310,3 +310,16 @@
 #
 #   list(x = setNames(x_new, x_names), y = setNames(y_new, y_names))
 # }
+# .list_temp_tables <- function (version)
+# {
+#   # Modified from: http://stackoverflow.com/a/7075585
+#   # SQLServer versioning: http://support2.microsoft.com/kb/321185
+#   if (version < 9)
+#     dplyr::build_sql("SELECT LEFT(NAME, CHARINDEX('_', NAME) - 1) as NAME ",
+#       "FROM tempdb..sysobjects WHERE CHARINDEX('_', NAME) > 0 AND XTYPE = 'U'")
+#   else
+#     dplyr::build_sql("SELECT LEFT(NAME, CHARINDEX('_', NAME) - 1) as NAME ",
+#       "FROM tempdb.sys.objects WHERE CHARINDEX('_', NAME) > 0 AND TYPE = 'U'")
+# }
+# .dbListTempTables <- function (con)
+#   dbGetQuery(con, .list_temp_tables(con@jc$getDatabaseMajorVersion()))$NAME
