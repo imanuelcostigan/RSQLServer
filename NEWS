@@ -1,7 +1,0 @@
-Version 0.1.1
-
-- implemented and exported dbIsValid methods for SQLServerConnection and SQLServerResult (#1)
-
-Version 0.1
-
-- Initial release

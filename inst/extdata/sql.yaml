@@ -1,0 +1,30 @@
+SQL_PROD:
+    server: 11.1.111.11
+    type: &type sqlserver
+    port: &port 1433
+    domain: &domain companyname
+    user: &user winusername
+    password: &pass winpassword
+    useNTLMv2: &ntlm true
+SQL_DEV:
+    server: 11.1.111.15
+    type: *type
+    port: *port
+    domain: *domain
+    user: *user
+    password: *pass
+    useNTLMv2: *ntlm
+SQL_TYPE_ERROR:
+    server: 11.1.111.15
+    port: *port
+    domain: *domain
+    user: *user
+    password: *pass
+    useNTLMv2: *ntlm
+SQL_PORT_ERROR:
+    server: 11.1.111.15
+    type: *type
+    domain: *domain
+    user: *user
+    password: *pass
+    useNTLMv2: *ntlm
