@@ -1,10 +1,6 @@
 # RSQLServer
 
-An R package that provides a SQL Server R Database Interface ([DBI](https://github.com/rstats-db/DBI)), based on [jTDS JDBC driver](http://jtds.sourceforge.net/index.html).
-
-This package wraps the jTDS SQL Server driver and extends the [RJDBC](https://github.com/s-u/RJDBC) classes and DBI methods. It defines a SQLServerDriver, SQLServerConnection & SQLServerResult S4 classes as extensions of the RJDBC equivalent classes. Most of the DBI methods will simply be calls to methods defined by RJDBC classes. However, the dbConnect and some of the dbGetInfo methods are specific to SQL Server. The jTDS drivers do extend to Sybase SQL Server, and connections may be possible, but as yet this is untested.
-
-NB: This package has been tested on Windows 7 x64 (>= 6.1). It does not appear to work on some versions of  OS X. I do not know whether it works on *nix systems.
+An R package that provides a SQL Server R Database Interface ([DBI](https://github.com/rstats-db/DBI)), based on the [jTDS JDBC driver](http://jtds.sourceforge.net/index.html).
 
 ## Installation
 
@@ -20,6 +16,8 @@ Or try the development version from GitHub:
 # install.packages('devtools')
 devtools::install_github('imanuelcostigan/RSQLServer')
 ```
+
+NB: This package has been tested on Windows 7 x64 (>= 6.1). It does not appear to work on some versions of  OS X. I do not know whether it works on *nix systems.
 
 ## Usage
 
