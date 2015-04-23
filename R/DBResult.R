@@ -12,10 +12,7 @@
 
 setClass ("SQLServerResult", contains = 'JDBCResult')
 
-#' Checks whether ResultSet is closed
-#'
-#' @param dbObj An object inheriting from \code{\linkS4class{SQLServerResult}}.
-#' @return logical \code{TRUE} if the result set is closed and vice-versa
+#' @rdname SQLServerResult-class
 #' @export
 
 setMethod (f = 'dbIsValid', signature = 'SQLServerResult',

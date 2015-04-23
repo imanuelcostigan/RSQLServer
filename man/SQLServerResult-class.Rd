@@ -3,7 +3,11 @@
 \docType{class}
 \name{SQLServerResult-class}
 \alias{SQLServerResult-class}
+\alias{dbIsValid,SQLServerResult-method}
 \title{An S4 class to represent a SQL Server result set}
+\usage{
+\S4method{dbIsValid}{SQLServerResult}(dbObj)
+}
 \description{
 This class extends the \code{\link[RJDBC:JDBCResult-class]{JDBCResult}}
 class to represent a SQL Server result set
