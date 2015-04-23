@@ -76,6 +76,7 @@
 # db_has_table.SQLServerConnection <- function (con, table)
 #   table %in% db_list_tables(con)
 #
+# See: https://github.com/imanuelcostigan/RSQLServer/issues/12
 # #' @importFrom dplyr db_query_fields
 # #' @export
 # db_query_fields.SQLServerConnection <- function (con, sql, ...) {
