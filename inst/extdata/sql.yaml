@@ -14,3 +14,17 @@ SQL_DEV:
     user: *user
     password: *pass
     useNTLMv2: *ntlm
+SQL_TYPE_ERROR:
+    server: 11.1.111.15
+    port: *port
+    domain: *domain
+    user: *user
+    password: *pass
+    useNTLMv2: *ntlm
+SQL_PORT_ERROR:
+    server: 11.1.111.15
+    type: *type
+    domain: *domain
+    user: *user
+    password: *pass
+    useNTLMv2: *ntlm
