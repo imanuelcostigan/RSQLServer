@@ -56,8 +56,10 @@ jtds_url <- function (server, type = "sqlserver", port = "", database = "",
 #' should be a string.
 #' @param file defaults to using \code{sql.yaml} in a user's \code{HOME}
 #' directory (\code{Sys.getenv("HOME")}).
-#' @return a named list of \code{server} details if YAML file contains the
-#' \code{server} key. Otherwise, stops and returns error.
+#' @return a named list of \code{server} details if this is specified in the
+#' \code{file}. It stops and returns an error if \code{port} and \code{type}
+#' keys are not specified for found \code{server}. If the \code{file} does not
+#' contain the \code{server} key an empty list is returned.
 #' @examples
 #' file <- system.file("extdata", "sql.yaml", package = "RSQLServer")
 #' get_server_details("SQL_PROD", file)
@@ -66,13 +68,21 @@ jtds_url <- function (server, type = "sqlserver", port = "", database = "",
 #' @export
 
 get_server_details <- function (server, file = NULL) {
-  assertthat::assert_that(assertthat::is.string(server), file.exists(file))
+  assertthat::assert_that(assertthat::is.string(server))
   if (is.null(file)) {
     file <- file.path(Sys.getenv("HOME"), "sql.yaml")
   }
+  assertthat::assert_that(file.exists(file))
   server_details <- yaml::yaml.load_file(file)
-  assertthat::assert_that(assertthat::has_name(server_details, server))
-  server_details[[server]]
+  if (assertthat::has_name(server_details, server)) {
+    server_detail <- server_details[[server]]
+    assertthat::assert_that(!is.null(server_detail$port),
+      !is.null(server_detail$type))
+    return(server_detail)
+  } else {
+    return(list())
+  }
+}
 }
 
 jdbc_class_path <- function () {
