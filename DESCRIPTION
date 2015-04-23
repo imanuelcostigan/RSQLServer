@@ -19,9 +19,9 @@ Description: RSQLServer wraps the jTDS Project's JDBC 3.0 SQL Server
 License: GPL-2
 Depends:
     methods,
-    DBI (>= 0.3.1),
     rJava (>= 0.9-6)
 Imports:
+    DBI (>= 0.3.1),
     RJDBC (>= 0.2-4),
     assertthat (>= 0.1),
     yaml
