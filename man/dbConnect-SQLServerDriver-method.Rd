@@ -47,7 +47,7 @@ I recommend you set the following optional parameters: set \code{useNTLMv2} to
 SSO functionality is flaky.}
 }
 \value{
-a \code{\linkS4Class{SQLServerConnection}}
+a \code{\linkS4class{SQLServerConnection}}
 }
 \description{
 Connect to/disconnect from a SQL Server database.
