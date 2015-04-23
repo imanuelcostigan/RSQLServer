@@ -28,3 +28,4 @@ test_that("have_test_server and SQLServerConnection work", {
     expect_is(conn, "SQLServerConnection")
   }
 })
+
