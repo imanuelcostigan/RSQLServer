@@ -23,6 +23,6 @@ there to be a valid server with name TEST in this file.
 have_test_server()
 }
 \seealso{
-\code{\link{get_server_details}} \code{\link{dbConnect-SQLServerDriver-class}}
+\code{\link{get_server_details}} \code{\link{dbConnect,SQLServerDriver-method}}
 }
 

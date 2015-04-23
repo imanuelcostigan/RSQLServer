@@ -93,7 +93,7 @@ get_server_details <- function (server, file = NULL) {
 #' \code{FALSE}
 #' @examples
 #' have_test_server()
-#' @seealso \code{\link{get_server_details}} \code{\link{dbConnect-SQLServerDriver-class}}
+#' @seealso \code{\link{get_server_details}} \code{\link{dbConnect,SQLServerDriver-method}}
 #' @export
 
 have_test_server <- function (type = 'sqlserver') {
