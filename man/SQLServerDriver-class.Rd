@@ -4,9 +4,18 @@
 \name{SQLServerDriver-class}
 \alias{SQLServer}
 \alias{SQLServerDriver-class}
+\alias{dbGetInfo,SQLServerDriver-method}
+\alias{dbListConnections,SQLServerDriver-method}
+\alias{dbUnloadDriver,SQLServerDriver-method}
 \title{An S4 class to represent a SQL Server driver}
 \usage{
 SQLServer(identifier.quote = "[")
+
+\S4method{dbListConnections}{SQLServerDriver}(drv, ...)
+
+\S4method{dbGetInfo}{SQLServerDriver}(dbObj, ...)
+
+\S4method{dbUnloadDriver}{SQLServerDriver}(drv, ...)
 }
 \arguments{
 \item{identifier.quote}{quote character for a SQL Server identifier can be a

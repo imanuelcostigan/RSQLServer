@@ -14,8 +14,10 @@ should be a string.}
 directory (\code{Sys.getenv("HOME")}).}
 }
 \value{
-a named list of \code{server} details if YAML file contains the
-\code{server} key. Otherwise, stops and returns error.
+a named list of \code{server} details if this is specified in the
+\code{file}. It stops and returns an error if \code{port} and \code{type}
+keys are not specified for found \code{server}. If the \code{file} does not
+contain the \code{server} key an empty list is returned.
 }
 \description{
 The \code{sql.yaml} file in a user's \code{HOME} directory can store
