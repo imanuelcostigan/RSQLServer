@@ -6,11 +6,17 @@ NULL
 #' This class extends the \code{\link[RJDBC:JDBCConnection-class]{JDBCConnection}}
 #' class to represent a SQL Server connection.
 #'
+#' @param dbObj a \code{\linkS4class{SQLServerConnection}}
+#' @param conn a \code{\linkS4class{SQLServerConnection}}
+#'
 #' @slot jc Java object representing the connection.
 #' @slot identifier.quote quote character for a SQL Server identifier can be a
 #' single quotation mark (\code{\'}), a left or right bracket (\code{[]}), or a
 #' double quotation mark (\code{\"}). Usually inherited from
 #' \code{\linkS4class{SQLServerDriver}}.
+#' @aliases dbGetInfo,SQLServerConnection-method
+#' dbIsValid,SQLServerConnection-method
+#' dbSendQuery, SQLServerConnection-method
 #' @export
 
 setClass("SQLServerConnection", contains = 'JDBCConnection')
@@ -20,33 +26,7 @@ setClass("SQLServerConnection", contains = 'JDBCConnection')
 #' @param drv An objected of class \code{\linkS4class{SQLServerDriver}}, or an
 #' existing \code{\linkS4class{SQLServerConnection}}. If a connection,
 #' the connection will be cloned.
-#' @param server the server address or recognised alias thereof.
-#' @param file defaults to using the server details file in
-#' \code{$HOME/sql.yaml}. The server details including \code{type}, \code{port}
-#' and any optional \code{properties} can be sourced from this file. If the
-#' \code{server} name is found in \code{file}, the details therein are used
-#' (and in particular, those provided in other arguments to this function are
-#' ignored). The connection method prefers server details to be provided in
-#' a \code{"sql.yaml"} file rather than provided as arguments to this function.
-#' If you wish to specify the details as parameters, ensure that the \code{file}
-#' argument is missing from the call.
-#' @param type the server type. Must be either \code{"sqlserver"} or
-#' \code{"sybase"}. Defaults to \code{"sqlserver"}.
-#' @param port the TCP/IP default port. This will be coerced to a string. Defaults
-#' to \code{1433} if an empty string.
-#' @param database the name of the database hosted on the \code{server}. If an
-#' empty string, a connection to the default database on \code{server} is
-#' assumed.
-#' @param properties One or more \href{http://jtds.sourceforge.net/faq.html}{optional connection properties.}
-#' in a named list. Note if you intend to set the \code{useNTLMv2} property to \code{'true'}
-#' from the default API value of \code{'false'}, you will need to make a specific
-#' authentication driver available to the SQL Server driver, although this hasn't
-#' worked particularly well in testing. See \code{\link{RSQLServer}} for more
-#' details. Should you wish to use Windows authentication to connect to the server,
-#' I recommend you set the following optional parameters: set \code{useNTLMv2} to
-#' \code{'true'}, \code{domain} to your domain and \code{user} and
-#' \code{password} to your username and password on \code{domain}. jTDS'
-#' SSO functionality is flaky.
+#' @template sqlserver-parameters
 #' @return a \code{\linkS4class{SQLServerConnection}}
 #' @examples
 #' # View sql.yaml file bundled in package
@@ -128,11 +108,11 @@ setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
 #' This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendQuery}}
 #' method for JDBCConnection.
 #'
-#' @param conn connection object
 #' @param statement SQL statement to execute
 #' @param ... additional arguments to prepared statement substituted for "?"
 #' @param list undocumented
 #' @return a \code{\linkS4class{SQLServerResult}} object
+#' @rdname SQLServerConnection-class
 #' @export
 
 setMethod("dbSendQuery",

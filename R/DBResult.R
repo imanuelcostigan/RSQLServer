@@ -12,6 +12,7 @@
 
 setClass ("SQLServerResult", contains = 'JDBCResult')
 
+#' @param dbObj a \code{\linkS4class{SQLServerResult}} object
 #' @rdname SQLServerResult-class
 #' @export
 

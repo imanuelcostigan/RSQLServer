@@ -8,6 +8,9 @@
 \usage{
 \S4method{dbIsValid}{SQLServerResult}(dbObj)
 }
+\arguments{
+\item{dbObj}{a \code{\linkS4class{SQLServerResult}} object}
+}
 \description{
 This class extends the \code{\link[RJDBC:JDBCResult-class]{JDBCResult}}
 class to represent a SQL Server result set
