@@ -3,17 +3,40 @@
 \docType{class}
 \name{SQLServerConnection-class}
 \alias{SQLServerConnection-class}
+\alias{SQLServerConnection-method}
 \alias{dbGetInfo,SQLServerConnection-method}
 \alias{dbIsValid,SQLServerConnection-method}
+\alias{dbSendQuery,}
+\alias{dbSendQuery,SQLServerConnection,character-method}
 \title{An S4 class to represent a SQL Server connection}
 \usage{
 \S4method{dbGetInfo}{SQLServerConnection}(dbObj, ...)
 
 \S4method{dbIsValid}{SQLServerConnection}(dbObj, ...)
+
+\S4method{dbSendQuery}{SQLServerConnection,character}(conn, statement, ...,
+  list = NULL)
+}
+\arguments{
+\item{dbObj}{a \code{\linkS4class{SQLServerConnection}}}
+
+\item{...}{additional arguments to prepared statement substituted for "?"}
+
+\item{conn}{a \code{\linkS4class{SQLServerConnection}}}
+
+\item{statement}{SQL statement to execute}
+
+\item{list}{undocumented}
+}
+\value{
+a \code{\linkS4class{SQLServerResult}} object
 }
 \description{
 This class extends the \code{\link[RJDBC:JDBCConnection-class]{JDBCConnection}}
 class to represent a SQL Server connection.
+
+This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendQuery}}
+method for JDBCConnection.
 }
 \section{Slots}{
 

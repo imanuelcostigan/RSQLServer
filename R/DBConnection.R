@@ -6,11 +6,17 @@ NULL
 #' This class extends the \code{\link[RJDBC:JDBCConnection-class]{JDBCConnection}}
 #' class to represent a SQL Server connection.
 #'
+#' @param dbObj a \code{\linkS4class{SQLServerConnection}}
+#' @param conn a \code{\linkS4class{SQLServerConnection}}
+#'
 #' @slot jc Java object representing the connection.
 #' @slot identifier.quote quote character for a SQL Server identifier can be a
 #' single quotation mark (\code{\'}), a left or right bracket (\code{[]}), or a
 #' double quotation mark (\code{\"}). Usually inherited from
 #' \code{\linkS4class{SQLServerDriver}}.
+#' @aliases dbGetInfo,SQLServerConnection-method
+#' dbIsValid,SQLServerConnection-method
+#' dbSendQuery, SQLServerConnection-method
 #' @export
 
 setClass("SQLServerConnection", contains = 'JDBCConnection')
@@ -102,11 +108,11 @@ setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
 #' This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendQuery}}
 #' method for JDBCConnection.
 #'
-#' @param conn connection object
 #' @param statement SQL statement to execute
 #' @param ... additional arguments to prepared statement substituted for "?"
 #' @param list undocumented
 #' @return a \code{\linkS4class{SQLServerResult}} object
+#' @rdname SQLServerConnection-class
 #' @export
 
 setMethod("dbSendQuery",

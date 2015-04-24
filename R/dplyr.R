@@ -50,7 +50,7 @@ src_desc.src_sqlserver <- function (x) {
 #' @export
 src_translate_env.src_sqlserver <- function (x) {
   dplyr::sql_variant(
-    base_scalar,
+    dplyr::base_scalar,
     dplyr::sql_translator(.parent = dplyr::base_agg,
       n = function() dplyr::sql("COUNT(*)"),
       mean = dplyr::sql_prefix('AVG'),
@@ -68,34 +68,36 @@ tbl.src_sqlserver <- function (src, from, ...)
 #' @export
 head.tbl_sqlserver <- function (x, n = 6L, ...) {
   assertthat::assert_that(length(n) == 1, n > 0L)
-  build_query(x)$fetch(n)
+  build_query_ss(x)$fetch(n)
 }
 
 #' @importFrom dplyr compute
 #' @export
-compute.tbl_sqlserver <- function (x, name = dplyr:::random_table_name(),
+compute.tbl_sqlserver <- function (x, name = random_table_name(),
   temporary = TRUE, ...) {
-  name <- paste0(if (temporary) sql("#"), name)
+  name <- paste0(if (temporary) dplyr::sql("#"), name)
   db_save_query(x$src$con, x$query$sql, name = name, temporary = temporary)
   update(dplyr::tbl(x$src, name), group_by = dplyr::groups(x))
 }
 
+#' @importFrom dplyr intersect
 #' @export
 intersect.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
   # SQL Server 2000 does not support INTERSECT or EXCEPT
   assertthat::assert_that(x$src$info$db.version > 8, y$src$info$db.version > 8)
   y <- auto_copy(x, y, copy)
-  sql <- sql_set_op(x$src$con, x, y, "INTERSECT")
-  update(tbl(x$src, sql), group_by = groups(x))
+  sql <- dplyr::sql_set_op(x$src$con, x, y, "INTERSECT")
+  update(tbl(x$src, sql), group_by = dplyr::groups(x))
 }
 
+#' @importFrom dplyr setdiff
 #' @export
 setdiff.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
   # SQL Server 2000 does not support INTERSECT or EXCEPT
   assertthat::assert_that(x$src$info$db.version > 8, y$src$info$db.version > 8)
   y <- auto_copy(x, y, copy)
-  sql <- sql_set_op(x$src$con, x, y, "EXCEPT")
-  update(tbl(x$src, sql), group_by = groups(x))
+  sql <- dplyr::sql_set_op(x$src$con, x, y, "EXCEPT")
+  update(tbl(x$src, sql), group_by = dplyr::groups(x))
 }
 
 # DBI backend methods ------------------------------------------------------------------
@@ -121,9 +123,9 @@ db_query_fields.SQLServerConnection <- function (con, sql, ...) {
 #' @importFrom dplyr db_query_rows
 #' @export
 db_query_rows.SQLServerConnection <- function(con, sql, ...) {
-  qry <- build_sql(sql, con = con)
+  qry <- dplyr::build_sql(sql, con = con)
   dbSendQuery(con, qry)
-  qry <- build_sql("SELECT @@ROWCOUNT")
+  qry <- dplyr::build_sql("SELECT @@ROWCOUNT")
   as.integer(dbGetQuery(con, qry))
 }
 
@@ -131,7 +133,7 @@ db_query_rows.SQLServerConnection <- function(con, sql, ...) {
 #' @export
 db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
   ...) {
-  tt_sql <- build_sql("SELECT * ", "INTO ", ident(name),
+  tt_sql <- dplyr::build_sql("SELECT * ", "INTO ", dplyr::ident(name),
     " FROM (", sql, ") AS MASTER")
   js <- J(con@jc, "createStatement")
   J(js, "execute", as.character(tt_sql)[1])
@@ -220,60 +222,8 @@ sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
       length(fetch) == 1L)
     out$fetch <- dplyr::build_sql("FETCH NEXT ", fetch, " ONLY", con = con)
   }
-  dplyr::escape(unname(dplyr:::compact(out)), collapse = "\n", parens = FALSE,
+  dplyr::escape(unname(compact(out)), collapse = "\n", parens = FALSE,
     con = con)
-}
-
-build_query <- function (x, top = NULL) {
-  assertthat::assert_that(is.null(top) || (is.numeric(top) && length(top) == 1))
-  translate <- function (expr, ...)
-    dplyr::translate_sql_q(expr, tbl = x, env = NULL, ...)
-
-  if (x$summarise) {
-    # Summarising, so SELECT needs to contain grouping variables
-    select <- c(x$group_by, x$select)
-    select <- select[!duplicated(select)]
-
-    select_sql <- translate(select)
-    vars <- dplyr:::auto_names(select)
-
-    group_by_sql <- translate(x$group_by)
-    order_by_sql <- translate(x$order_by)
-  } else {
-    # Not in summarise, so assume functions are window functions
-    select_sql <- translate(x$select,
-      window = dplyr:::uses_window_fun(x$select, x))
-    vars <- dplyr:::auto_names(x$select)
-
-    # Don't use group_by - grouping affects window functions only
-    group_by_sql <- NULL
-
-    # If the user requested ordering, ensuring group_by is included
-    # Otherwise don't, because that may make queries substantially slower
-    if (!is.null(x$order_by) && !is.null(x$group_by))
-      order_by_sql <- translate(c(x$group_by, x$order_by))
-    else
-      order_by_sql <- translate(x$order_by)
-  }
-
-  if (!dplyr:::uses_window_fun(x$where, x)) {
-    from_sql <- x$from
-    where_sql <- translate(x$where)
-  } else {
-    # window functions in WHERE need to be performed in subquery
-    where <- dplyr:::translate_window_where(x$where, x, con = x$src$con)
-    base_query <- dplyr::update(x, group_by = NULL, where = NULL,
-      select = c(x$select, where$comp))$query
-
-    from_sql <- dplyr::build_sql("(", base_query$sql, ") AS ",
-      dplyr::ident(unique_name()), con = x$src$con)
-    where_sql <- translate(where$expr)
-  }
-
-  sql <- sql_select(x$src$con, from = from_sql, select = select_sql,
-    where = where_sql, order_by = order_by_sql, group_by = group_by_sql,
-    top = top)
-  dplyr::query(x$src$con, sql, vars)
 }
 
 #' @importFrom dplyr sql_join
@@ -281,18 +231,18 @@ build_query <- function (x, top = NULL) {
 sql_join.SQLServerConnection <- function(con, x, y, type = "inner",
   by = NULL, ...) {
   join <- switch(type,
-    left = sql("LEFT"),
-    inner = sql("INNER"),
-    right = sql("RIGHT"),
-    full = sql("FULL"),
+    left = dplyr::sql("LEFT"),
+    inner = dplyr::sql("INNER"),
+    right = dplyr::sql("RIGHT"),
+    full = dplyr::sql("FULL"),
     stop("Unknown join type:", type, call. = FALSE)
   )
 
-  by <- dplyr:::common_by(by, x, y)
+  by <- common_by(by, x, y)
 
   # Ensure tables have unique names
-  x_names <- dplyr:::auto_names(x$select)
-  y_names <- dplyr:::auto_names(y$select)
+  x_names <- auto_names(x$select)
+  y_names <- auto_names(y$select)
   uniques <- unique_names(x_names, y_names, by$x[by$x == by$y])
 
   if (is.null(uniques)) {
@@ -307,20 +257,22 @@ sql_join.SQLServerConnection <- function(con, x, y, type = "inner",
     sel_vars <- unique(c(uniques$x, uniques$y))
   }
 
-  xname <- dplyr:::unique_name()
-  yname <- dplyr:::unique_name()
-  on <- dplyr:::sql_vector(paste0(
-    paste0(sql_escape_ident(con, xname), ".", sql_escape_ident(con, by$x)),
+  xname <- unique_name()
+  yname <- unique_name()
+  on <- sql_vector(paste0(
+    paste0(dplyr::sql_escape_ident(con, xname), ".",
+      dplyr::sql_escape_ident(con, by$x)),
     " = ",
-    paste0(sql_escape_ident(con, yname), ".", sql_escape_ident(con, by$y)),
+    paste0(dplyr::sql_escape_ident(con, yname), ".",
+      dplyr::sql_escape_ident(con, by$y)),
     collapse = " AND "), parens = TRUE)
-  cond <- build_sql("ON ", on, con = con)
+  cond <- dplyr::build_sql("ON ", on, con = con)
 
-  from <- build_sql(
+  from <- dplyr::build_sql(
     'SELECT * FROM ',
-    dplyr:::sql_subquery(con, x$query$sql, xname), "\n\n",
+    dplyr::sql_subquery(con, x$query$sql, xname), "\n\n",
     join, " JOIN \n\n" ,
-    dplyr:::sql_subquery(con, y$query$sql, yname), "\n\n",
+    dplyr::sql_subquery(con, y$query$sql, yname), "\n\n",
     cond, con = con
   )
   attr(from, "vars") <- lapply(sel_vars, as.name)
@@ -328,21 +280,58 @@ sql_join.SQLServerConnection <- function(con, x, y, type = "inner",
   from
 }
 
-unique_names <- function(x_names, y_names, by, x_suffix = ".x", y_suffix = ".y") {
-  # See: https://github.com/hadley/dplyr/issues/709
-  common <- intersect(x_names, y_names)
-  if (length(common) == 0) return(NULL)
+build_query_ss <- function (x, top = NULL) {
+  assertthat::assert_that(is.null(top) || (is.numeric(top) && length(top) == 1))
+  translate <- function (expr, ...)
+    dplyr::translate_sql_q(expr, tbl = x, env = NULL, ...)
 
-  x_match <- match(common, x_names)
-  x_new <- x_names
-  x_new[x_match] <- paste0(x_names[x_match], x_suffix)
+  if (x$summarise) {
+    # Summarising, so SELECT needs to contain grouping variables
+    select <- c(x$group_by, x$select)
+    select <- select[!duplicated(select)]
 
-  y_match <- match(common, y_names)
-  y_new <- y_names
-  y_new[y_match] <- paste0(y_names[y_match], y_suffix)
+    select_sql <- translate(select)
+    vars <- auto_names(select)
 
-  list(x = setNames(x_new, x_names), y = setNames(y_new, y_names))
+    group_by_sql <- translate(x$group_by)
+    order_by_sql <- translate(x$order_by)
+  } else {
+    # Not in summarise, so assume functions are window functions
+    select_sql <- translate(x$select,
+      window = uses_window_fun(x$select, x))
+    vars <- auto_names(x$select)
+
+    # Don't use group_by - grouping affects window functions only
+    group_by_sql <- NULL
+
+    # If the user requested ordering, ensuring group_by is included
+    # Otherwise don't, because that may make queries substantially slower
+    if (!is.null(x$order_by) && !is.null(x$group_by))
+      order_by_sql <- translate(c(x$group_by, x$order_by))
+    else
+      order_by_sql <- translate(x$order_by)
+  }
+
+  if (!uses_window_fun(x$where, x)) {
+    from_sql <- x$from
+    where_sql <- translate(x$where)
+  } else {
+    # window functions in WHERE need to be performed in subquery
+    where <- translate_window_where(x$where, x, con = x$src$con)
+    base_query <- update(x, group_by = NULL, where = NULL,
+      select = c(x$select, where$comp))$query
+
+    from_sql <- dplyr::build_sql("(", base_query$sql, ") AS ",
+      dplyr::ident(unique_name()), con = x$src$con)
+    where_sql <- translate(where$expr)
+  }
+
+  sql <- sql_select(x$src$con, from = from_sql, select = select_sql,
+    where = where_sql, order_by = order_by_sql, group_by = group_by_sql,
+    top = top)
+  dplyr::query(x$src$con, sql, vars)
 }
+
 .list_temp_tables <- function (version)
 {
   # Modified from: http://stackoverflow.com/a/7075585

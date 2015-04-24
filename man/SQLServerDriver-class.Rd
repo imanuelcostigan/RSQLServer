@@ -21,6 +21,13 @@ SQLServer(identifier.quote = "[")
 \item{identifier.quote}{quote character for a SQL Server identifier can be a
 single quotation mark (\code{\'}), a left or right bracket (\code{[]},
 defaults to \code{[}), or a double quotation mark (\code{\"}).}
+
+\item{drv}{a \code{\linkS4class{SQLServerDriver}} object}
+
+\item{...}{other parameters which are not passed on further but necessary to
+match generic signature}
+
+\item{dbObj}{a \code{\linkS4class{SQLServerDriver}} object}
 }
 \value{
 An object of class \linkS4class{SQLServerDriver}.

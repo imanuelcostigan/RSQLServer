@@ -37,5 +37,6 @@ Collate:
     'DBResult.R'
     'RSQLServer.R'
     'Utils.R'
+    'dplyr-imports.R'
     'dplyr.R'
     'onLoad.R'
