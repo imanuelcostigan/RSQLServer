@@ -98,10 +98,13 @@ get_server_details <- function (server, file = NULL) {
 
 have_test_server <- function (type = 'sqlserver') {
   yaml_file <- file.path(Sys.getenv("HOME"), "sql.yaml")
-  assertthat::assert_that(file.exists(yaml_file))
-  server_details <- yaml::yaml.load_file(yaml_file)
-  res <- assertthat::has_name(server_details, "TEST")
-  isTRUE(res & identical(server_details[["TEST"]]$type, type))
+  if (file.exists(yaml_file)) {
+    server_details <- yaml::yaml.load_file(yaml_file)
+    res <- assertthat::has_name(server_details, "TEST")
+    return(isTRUE(res & identical(server_details[["TEST"]]$type, type)))
+  } else {
+    return(FALSE)
+  }
 }
 
 jdbc_class_path <- function () {
