@@ -40,7 +40,7 @@ dbClearResult(res)
 dbDisconnect(conn)
 ```
 
-## RSQLServer configuration file
+## Config file
 
 As alluded to above, we recommend that you store server details and credentials in `~/sql.yaml`. This is partly so that you do not need to specify a username and password in calls to `dbConnect()`. But it is also because in testing, we've found that the jTDS single sign-on (SSO) library is a bit flaky. The contents of this file should look something like this:
 
