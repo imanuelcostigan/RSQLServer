@@ -17,7 +17,7 @@ Or try the development version from GitHub:
 devtools::install_github('imanuelcostigan/RSQLServer')
 ```
 
-NB: This package has been tested on Windows 7 x64 (>= 6.1). It does not appear to work on some versions of  OS X. I do not know whether it works on *nix systems.
+NB: This package has only been tested on Windows 7 x64 (>= 6.1). However this package rests on the cross-platform jTDS driver. 
 
 ## Usage
 
