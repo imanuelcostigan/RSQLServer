@@ -91,10 +91,6 @@ setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
   definition = function (dbObj, ...) !.jcall(dbObj@jc, "Z", "isClosed")
 )
 
-# setMethod(f = "dbListTables", signature = "SQLServerConnection",
-#   definition = function (conn, ...)
-# )
-
 # dbDisconnect: Inherits from JDBCConnection
 # dbGetQuery: Inherits from JDBCConnection
 # dbGetException: Inherits from JDBCConnection
