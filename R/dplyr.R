@@ -31,7 +31,6 @@
 #' # See dplyr documentation for further information on data operations
 #' }
 #' @export
-
 src_sqlserver <- function (server, file = NULL, database = "",
   type = "sqlserver", port = "", properties = list()) {
   con <- dbConnect(SQLServer(), server, file, database , type, port, properties)
