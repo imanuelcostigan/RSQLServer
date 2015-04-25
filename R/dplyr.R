@@ -45,6 +45,11 @@ src_desc.src_sqlserver <- function (x) {
   paste0(info$db.product.name, ' version ', info$db.version, " [", info$user, "]")
 }
 
+#' @importFrom dplyr tbl
+#' @export
+tbl.src_sqlserver <- function (src, from, ...) {
+  dplyr::tbl_sql("sqlserver", src = src, from = from, ...)
+}
 
 # DBI backend methods ------------------------------------------------------------------
 
@@ -75,11 +80,6 @@ db_has_table.SQLServerConnection <- function (con, table) {
 #     dplyr::base_win
 #   )
 # }
-#
-# #' @importFrom dplyr tbl
-# #' @export
-# tbl.src_sqlserver <- function (src, from, ...)
-#   dplyr::tbl_sql("sqlserver", src = src, from = from, ...)
 #
 # #' @export
 # head.tbl_sqlserver <- function (x, n = 6L, ...) {
