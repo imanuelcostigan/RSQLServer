@@ -78,7 +78,9 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
     meta <- .jcall(dbObj@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData")
     list(db.product.name = .jcall(meta, "S", "getDatabaseProductName"),
       db.version = .jcall(meta, "I", "getDatabaseMajorVersion"),
-      user = .jcall(meta, "S","getUserName"))
+      user = .jcall(meta, "S","getUserName"),
+      tables = dbListTables(dbObj),
+      temp_tables = .dbListTempTables(dbObj))
   }
 )
 
@@ -88,6 +90,10 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
 setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
   definition = function (dbObj, ...) !.jcall(dbObj@jc, "Z", "isClosed")
 )
+
+# setMethod(f = "dbListTables", signature = "SQLServerConnection",
+#   definition = function (conn, ...)
+# )
 
 # dbDisconnect: Inherits from JDBCConnection
 # dbGetQuery: Inherits from JDBCConnection
