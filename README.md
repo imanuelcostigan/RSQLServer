@@ -65,4 +65,4 @@ SQL_DEV:
 
 ## dplyr
 
-The integration of the RSQLServer backend with dplyr is being investigated.
+The integration of the RSQLServer backend with dplyr is coming.
