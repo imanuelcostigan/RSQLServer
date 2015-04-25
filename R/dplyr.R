@@ -51,22 +51,15 @@ src_desc.src_sqlserver <- function (x) {
 
 #' @importFrom dplyr db_list_tables
 #' @export
-db_list_tables.SQLServerConnection <- function (con)
-  c(dbListTables(con), .dbListTempTables(con))
-
-.list_temp_tables <- function (version) {
-  # Modified from: http://stackoverflow.com/a/7075585
-  # SQLServer versioning: http://support2.microsoft.com/kb/321185
-  if (version < 9)
-    dplyr::build_sql("SELECT LEFT(NAME, CHARINDEX('_', NAME) - 1) as NAME ",
-      "FROM tempdb..sysobjects WHERE CHARINDEX('_', NAME) > 0 AND XTYPE = 'U'")
-  else
-    dplyr::build_sql("SELECT LEFT(NAME, CHARINDEX('_', NAME) - 1) as NAME ",
-      "FROM tempdb.sys.objects WHERE CHARINDEX('_', NAME) > 0 AND TYPE = 'U'")
+db_list_tables.SQLServerConnection <- function (con) {
+  dbListTables(con)
 }
 
-.dbListTempTables <- function (con)
-  dbGetQuery(con, .list_temp_tables(con@jc$getDatabaseMajorVersion()))$NAME
+#' @importFrom dplyr db_has_table
+#' @export
+db_has_table.SQLServerConnection <- function (con, table) {
+  table %in% db_list_tables(con)
+}
 
 #
 #
@@ -124,10 +117,6 @@ db_list_tables.SQLServerConnection <- function (con)
 #   update(tbl(x$src, sql), group_by = dplyr::groups(x))
 # }
 #
-# #' @importFrom dplyr db_has_table
-# #' @export
-# db_has_table.SQLServerConnection <- function (con, table)
-#   table %in% db_list_tables(con)
 #
 # #' @importFrom dplyr db_query_fields
 # #' @export
