@@ -128,9 +128,9 @@ setMethod("dbSendQuery",
       RJDBC:::.verify.JDBC.result(s,
         "Unable to execute JDBC callable statement ", statement)
       if (length(list(...)))
-        .fillStatementParameters(s, list(...))
+        RJDBC:::.fillStatementParameters(s, list(...))
       if (!is.null(list))
-        .fillStatementParameters(s, list)
+        RJDBC:::.fillStatementParameters(s, list)
       r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
       RJDBC:::.verify.JDBC.result(r,
         "Unable to retrieve JDBC result set for ", statement)
@@ -141,9 +141,9 @@ setMethod("dbSendQuery",
       RJDBC:::.verify.JDBC.result(s,
         "Unable to execute JDBC prepared statement ", statement)
       if (length(list(...)))
-        .fillStatementParameters(s, list(...))
+        RJDBC:::.fillStatementParameters(s, list(...))
       if (!is.null(list))
-        .fillStatementParameters(s, list)
+        RJDBC:::.fillStatementParameters(s, list)
       r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
       RJDBC:::.verify.JDBC.result(r,
         "Unable to retrieve JDBC result set for ", statement)
@@ -178,22 +178,6 @@ setMethod("dbSendQuery",
 # dbCommit: Inherits from JDBCConnection
 # dbRollback: Inherits from JDBCConnection
 # dbCallProc: Not yet implemented
-
-.fillStatementParameters <- function(s, l) {
-  for (i in 1:length(l)) {
-    v <- l[[i]]
-    if (is.na(v)) { # map NAs to NULLs (courtesy of Axel Klenk)
-      sqlType <- if (is.integer(v)) 4 else if (is.numeric(v)) 8 else 12
-      .jcall(s, "V", "setNull", i, as.integer(sqlType))
-    } else if (is.integer(v))
-      .jcall(s, "V", "setInt", i, v[1])
-    else if (is.numeric(v))
-      .jcall(s, "V", "setDouble", i, as.double(v)[1])
-    else
-      .jcall(s, "V", "setString", i, as.character(v)[1])
-  }
-}
-
 
 # Results ----------------------------------------------------------------
 
