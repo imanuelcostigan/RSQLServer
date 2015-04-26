@@ -7,7 +7,7 @@ NULL
 #' @param ... other parameters which are not passed on further but necessary to
 #' match generic signature
 #' @rdname SQLServerDriver-class
-#' @importMethodsFrom RJDBC dbListConnections
+#' @importMethodsFrom DBI dbListConnections
 #' @export
 
 setMethod(f = 'dbListConnections', signature = 'SQLServerDriver',
@@ -19,7 +19,7 @@ setMethod(f = 'dbListConnections', signature = 'SQLServerDriver',
 
 #' @param  dbObj a \code{\linkS4class{SQLServerDriver}} object
 #' @rdname SQLServerDriver-class
-#' @importMethodsFrom RJDBC dbGetInfo
+#' @importMethodsFrom DBI dbGetInfo
 #' @export
 
 setMethod(f = 'dbGetInfo', signature = 'SQLServerDriver',
@@ -30,7 +30,7 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerDriver',
 )
 
 #' @rdname SQLServerDriver-class
-#' @importMethodsFrom RJDBC dbUnloadDriver
+#' @importMethodsFrom DBI dbUnloadDriver
 #' @export
 
 setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) TRUE)
@@ -59,7 +59,7 @@ setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) TRUE)
 #'    properties=list(useNTLMv2="true", domain="myco", user="me",
 #'      password="asecret"))
 #' }
-#' @importMethodsFrom RJDBC dbConnect
+#' @importMethodsFrom DBI dbConnect
 #' @export
 
 setMethod(f = 'dbConnect', signature = "SQLServerDriver",
@@ -88,7 +88,7 @@ setMethod(f = 'dbConnect', signature = "SQLServerDriver",
 )
 
 #' @rdname SQLServerConnection-class
-#' @importMethodsFrom RJDBC dbGetInfo
+#' @importMethodsFrom DBI dbGetInfo
 #' @export
 
 setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
@@ -121,7 +121,7 @@ setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
 #' @param list undocumented
 #' @return a \code{\linkS4class{SQLServerResult}} object
 #' @rdname SQLServerConnection-class
-#' @importMethodsFrom RJDBC dbSendQuery
+#' @importMethodsFrom DBI dbSendQuery
 #' @export
 
 setMethod("dbSendQuery",
