@@ -10,13 +10,6 @@ db_has_table.SQLServerConnection <- function (con, table) {
   table %in% db_list_tables(con)
 }
 
-# #' @importFrom dplyr db_query_fields
-# #' @export
-# db_query_fields.SQLServerConnection <- function (con, sql, ...) {
-#   rs <- dbSendQuery(con, paste0("SELECT * FROM ", sql, " WHERE 0=1"))
-#   on.exit(dbClearResult(rs))
-#   names(fetch(rs, 1L))
-# }
 #
 # #' @importFrom dplyr db_query_rows
 # #' @export
