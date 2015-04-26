@@ -1,7 +1,7 @@
 #' @importFrom dplyr db_list_tables
 #' @export
 db_list_tables.SQLServerConnection <- function (con) {
-  dbListTables(con)
+  RJDBC::dbListTables(con)
 }
 
 #' @importFrom dplyr db_has_table
