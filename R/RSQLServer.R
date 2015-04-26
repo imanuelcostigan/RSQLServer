@@ -1,5 +1,5 @@
 #' @importFrom methods setClass setMethod
-#' @import DBI rJava RJDBC
+#' @import rJava
 NULL
 
 #' RSQLServer

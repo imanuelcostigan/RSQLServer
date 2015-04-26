@@ -18,6 +18,7 @@
 #' dbUnloadDriver,SQLServerDriver-method
 #' @references
 #' \href{http://jtds.sourceforge.net/}{jTDS project}
+#' @importClassesFrom RJDBC JDBCDriver
 #' @export
 
 setClass("SQLServerDriver", contains = "JDBCDriver")
@@ -58,6 +59,7 @@ SQLServer <- function (identifier.quote="[") {
 #' @aliases dbGetInfo,SQLServerConnection-method
 #' dbIsValid,SQLServerConnection-method
 #' dbSendQuery, SQLServerConnection-method
+#' @importClassesFrom RJDBC JDBCConnection
 #' @export
 
 setClass("SQLServerConnection", contains = 'JDBCConnection')
@@ -75,6 +77,7 @@ setClass("SQLServerConnection", contains = 'JDBCConnection')
 #' @slot pull Java reference to the JDBC result pull helper class (can be null
 #' reference before first pull)
 #' @slot stat Java reference to the JDBC statement which generated this result
+#' @importClassesFrom RJDBC JDBCResult
 #' @export
 
 setClass ("SQLServerResult", contains = 'JDBCResult')
