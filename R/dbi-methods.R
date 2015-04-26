@@ -187,7 +187,7 @@ setMethod("dbSendQuery",
 
 setMethod (f = 'dbIsValid', signature = 'SQLServerResult',
   definition = function (dbObj) {
-    dbObj@jr$isClosed()
+    .jcall(dbObj@jr, "Z", "isClosed")
   }
 )
 
