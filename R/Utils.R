@@ -1,5 +1,6 @@
-if(getRversion() >= "2.15.1")
+if(getRversion() >= "2.15.1") {
   utils::globalVariables(c("REQUIRED_JTDS_FIELDS", "OPTIONAL_JTDS_FIELDS"))
+}
 
 # jTDS FAQ
 # http://jtds.sourceforge.net/faq.html
