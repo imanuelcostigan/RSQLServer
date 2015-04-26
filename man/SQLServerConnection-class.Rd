@@ -36,7 +36,8 @@ This class extends the \code{\link[RJDBC:JDBCConnection-class]{JDBCConnection}}
 class to represent a SQL Server connection.
 
 This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendQuery}}
-method for JDBCConnection.
+method for JDBCConnection, except that this returns a
+\code{\linkS4class{SQLServerResult}} rather than a JDBCResult.
 }
 \section{Slots}{
 
