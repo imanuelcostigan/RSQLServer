@@ -98,9 +98,7 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
       "getMetaData")
     list(db.product.name = rJava::.jcall(meta, "S", "getDatabaseProductName"),
       db.version = rJava::.jcall(meta, "I", "getDatabaseMajorVersion"),
-      user = rJava::.jcall(meta, "S","getUserName"),
-      tables = dbListTables(dbObj),
-      temp_tables = .dbListTempTables(dbObj))
+      user = rJava::.jcall(meta, "S","getUserName"))
   }
 )
 
