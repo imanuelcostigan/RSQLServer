@@ -33,7 +33,6 @@ Suggests:
     testthat
 Collate:
     'RSQLServer.R'
-    'Utils.R'
     'dbi-classes.R'
     'dbi-methods.R'
     'dbi-shims.R'
@@ -41,3 +40,4 @@ Collate:
     'dplyr.R'
     'onLoad.R'
     'sql-backends.R'
+    'utils.R'
