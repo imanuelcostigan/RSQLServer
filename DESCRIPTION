@@ -18,11 +18,10 @@ Description: RSQLServer wraps the jTDS Project's JDBC 3.0 SQL Server
     Server is supported by this package.
 License: GPL-2
 Depends:
-    R (>= 3.2.0),
-    rJava (>= 0.9-6)
+    R (>= 3.2.0)
 Imports:
     methods (>= 3.2.0),
-    DBI (>= 0.3.1),
+    rJava (>= 0.9.6),
     RJDBC (>= 0.2-4),
     dplyr (>= 0.4),
     assertthat (>= 0.1),
