@@ -25,7 +25,7 @@ setMethod(f = 'dbListConnections', signature = 'SQLServerDriver',
 setMethod(f = 'dbGetInfo', signature = 'SQLServerDriver',
   definition = function (dbObj, ...) {
     list(name = 'RSQLServer (jTDS)',
-      driver.version = .jcall(dbObj@jdrv, "S", "getVersion"))
+      driver.version = rJava::.jcall(dbObj@jdrv, "S", "getVersion"))
   }
 )
 
@@ -81,8 +81,9 @@ setMethod(f = 'dbConnect', signature = "SQLServerDriver",
       properties <- sd
     }
     url <- jtds_url(server, type, port, database, properties)
-    properties <- .jnew('java/util/Properties')
-    jc <- .jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", url, properties)
+    properties <- rJava::.jnew('java/util/Properties')
+    jc <- rJava::.jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", url,
+      properties)
     new("SQLServerConnection", jc = jc, identifier.quote = drv@identifier.quote)
   }
 )
@@ -93,10 +94,11 @@ setMethod(f = 'dbConnect', signature = "SQLServerDriver",
 
 setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
   definition = function (dbObj, ...) {
-    meta <- .jcall(dbObj@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData")
-    list(db.product.name = .jcall(meta, "S", "getDatabaseProductName"),
-      db.version = .jcall(meta, "I", "getDatabaseMajorVersion"),
-      user = .jcall(meta, "S","getUserName"),
+    meta <- rJava::.jcall(dbObj@jc, "Ljava/sql/DatabaseMetaData;",
+      "getMetaData")
+    list(db.product.name = rJava::.jcall(meta, "S", "getDatabaseProductName"),
+      db.version = rJava::.jcall(meta, "I", "getDatabaseMajorVersion"),
+      user = rJava::.jcall(meta, "S","getUserName"),
       tables = dbListTables(dbObj),
       temp_tables = .dbListTempTables(dbObj))
   }
@@ -107,7 +109,7 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
 #' @export
 
 setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
-  definition = function (dbObj, ...) !.jcall(dbObj@jc, "Z", "isClosed")
+  definition = function (dbObj, ...) !rJava::.jcall(dbObj@jc, "Z", "isClosed")
 )
 
 #' Send query to SQL Server
@@ -130,7 +132,7 @@ setMethod("dbSendQuery",
     statement <- as.character(statement)[1L]
     ## if the statement starts with {call or {?= call then we use CallableStatement
     if (isTRUE(as.logical(grepl("^\\{(call|\\?= *call)", statement)))) {
-      s <- .jcall(conn@jc, "Ljava/sql/CallableStatement;", "prepareCall",
+      s <- rJava::.jcall(conn@jc, "Ljava/sql/CallableStatement;", "prepareCall",
         statement, check=FALSE)
       RJDBC:::.verify.JDBC.result(s,
         "Unable to execute JDBC callable statement ", statement)
@@ -138,37 +140,38 @@ setMethod("dbSendQuery",
         RJDBC:::.fillStatementParameters(s, list(...))
       if (!is.null(list))
         RJDBC:::.fillStatementParameters(s, list)
-      r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
+      r <- rJava::.jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
       RJDBC:::.verify.JDBC.result(r,
         "Unable to retrieve JDBC result set for ", statement)
     } else if (length(list(...)) || length(list)) {
       ## use prepared statements if there are additional arguments
-      s <- .jcall(conn@jc, "Ljava/sql/PreparedStatement;", "prepareStatement",
-        statement, check=FALSE)
+      s <- rJava::.jcall(conn@jc, "Ljava/sql/PreparedStatement;",
+        "prepareStatement", statement, check=FALSE)
       RJDBC:::.verify.JDBC.result(s,
         "Unable to execute JDBC prepared statement ", statement)
       if (length(list(...)))
         RJDBC:::.fillStatementParameters(s, list(...))
       if (!is.null(list))
         RJDBC:::.fillStatementParameters(s, list)
-      r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
+      r <- rJava::.jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
       RJDBC:::.verify.JDBC.result(r,
         "Unable to retrieve JDBC result set for ", statement)
     } else {
       ## otherwise use a simple statement some DBs fail with the above)
-      s <- .jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
+      s <- rJava::.jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
       RJDBC:::.verify.JDBC.result(s,
         "Unable to create simple JDBC statement ", statement)
-      r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery",
+      r <- rJava::.jcall(s, "Ljava/sql/ResultSet;", "executeQuery",
         as.character(statement)[1], check=FALSE)
       RJDBC:::.verify.JDBC.result(r,
         "Unable to retrieve JDBC result set for ", statement)
     }
-    md <- .jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check=FALSE)
+    md <- rJava::.jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData",
+      check=FALSE)
     RJDBC:::.verify.JDBC.result(md,
       "Unable to retrieve JDBC result set meta data for ", statement,
       " in dbSendQuery")
-    new("SQLServerResult", jr=r, md=md, stat=s, pull=.jnull())
+    new("SQLServerResult", jr=r, md=md, stat=s, pull=rJava::.jnull())
   }
 )
 
@@ -195,7 +198,7 @@ setMethod("dbSendQuery",
 
 setMethod (f = 'dbIsValid', signature = 'SQLServerResult',
   definition = function (dbObj) {
-    .jcall(dbObj@jr, "Z", "isClosed")
+    rJava::.jcall(dbObj@jr, "Z", "isClosed")
   }
 )
 
