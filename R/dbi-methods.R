@@ -107,7 +107,8 @@ setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
 #' Send query to SQL Server
 #'
 #' This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendQuery}}
-#' method for JDBCConnection.
+#' method for JDBCConnection, except that this returns a
+#' \code{\linkS4class{SQLServerResult}} rather than a JDBCResult.
 #'
 #' @param statement SQL statement to execute
 #' @param ... additional arguments to prepared statement substituted for "?"
@@ -118,11 +119,10 @@ setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
 
 setMethod("dbSendQuery",
   signature(conn = "SQLServerConnection", statement = "character"),
-  def = function (conn, statement, ..., list=NULL)
-  {
+  def = function (conn, statement, ..., list=NULL) {
     statement <- as.character(statement)[1L]
-    if (isTRUE(as.logical(grepl("^\\{(call|\\?= *call)", statement))))
-    {
+    ## if the statement starts with {call or {?= call then we use CallableStatement
+    if (isTRUE(as.logical(grepl("^\\{(call|\\?= *call)", statement)))) {
       s <- .jcall(conn@jc, "Ljava/sql/CallableStatement;", "prepareCall",
         statement, check=FALSE)
       .verify.JDBC.result(s, "Unable to execute JDBC callable statement ",
@@ -134,8 +134,7 @@ setMethod("dbSendQuery",
       r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
       .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ",
         statement)
-    } else if (length(list(...)) || length(list))
-    {
+    } else if (length(list(...)) || length(list)) { ## use prepared statements if there are additional arguments
       s <- .jcall(conn@jc, "Ljava/sql/PreparedStatement;", "prepareStatement",
         statement, check=FALSE)
       .verify.JDBC.result(s, "Unable to execute JDBC prepared statement ",
@@ -147,8 +146,7 @@ setMethod("dbSendQuery",
       r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
       .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ",
         statement)
-    } else
-    {
+    } else { ## otherwise use a simple statement some DBs fail with the above)
       s <- .jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
       .verify.JDBC.result(s, "Unable to create simple JDBC statement ",
         statement)
