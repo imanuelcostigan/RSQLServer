@@ -125,39 +125,42 @@ setMethod("dbSendQuery",
     if (isTRUE(as.logical(grepl("^\\{(call|\\?= *call)", statement)))) {
       s <- .jcall(conn@jc, "Ljava/sql/CallableStatement;", "prepareCall",
         statement, check=FALSE)
-      .verify.JDBC.result(s, "Unable to execute JDBC callable statement ",
-        statement)
+      RJDBC:::.verify.JDBC.result(s,
+        "Unable to execute JDBC callable statement ", statement)
       if (length(list(...)))
         .fillStatementParameters(s, list(...))
       if (!is.null(list))
         .fillStatementParameters(s, list)
       r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
-      .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ",
-        statement)
-    } else if (length(list(...)) || length(list)) { ## use prepared statements if there are additional arguments
+      RJDBC:::.verify.JDBC.result(r,
+        "Unable to retrieve JDBC result set for ", statement)
+    } else if (length(list(...)) || length(list)) {
+      ## use prepared statements if there are additional arguments
       s <- .jcall(conn@jc, "Ljava/sql/PreparedStatement;", "prepareStatement",
         statement, check=FALSE)
-      .verify.JDBC.result(s, "Unable to execute JDBC prepared statement ",
-        statement)
+      RJDBC:::.verify.JDBC.result(s,
+        "Unable to execute JDBC prepared statement ", statement)
       if (length(list(...)))
         .fillStatementParameters(s, list(...))
       if (!is.null(list))
         .fillStatementParameters(s, list)
       r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
-      .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ",
-        statement)
-    } else { ## otherwise use a simple statement some DBs fail with the above)
+      RJDBC:::.verify.JDBC.result(r,
+        "Unable to retrieve JDBC result set for ", statement)
+    } else {
+      ## otherwise use a simple statement some DBs fail with the above)
       s <- .jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
-      .verify.JDBC.result(s, "Unable to create simple JDBC statement ",
-        statement)
+      RJDBC:::.verify.JDBC.result(s,
+        "Unable to create simple JDBC statement ", statement)
       r <- .jcall(s, "Ljava/sql/ResultSet;", "executeQuery",
         as.character(statement)[1], check=FALSE)
-      .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ",
-        statement)
+      RJDBC:::.verify.JDBC.result(r,
+        "Unable to retrieve JDBC result set for ", statement)
     }
     md <- .jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check=FALSE)
-    .verify.JDBC.result(md, "Unable to retrieve JDBC result set meta data for ",
-      statement, " in dbSendQuery")
+    RJDBC:::.verify.JDBC.result(md,
+      "Unable to retrieve JDBC result set meta data for ", statement,
+      " in dbSendQuery")
     new("SQLServerResult", jr=r, md=md, stat=s, pull=.jnull())
   }
 )
@@ -176,18 +179,6 @@ setMethod("dbSendQuery",
 # dbRollback: Inherits from JDBCConnection
 # dbCallProc: Not yet implemented
 
-
-# Copied from RJDBC:
-# https://github.com/s-u/RJDBC/blob/01c55dfe76e039a37ccda732d7332325222da8c8/R/class.R
-.verify.JDBC.result <- function (result, ...) {
-  if (is.jnull(result)) {
-    x <- .jgetEx(TRUE)
-    if (is.jnull(x))
-      stop(...)
-    else
-      stop(...," (",.jcall(x, "S", "getMessage"),")")
-  }
-}
 .fillStatementParameters <- function(s, l) {
   for (i in 1:length(l)) {
     v <- l[[i]]
