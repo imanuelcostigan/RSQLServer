@@ -25,7 +25,7 @@ NB: This package has only been tested on Windows 7 x64 (>= 6.1). However this pa
 ```R
 library(DBI)
 # Connect to TEST server in ~/sql.yaml
-conn <- dbConnect(RSQLServer::SQLServer(), "TEST")
+conn <- dbConnect(RSQLServer::SQLServer(), "TEST", database = 'db')
 
 dbListTables(conn)
 dbListFields(conn, 'tablename')
