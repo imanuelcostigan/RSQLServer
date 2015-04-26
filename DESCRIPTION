@@ -37,6 +37,8 @@ Collate:
     'Utils.R'
     'dbi-classes.R'
     'dbi-methods.R'
+    'dbi-shims.R'
     'dplyr-imports.R'
     'dplyr.R'
     'onLoad.R'
+    'sql-backends.R'
