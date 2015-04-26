@@ -98,6 +98,7 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
 )
 
 #' @rdname SQLServerConnection-class
+#' @importMethodsFrom DBI dbIsValid
 #' @export
 
 setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
@@ -183,6 +184,7 @@ setMethod("dbSendQuery",
 
 #' @param dbObj a \code{\linkS4class{SQLServerResult}} object
 #' @rdname SQLServerResult-class
+#' @importMethodsFrom DBI dbIsValid
 #' @export
 
 setMethod (f = 'dbIsValid', signature = 'SQLServerResult',
