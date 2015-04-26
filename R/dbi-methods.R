@@ -1,25 +1,39 @@
-#' @include DBDriver.R
+#' @include dbi-classes.R
 NULL
 
-#' An S4 class to represent a SQL Server connection
-#'
-#' This class extends the \code{\link[RJDBC:JDBCConnection-class]{JDBCConnection}}
-#' class to represent a SQL Server connection.
-#'
-#' @param dbObj a \code{\linkS4class{SQLServerConnection}}
-#' @param conn a \code{\linkS4class{SQLServerConnection}}
-#'
-#' @slot jc Java object representing the connection.
-#' @slot identifier.quote quote character for a SQL Server identifier can be a
-#' single quotation mark (\code{\'}), a left or right bracket (\code{[]}), or a
-#' double quotation mark (\code{\"}). Usually inherited from
-#' \code{\linkS4class{SQLServerDriver}}.
-#' @aliases dbGetInfo,SQLServerConnection-method
-#' dbIsValid,SQLServerConnection-method
-#' dbSendQuery, SQLServerConnection-method
+# Drivers ----------------------------------------------------------------
+
+#' @param drv a \code{\linkS4class{SQLServerDriver}} object
+#' @param ... other parameters which are not passed on further but necessary to
+#' match generic signature
+#' @rdname SQLServerDriver-class
 #' @export
 
-setClass("SQLServerConnection", contains = 'JDBCConnection')
+setMethod(f = 'dbListConnections', signature = 'SQLServerDriver',
+  definition = function (drv, ...) {
+    warning ("JDBC driver maintains no list of active connections.")
+    list()
+  }
+)
+
+#' @param  dbObj a \code{\linkS4class{SQLServerDriver}} object
+#' @rdname SQLServerDriver-class
+#' @export
+
+setMethod(f = 'dbGetInfo', signature = 'SQLServerDriver',
+  definition = function (dbObj, ...) {
+    list(name = 'RSQLServer (jTDS)',
+      driver.version = .jcall(dbObj@jdrv, "S", "getVersion"))
+  }
+)
+
+#' @rdname SQLServerDriver-class
+#' @export
+
+setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) TRUE)
+
+
+# Connections ------------------------------------------------------------
 
 #' Connect to/disconnect from a SQL Server database.
 #'
@@ -73,8 +87,7 @@ setMethod(f = 'dbConnect', signature = "SQLServerDriver",
 #' @export
 
 setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
-  definition = function (dbObj, ...)
-  {
+  definition = function (dbObj, ...) {
     meta <- .jcall(dbObj@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData")
     list(db.product.name = .jcall(meta, "S", "getDatabaseProductName"),
       db.version = .jcall(meta, "I", "getDatabaseMajorVersion"),
@@ -90,20 +103,6 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
 setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
   definition = function (dbObj, ...) !.jcall(dbObj@jc, "Z", "isClosed")
 )
-
-# dbDisconnect: Inherits from JDBCConnection
-# dbGetQuery: Inherits from JDBCConnection
-# dbGetException: Inherits from JDBCConnection
-# dbListResults: Inherits from JDBCConnection
-# dbListTables: Inherits from JDBCConnection
-# dbReadTable: Inherits from JDBCConnection
-# dbWriteTable: Inherits from JDBCConnection
-# dbExistsTable: Inherits from JDBCConnection
-# dbRemoveTable: Inherits from JDBCConnection
-# dbListFields: Inherits from JDBCConnection
-# dbCommit: Inherits from JDBCConnection
-# dbRollback: Inherits from JDBCConnection
-# dbCallProc: Not yet implemented
 
 #' Send query to SQL Server
 #'
@@ -150,7 +149,6 @@ setMethod("dbSendQuery",
         statement)
     } else
     {
-
       s <- .jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
       .verify.JDBC.result(s, "Unable to create simple JDBC statement ",
         statement)
@@ -165,6 +163,20 @@ setMethod("dbSendQuery",
     new("SQLServerResult", jr=r, md=md, stat=s, pull=.jnull())
   }
 )
+
+# dbDisconnect: Inherits from JDBCConnection
+# dbGetQuery: Inherits from JDBCConnection
+# dbGetException: Inherits from JDBCConnection
+# dbListResults: Inherits from JDBCConnection
+# dbListTables: Inherits from JDBCConnection
+# dbReadTable: Inherits from JDBCConnection
+# dbWriteTable: Inherits from JDBCConnection
+# dbExistsTable: Inherits from JDBCConnection
+# dbRemoveTable: Inherits from JDBCConnection
+# dbListFields: Inherits from JDBCConnection
+# dbCommit: Inherits from JDBCConnection
+# dbRollback: Inherits from JDBCConnection
+# dbCallProc: Not yet implemented
 
 
 # Copied from RJDBC:
@@ -192,3 +204,22 @@ setMethod("dbSendQuery",
       .jcall(s, "V", "setString", i, as.character(v)[1])
   }
 }
+
+
+# Results ----------------------------------------------------------------
+
+#' @param dbObj a \code{\linkS4class{SQLServerResult}} object
+#' @rdname SQLServerResult-class
+#' @export
+
+setMethod (f = 'dbIsValid', signature = 'SQLServerResult',
+  definition = function (dbObj) {
+    dbObj@jr$isClosed()
+  }
+)
+
+# fetch: Inherits from JDBCResult
+# dbClearResult: Inherits from JDBCResult
+# dbGetInfo: Inherits from JDBCResult
+# dbColumnInfo: Inherits from JDBCResult
+

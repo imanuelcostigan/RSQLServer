@@ -33,11 +33,10 @@ BugReports: https://github.com/imanuelcostigan/RSQLServer/issues
 Suggests:
     testthat
 Collate:
-    'DBDriver.R'
-    'DBConnection.R'
-    'DBResult.R'
     'RSQLServer.R'
     'Utils.R'
+    'dbi-classes.R'
+    'dbi-methods.R'
     'dplyr-imports.R'
     'dplyr.R'
     'onLoad.R'

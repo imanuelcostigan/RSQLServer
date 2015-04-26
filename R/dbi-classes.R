@@ -1,3 +1,5 @@
+# Driver -----------------------------------------------------------------
+
 #' An S4 class to represent a SQL Server driver
 #'
 #' This class extends the \code{\link[RJDBC:JDBCDriver-class]{JDBCDriver}} class
@@ -38,33 +40,43 @@ SQLServer <- function (identifier.quote="[") {
   new("SQLServerDriver", identifier.quote = identifier.quote, jdrv= drv@jdrv)
 }
 
-#' @param drv a \code{\linkS4class{SQLServerDriver}} object
-#' @param ... other parameters which are not passed on further but necessary to
-#' match generic signature
-#' @rdname SQLServerDriver-class
+# Connection -------------------------------------------------------------
+
+#' An S4 class to represent a SQL Server connection
+#'
+#' This class extends the \code{\link[RJDBC:JDBCConnection-class]{JDBCConnection}}
+#' class to represent a SQL Server connection.
+#'
+#' @param dbObj a \code{\linkS4class{SQLServerConnection}}
+#' @param conn a \code{\linkS4class{SQLServerConnection}}
+#'
+#' @slot jc Java object representing the connection.
+#' @slot identifier.quote quote character for a SQL Server identifier can be a
+#' single quotation mark (\code{\'}), a left or right bracket (\code{[]}), or a
+#' double quotation mark (\code{\"}). Usually inherited from
+#' \code{\linkS4class{SQLServerDriver}}.
+#' @aliases dbGetInfo,SQLServerConnection-method
+#' dbIsValid,SQLServerConnection-method
+#' dbSendQuery, SQLServerConnection-method
 #' @export
 
-setMethod(f = 'dbListConnections', signature = 'SQLServerDriver',
-  definition = function (drv, ...)
-  {
-    warning ("JDBC driver maintains no list of active connections.")
-    list()
-  }
-)
+setClass("SQLServerConnection", contains = 'JDBCConnection')
 
-#' @param  dbObj a \code{\linkS4class{SQLServerDriver}} object
-#' @rdname SQLServerDriver-class
+
+# Result -----------------------------------------------------------------
+
+#' An S4 class to represent a SQL Server result set
+#'
+#' This class extends the \code{\link[RJDBC:JDBCResult-class]{JDBCResult}}
+#' class to represent a SQL Server result set
+#'
+#' @slot jr Java reference to the JDBC result set
+#' @slot md Java reference to the JDBC result set meta data
+#' @slot pull Java reference to the JDBC result pull helper class (can be null
+#' reference before first pull)
+#' @slot stat Java reference to the JDBC statement which generated this result
 #' @export
 
-setMethod(f = 'dbGetInfo', signature = 'SQLServerDriver',
-  definition = function (dbObj, ...)
-  {
-    list(name = 'RSQLServer (jTDS)',
-      driver.version = .jcall(dbObj@jdrv, "S", "getVersion"))
-  }
-)
+setClass ("SQLServerResult", contains = 'JDBCResult')
 
-#' @rdname SQLServerDriver-class
-#' @export
 
-setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) TRUE)
