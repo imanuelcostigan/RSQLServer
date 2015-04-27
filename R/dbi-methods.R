@@ -108,6 +108,18 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
   }
 )
 
+#' @param  object a \code{\linkS4class{SQLServerConnection}} object
+#' @rdname SQLServerConnection-class
+#' @export
+
+setMethod(f = "show", signature = "SQLServerConnection",
+  definition = function (object) {
+    info <- dbGetInfo(object)
+    cat("SQLServerConnection to", info$db.product.name,
+      "version", info$db.version)
+  }
+)
+
 #' @rdname SQLServerConnection-class
 #' @export
 

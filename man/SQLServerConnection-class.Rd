@@ -8,9 +8,12 @@
 \alias{dbIsValid,SQLServerConnection-method}
 \alias{dbSendQuery,}
 \alias{dbSendQuery,SQLServerConnection,character-method}
+\alias{show,SQLServerConnection-method}
 \title{An S4 class to represent a SQL Server connection}
 \usage{
 \S4method{dbGetInfo}{SQLServerConnection}(dbObj, ...)
+
+\S4method{show}{SQLServerConnection}(object)
 
 \S4method{dbIsValid}{SQLServerConnection}(dbObj, ...)
 
@@ -21,6 +24,8 @@
 \item{dbObj}{a \code{\linkS4class{SQLServerConnection}}}
 
 \item{...}{additional arguments to prepared statement substituted for "?"}
+
+\item{object}{a \code{\linkS4class{SQLServerConnection}} object}
 
 \item{conn}{a \code{\linkS4class{SQLServerConnection}}}
 
