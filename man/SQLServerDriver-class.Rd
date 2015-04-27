@@ -33,6 +33,8 @@ match generic signature}
 \item{dbObj}{a \code{\linkS4class{SQLServerDriver}} object}
 
 \item{object}{a \code{\linkS4class{SQLServerDriver}} object}
+
+\item{drv}{a \code{\linkS4class{SQLServerDriver}} object}
 }
 \value{
 An object of class \linkS4class{SQLServerDriver}.

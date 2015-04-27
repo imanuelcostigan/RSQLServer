@@ -37,10 +37,11 @@ setMethod(f = "show", signature = "SQLServerDriver",
   }
 )
 
+#' @param drv a \code{\linkS4class{SQLServerDriver}} object
 #' @rdname SQLServerDriver-class
 #' @export
 
-setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) TRUE)
+setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) FALSE)
 
 
 # Connections ------------------------------------------------------------
