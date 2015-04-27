@@ -10,6 +10,18 @@ db_has_table.SQLServerConnection <- function (con, table) {
   table %in% db_list_tables(con)
 }
 
+# Following shim written partly because:
+# https://github.com/hadley/dplyr/issues/1107
+# But this may be more efficent than dplyr's DBIConnection method
+#' @importFrom dplyr db_query_fields
+#' @export
+db_query_fields.SQLServerConnection <- function (con, sql, ...) {
+  fields <- build_sql("SELECT * FROM ", sql, " WHERE 0=1", con = con)
+  qry <- dbSendQuery(con, fields)
+  on.exit(RJDBC::dbClearResult(qry))
+  sqlServerListFields(qry)
+}
+
 #
 # #' @importFrom dplyr db_query_rows
 # #' @export
