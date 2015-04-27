@@ -7,7 +7,6 @@ NULL
 #' @param ... other parameters which are not passed on further but necessary to
 #' match generic signature
 #' @rdname SQLServerDriver-class
-#' @importMethodsFrom DBI dbListConnections
 #' @export
 
 setMethod(f = 'dbListConnections', signature = 'SQLServerDriver',
@@ -19,7 +18,6 @@ setMethod(f = 'dbListConnections', signature = 'SQLServerDriver',
 
 #' @param  dbObj a \code{\linkS4class{SQLServerDriver}} object
 #' @rdname SQLServerDriver-class
-#' @importMethodsFrom DBI dbGetInfo
 #' @export
 
 setMethod(f = 'dbGetInfo', signature = 'SQLServerDriver',
@@ -30,7 +28,6 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerDriver',
 )
 
 #' @rdname SQLServerDriver-class
-#' @importMethodsFrom DBI dbUnloadDriver
 #' @export
 
 setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) TRUE)
@@ -59,7 +56,6 @@ setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) TRUE)
 #'    properties=list(useNTLMv2="true", domain="myco", user="me",
 #'      password="asecret"))
 #' }
-#' @importMethodsFrom DBI dbConnect
 #' @export
 
 setMethod(f = 'dbConnect', signature = "SQLServerDriver",
@@ -89,7 +85,6 @@ setMethod(f = 'dbConnect', signature = "SQLServerDriver",
 )
 
 #' @rdname SQLServerConnection-class
-#' @importMethodsFrom DBI dbGetInfo
 #' @export
 
 setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
@@ -103,7 +98,6 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
 )
 
 #' @rdname SQLServerConnection-class
-#' @importMethodsFrom DBI dbIsValid
 #' @export
 
 setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
@@ -121,7 +115,6 @@ setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
 #' @param list undocumented
 #' @return a \code{\linkS4class{SQLServerResult}} object
 #' @rdname SQLServerConnection-class
-#' @importMethodsFrom DBI dbSendQuery
 #' @export
 
 setMethod("dbSendQuery",
@@ -191,7 +184,6 @@ setMethod("dbSendQuery",
 
 #' @param dbObj a \code{\linkS4class{SQLServerResult}} object
 #' @rdname SQLServerResult-class
-#' @importMethodsFrom DBI dbIsValid
 #' @export
 
 setMethod (f = 'dbIsValid', signature = 'SQLServerResult',
