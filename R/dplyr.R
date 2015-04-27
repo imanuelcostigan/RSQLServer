@@ -51,22 +51,34 @@ tbl.src_sqlserver <- function (src, from, ...) {
   dplyr::tbl_sql("sqlserver", src = src, from = from, ...)
 }
 
-# DBI backend methods ------------------------------------------------------------------
-#
-#
-# #' @importFrom dplyr src_translate_env
-# #' @export
-# src_translate_env.src_sqlserver <- function (x) {
-#   dplyr::sql_variant(
-#     dplyr::base_scalar,
-#     dplyr::sql_translator(.parent = dplyr::base_agg,
-#       n = function() dplyr::sql("COUNT(*)"),
-#       mean = dplyr::sql_prefix('AVG'),
-#       sd = dplyr::sql_prefix("STDEV")
-#     ),
-#     dplyr::base_win
-#   )
-# }
+## Math (scalar) functions - no change across versions based on eyeballing:
+# MSSQL 2000: https://technet.microsoft.com/en-us/library/aa258862(v=sql.80).aspx
+# MSSQL 2005: https://technet.microsoft.com/en-us/library/ms177516(v=sql.90).aspx
+# MSSQL 2008: https://technet.microsoft.com/en-us/library/ms177516(v=sql.100).aspx
+# MSSQL 2008(r2): https://technet.microsoft.com/en-us/library/ms177516(v=sql.105).aspx
+# MSSQL 2012: https://technet.microsoft.com/en-us/library/ms177516(v=sql.110).aspx
+
+## Aggregate functions
+# MSSQL 2005: https://technet.microsoft.com/en-US/library/ms173454(v=sql.90).aspx
+# MSSQL 2008: https://technet.microsoft.com/en-US/library/ms173454(v=sql.100).aspx
+# MSSQL 2008r2*: https://technet.microsoft.com/en-US/library/ms173454(v=sql.100).aspx
+# MSSQL 2012*: https://technet.microsoft.com/en-US/library/ms173454(v=sql.110).aspx
+# MSSQL 2014: https://technet.microsoft.com/en-US/library/ms173454(v=sql.120).aspx
+#' @importFrom dplyr src_translate_env
+#' @export
+src_translate_env.src_sqlserver <- function (x) {
+  dplyr::sql_variant(
+    scalar = dplyr::base_scalar,
+    aggregate = dplyr::sql_translator(.parent = dplyr::base_agg,
+      n = function() dplyr::sql("COUNT(*)"),
+      mean = dplyr::sql_prefix('AVG'),
+      sd = dplyr::sql_prefix("STDEV"),
+      sdp = dplyr::sql_prefix("STDEVP"),
+      varp = dplyr::sql_prefix("VARP")
+    ),
+    window = dplyr::base_win
+  )
+}
 #
 # #' @export
 # head.tbl_sqlserver <- function (x, n = 6L, ...) {
