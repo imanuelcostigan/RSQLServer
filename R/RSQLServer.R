@@ -1,4 +1,5 @@
 #' @importFrom methods setClass setMethod
+#' @import DBI
 NULL
 
 #' RSQLServer
