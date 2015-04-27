@@ -27,6 +27,16 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerDriver',
   }
 )
 
+#' @param  object a \code{\linkS4class{SQLServerDriver}} object
+#' @rdname SQLServerDriver-class
+#' @export
+
+setMethod(f = "show", signature = "SQLServerDriver",
+  definition = function (object) {
+    cat("<SQLServerDriver>\n")
+  }
+)
+
 #' @rdname SQLServerDriver-class
 #' @export
 
@@ -56,6 +66,7 @@ setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) TRUE)
 #'    properties=list(useNTLMv2="true", domain="myco", user="me",
 #'      password="asecret"))
 #' }
+#' @rdname SQLServer
 #' @export
 
 setMethod(f = 'dbConnect', signature = "SQLServerDriver",

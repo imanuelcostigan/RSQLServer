@@ -7,6 +7,7 @@
 \alias{dbGetInfo,SQLServerDriver-method}
 \alias{dbListConnections,SQLServerDriver-method}
 \alias{dbUnloadDriver,SQLServerDriver-method}
+\alias{show,SQLServerDriver-method}
 \title{An S4 class to represent a SQL Server driver}
 \usage{
 SQLServer(identifier.quote = "[")
@@ -14,6 +15,8 @@ SQLServer(identifier.quote = "[")
 \S4method{dbListConnections}{SQLServerDriver}(drv, ...)
 
 \S4method{dbGetInfo}{SQLServerDriver}(dbObj, ...)
+
+\S4method{show}{SQLServerDriver}(object)
 
 \S4method{dbUnloadDriver}{SQLServerDriver}(drv, ...)
 }
@@ -28,6 +31,8 @@ defaults to \code{[}), or a double quotation mark (\code{\"}).}
 match generic signature}
 
 \item{dbObj}{a \code{\linkS4class{SQLServerDriver}} object}
+
+\item{object}{a \code{\linkS4class{SQLServerDriver}} object}
 }
 \value{
 An object of class \linkS4class{SQLServerDriver}.
