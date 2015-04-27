@@ -190,8 +190,6 @@ setMethod("dbSendQuery",
   }
 )
 
-#' @importFrom RJDBC dbDisconnect
-
 # dbDisconnect: Inherits from JDBCConnection
 # dbGetQuery: Inherits from JDBCConnection
 # dbGetException: Inherits from JDBCConnection
