@@ -200,6 +200,18 @@ setMethod (f = 'dbIsValid', signature = 'SQLServerResult',
   }
 )
 
+# Based on:
+# http://stackoverflow.com/a/3818712/1193481
+
+sqlServerListFields <- function (res) {
+  column_count <- rJava::.jcall(res@md, "I", "getColumnCount")
+  column_names <- vector("character", column_count)
+  for (i in seq_along(column_names)) {
+    column_names[i] <- rJava::.jcall(res@md, "S", "getColumnName", i)
+  }
+  column_names
+}
+
 # fetch: Inherits from JDBCResult
 # dbClearResult: Inherits from JDBCResult
 # dbGetInfo: Inherits from JDBCResult
