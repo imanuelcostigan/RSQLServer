@@ -79,12 +79,13 @@ src_translate_env.src_sqlserver <- function (x) {
     window = dplyr::base_win
   )
 }
-#
-# #' @export
-# head.tbl_sqlserver <- function (x, n = 6L, ...) {
-#   assertthat::assert_that(length(n) == 1, n > 0L)
-#   build_query_ss(x)$fetch(n)
-# }
+
+#' @export
+head.tbl_sqlserver <- function (x, n = 6L, ...) {
+  assertthat::assert_that(length(n) == 1, n > 0L)
+  build_query(x, n)$fetch()
+}
+
 #
 # #' @importFrom dplyr compute
 # #' @export
