@@ -71,8 +71,7 @@ sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
     out$fetch <- dplyr::build_sql("FETCH NEXT ", fetch, " ONLY", con = con)
   }
 
-  dplyr::escape(unname(compact(out)), collapse = "\n", parens = FALSE,
-    con = con)
+  dplyr::escape(unname(compact(out)), collapse = "\n", parens = FALSE, con = con)
 }
 
 # #' @importFrom dplyr sql_join
@@ -129,55 +128,56 @@ sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
 #   from
 # }
 #
-# build_query_ss <- function (x, top = NULL) {
-#   assertthat::assert_that(is.null(top) || (is.numeric(top) && length(top) == 1))
-#   translate <- function (expr, ...)
-#     dplyr::translate_sql_q(expr, tbl = x, env = NULL, ...)
-#
-#   if (x$summarise) {
-#     # Summarising, so SELECT needs to contain grouping variables
-#     select <- c(x$group_by, x$select)
-#     select <- select[!duplicated(select)]
-#
-#     select_sql <- translate(select)
-#     vars <- auto_names(select)
-#
-#     group_by_sql <- translate(x$group_by)
-#     order_by_sql <- translate(x$order_by)
-#   } else {
-#     # Not in summarise, so assume functions are window functions
-#     select_sql <- translate(x$select,
-#       window = uses_window_fun(x$select, x))
-#     vars <- auto_names(x$select)
-#
-#     # Don't use group_by - grouping affects window functions only
-#     group_by_sql <- NULL
-#
-#     # If the user requested ordering, ensuring group_by is included
-#     # Otherwise don't, because that may make queries substantially slower
-#     if (!is.null(x$order_by) && !is.null(x$group_by))
-#       order_by_sql <- translate(c(x$group_by, x$order_by))
-#     else
-#       order_by_sql <- translate(x$order_by)
-#   }
-#
-#   if (!uses_window_fun(x$where, x)) {
-#     from_sql <- x$from
-#     where_sql <- translate(x$where)
-#   } else {
-#     # window functions in WHERE need to be performed in subquery
-#     where <- translate_window_where(x$where, x, con = x$src$con)
-#     base_query <- update(x, group_by = NULL, where = NULL,
-#       select = c(x$select, where$comp))$query
-#
-#     from_sql <- dplyr::build_sql("(", base_query$sql, ") AS ",
-#       dplyr::ident(unique_name()), con = x$src$con)
-#     where_sql <- translate(where$expr)
-#   }
-#
-#   sql <- sql_select(x$src$con, from = from_sql, select = select_sql,
-#     where = where_sql, order_by = order_by_sql, group_by = group_by_sql,
-#     top = top)
-#   dplyr::query(x$src$con, sql, vars)
-# }
-#
+
+build_query <- function (x, top = NULL) {
+  assertthat::assert_that(is.null(top) || (is.numeric(top) && length(top) == 1))
+  translate <- function (expr, ...) {
+    dplyr::translate_sql_q(expr, tbl = x, env = NULL, ...)
+  }
+  if (x$summarise) {
+    # Summarising, so SELECT needs to contain grouping variables
+    select <- c(x$group_by, x$select)
+    select <- select[!duplicated(select)]
+
+    select_sql <- translate(select)
+    vars <- dplyr:::auto_names(select)
+
+    group_by_sql <- translate(x$group_by)
+    order_by_sql <- translate(x$order_by)
+  } else {
+    # Not in summarise, so assume functions are window functions
+    select_sql <- translate(x$select, window = uses_window_fun(x$select, x))
+    vars <- dplyr:::auto_names(x$select)
+
+    # Don't use group_by - grouping affects window functions only
+    group_by_sql <- NULL
+
+    # If the user requested ordering, ensuring group_by is included
+    # Otherwise don't, because that may make queries substantially slower
+    if (!is.null(x$order_by) && !is.null(x$group_by)) {
+      order_by_sql <- translate(c(x$group_by, x$order_by))
+    } else{
+      order_by_sql <- translate(x$order_by)
+    }
+  }
+
+  if (!uses_window_fun(x$where, x)) {
+    from_sql <- x$from
+    where_sql <- translate(x$where)
+  } else {
+    # window functions in WHERE need to be performed in subquery
+    where <- translate_window_where(x$where, x, con = x$src$con)
+    base_query <- update(x, group_by = NULL, where = NULL,
+      select = c(x$select, where$comp))$query
+
+    from_sql <- dplyr::build_sql("(", base_query$sql, ") AS ",
+      dplyr::ident(unique_name()), con = x$src$con)
+    where_sql <- translate(where$expr)
+  }
+
+  sql <- sql_select(x$src$con, from = from_sql, select = select_sql,
+    where = where_sql, order_by = order_by_sql, group_by = group_by_sql,
+    top = top)
+  dplyr::query(x$src$con, sql, vars)
+}
+
