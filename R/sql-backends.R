@@ -4,17 +4,17 @@ sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
   group_by = NULL, having = NULL, order_by = NULL, top = NULL,
   offset = NULL, fetch = NULL, ...) {
 
-  out <- vector("list", 9)
+  out <- vector("list", 8)
   names(out) <- c("select", "from", "where", "group_by", "having", "order_by",
-    "top", "offset", "fetch")
+    "offset", "fetch")
 
   if (!is.null(top)) {
     assertthat::assert_that(is.integer(top), length(top) == 1L)
-    top <- paste0("TOP ", top)
+    top <- build_sql("TOP ", dplyr::escape(top))
   }
 
   assertthat::assert_that(is.character(select), length(select) > 0L)
-  out$select <- dplyr::build_sql("SELECT ", top,
+  out$select <- dplyr::build_sql("SELECT ", top, " ",
     dplyr::escape(select, collapse = ", ", con = con))
   assertthat::assert_that(is.character(from), length(from) == 1L)
   out$from <- dplyr::build_sql("FROM ", from, con = con)
@@ -43,7 +43,7 @@ sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
       # This is the only way to predictably indicate which rows are affected by
       # TOP.
       # Source: http://msdn.microsoft.com/en-us/library/ms189463.aspx
-      order_by <- dplyr::build_sql("ORDER BY ",
+      out$order_by <- dplyr::build_sql("ORDER BY ",
         dplyr::escape(order_by, collapse = ", ", con = con))
     }
   } else {
@@ -70,8 +70,8 @@ sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
       length(fetch) == 1L)
     out$fetch <- dplyr::build_sql("FETCH NEXT ", fetch, " ONLY", con = con)
   }
-
-  dplyr::escape(unname(compact(out)), collapse = "\n", parens = FALSE, con = con)
+  dplyr::escape(unname(dplyr:::compact(out)),
+    collapse = "\n", parens = FALSE, con = con)
 }
 
 build_query <- function (x, top = NULL) {
@@ -91,7 +91,8 @@ build_query <- function (x, top = NULL) {
     order_by_sql <- translate(x$order_by)
   } else {
     # Not in summarise, so assume functions are window functions
-    select_sql <- translate(x$select, window = uses_window_fun(x$select, x))
+    select_sql <- translate(x$select,
+      window = dplyr:::uses_window_fun(x$select, x))
     vars <- dplyr:::auto_names(x$select)
 
     # Don't use group_by - grouping affects window functions only
@@ -106,7 +107,7 @@ build_query <- function (x, top = NULL) {
     }
   }
 
-  if (!uses_window_fun(x$where, x)) {
+  if (!dplyr:::uses_window_fun(x$where, x)) {
     from_sql <- x$from
     where_sql <- translate(x$where)
   } else {
