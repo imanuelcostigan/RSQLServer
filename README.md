@@ -7,9 +7,6 @@ An R package that provides a SQL Server R Database Interface ([DBI](https://gith
 You can install the package from CRAN:
 
 ```R
-# You want to install the RJDBC source package because of this:
-# https://github.com/s-u/RJDBC/issues/18
-install.packages("RJDBC", type = "source")
 install.packages("RSQLServer")
 ```
 
