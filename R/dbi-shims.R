@@ -26,8 +26,8 @@ db_query_fields.SQLServerConnection <- function (con, sql, ...) {
 # https://technet.microsoft.com/en-us/library/aa224033(v=sql.80).aspx
 # Using [ doens't work
 # https://github.com/hadley/dplyr/issues/1164
-# #' @importFrom dplyr sql_escape_ident
-# #' @export
+# # @importFrom dplyr sql_escape_ident
+# # @export
 # sql_escape_ident.SQLServerConnection <- function (con, x) {
 #   dplyr::sql_quote(x, "[")
 # }
