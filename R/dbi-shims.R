@@ -50,6 +50,7 @@ db_query_fields.SQLServerConnection <- function (con, sql, ...) {
 #   message('SQL Server does not provide an EXPLAIN statement.')
 #   # Though may be possible to use SHOWPLAN
 #   # http://msdn.microsoft.com/en-us/library/ms187735.aspx
+#   # http://stackoverflow.com/questions/7359702/how-do-i-obtain-a-query-execution-plan
 #   # Maybe use same strategy as db_query_rows
 # }
 #
