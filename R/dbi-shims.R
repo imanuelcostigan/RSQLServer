@@ -23,6 +23,12 @@ db_query_fields.SQLServerConnection <- function (con, sql, ...) {
   sqlServerListFields(qry)
 }
 
+#' @importFrom dplyr sql_escape_ident
+#' @export
+sql_escape_ident.SQLServerConnection <- function (con, x) {
+  dplyr::sql_quote(x, "[")
+}
+
 #
 # #' @importFrom dplyr db_query_rows
 # #' @export
