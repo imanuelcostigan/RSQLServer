@@ -32,9 +32,16 @@ db_query_fields.SQLServerConnection <- function (con, sql, ...) {
 #   dplyr::sql_quote(x, "[")
 # }
 
+#' @importFrom dplyr db_save_query
 #' @export
-sql_escape_ident.SQLServerConnection <- function (con, x) {
-  dplyr::sql_quote(x, "[")
+db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
+  ...) {
+  # https://msdn.microsoft.com/en-us/library/ms174979.aspx
+  prefix <- if (temporary) "#" else ""
+  name <- paste0(prefix, name)
+  tt_sql <- build_sql("CREATE TABLE ", ident(name), " AS ", sql, con = con)
+  dbGetQuery(con, tt_sql)
+  name
 }
 
 #

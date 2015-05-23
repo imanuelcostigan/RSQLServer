@@ -87,16 +87,6 @@ head.tbl_sqlserver <- function (x, n = 6L, ...) {
   build_query(x, n)$fetch()
 }
 
-#' @importFrom dplyr db_save_query
-#' @export
-db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
-  ...) {
-  prefix <- if (temporary) "#" else ""
-  name <- paste0(prefix, name)
-  tt_sql <- build_sql("CREATE TABLE ", ident(name), " AS ", sql, con = con)
-  dbGetQuery(con, tt_sql)
-  name
-}
 
 #
 # #' @importFrom dplyr compute
