@@ -45,15 +45,14 @@ db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
   name
 }
 
-#
-# #' @importFrom dplyr db_query_rows
-# #' @export
-# db_query_rows.SQLServerConnection <- function(con, sql, ...) {
-#   qry <- dplyr::build_sql(sql, con = con)
-#   dbSendQuery(con, qry)
-#   qry <- dplyr::build_sql("SELECT @@ROWCOUNT")
-#   as.integer(dbGetQuery(con, qry))
-# }
+#' @importFrom dplyr db_query_rows
+#' @export
+db_query_rows.SQLServerConnection <- function(con, sql, ...) {
+  qry <- dplyr::build_sql(sql, con = con)
+  dbSendQuery(con, qry)
+  qry <- dplyr::build_sql("SELECT @@ROWCOUNT")
+  as.integer(dbGetQuery(con, qry))
+}
 #
 #
 # #' @importFrom dplyr db_explain
