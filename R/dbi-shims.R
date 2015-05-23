@@ -39,7 +39,8 @@ db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
   # https://msdn.microsoft.com/en-us/library/ms174979.aspx
   prefix <- if (temporary) "#" else ""
   name <- paste0(prefix, name)
-  tt_sql <- build_sql("CREATE TABLE ", ident(name), " AS ", sql, con = con)
+  tt_sql <- dplyr::build_sql("CREATE TABLE ", dplyr::ident(name), " AS ", sql,
+    con = con)
   dbGetQuery(con, tt_sql)
   name
 }
@@ -54,16 +55,6 @@ db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
 #   as.integer(dbGetQuery(con, qry))
 # }
 #
-# #' @importFrom dplyr db_save_query
-# #' @export
-# db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
-#   ...) {
-#   tt_sql <- dplyr::build_sql("SELECT * ", "INTO ", dplyr::ident(name),
-#     " FROM (", sql, ") AS MASTER")
-#   js <- J(con@jc, "createStatement")
-#   J(js, "execute", as.character(tt_sql)[1])
-#   name
-# }
 #
 # #' @importFrom dplyr db_explain
 # #' @export
