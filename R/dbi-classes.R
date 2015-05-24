@@ -25,7 +25,8 @@ setClass("SQLServerDriver", contains = "JDBCDriver")
 
 #' @param identifier.quote  quote character for a SQL Server identifier can be a
 #' single quotation mark (\code{\'}), a left or right bracket (\code{[]},
-#' defaults to \code{[}), or a double quotation mark (\code{\"}).
+#' defaults to \code{[}), or a double quotation mark (\code{\"}), the last of
+#' which is the default.
 #' @return An object of class \linkS4class{SQLServerDriver}.
 #' @examples
 #' \dontrun{
@@ -35,7 +36,7 @@ setClass("SQLServerDriver", contains = "JDBCDriver")
 #' @aliases SQLServer
 #' @export
 
-SQLServer <- function (identifier.quote="[") {
+SQLServer <- function (identifier.quote="\"") {
   drv <- RJDBC::JDBC(driverClass = "net.sourceforge.jtds.jdbc.Driver",
     classPath = jdbc_class_path())
   new("SQLServerDriver", identifier.quote = identifier.quote, jdrv= drv@jdrv)
