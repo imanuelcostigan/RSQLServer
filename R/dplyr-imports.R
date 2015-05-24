@@ -7,9 +7,30 @@
 # # Reason for copy, paste and mod:
 # # http://stackoverflow.com/questions/20515358/rcmd-check-unexported-objects-imported-by-calls#comment30669909_20515358
 # # https://stat.ethz.ch/pipermail/r-devel/2013-August/thread.html#67180
-#
-# "%||%" <- function(x, y) if(is.null(x)) y else x
-#
+
+sql_vector <- function (x, parens = NA, collapse = " ", con = NULL) {
+  if (is.na(parens)) {
+    parens <- length(x) > 1L
+  }
+  x <- names_to_as(x, con = con)
+  x <- paste(x, collapse = collapse)
+  if (parens) x <- paste0("(", x, ")")
+  dplyr::sql(x)
+}
+
+names_to_as <- function (x, con = NULL) {
+  names <- names2(x)
+  as <- ifelse(names == '', '',
+    paste0(' AS ', dplyr::sql_escape_ident(con, names)))
+  paste0(x, as)
+}
+
+names2 <- function(x) {
+  names(x) %||% rep("", length(x))
+}
+
+"%||%" <- function (x, y) if (is.null(x)) y else x
+
 # all_calls <- function(x) {
 #   if (!is.call(x)) return(NULL)
 #

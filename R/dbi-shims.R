@@ -54,7 +54,77 @@ db_query_rows.SQLServerConnection <- function(con, sql, ...) {
   qry <- dplyr::build_sql("SELECT @@ROWCOUNT")
   as.integer(dbGetQuery(con, qry))
 }
-#
+
+#' @importFrom dplyr db_data_type
+#' @export
+db_data_type.SQLServerConnection <- function (con, fields) {
+  # Based on db_data_type.MySQLConnection from dplyr
+  # https://msdn.microsoft.com/en-us/library/ms187752(v=sql.90).aspx
+  char_type <- function (x) {
+    n <- max(nchar(as.character(x)))
+    if (n <= 8000) {
+      paste0("varchar(", n, ")")
+    } else {
+      "text"
+    }
+  }
+  data_type <- function (x) {
+    switch(class(x)[1],
+      logical = "bit",
+      integer = "int",
+      numeric = "float",
+      factor =  char_type(x),
+      character = char_type(x),
+      # SQL Server does not have a date data type without time corresponding
+      # to R's Date class
+      Date = "datetime",
+      POSIXct = "datetime",
+      stop("Unknown class ", paste(class(x), collapse = "/"), call. = FALSE)
+    )
+  }
+  vapply(fields, data_type, character(1))
+}
+
+#' @importFrom dplyr db_create_table
+#' @export
+db_create_table.SQLServerConnection <- function (con, table, types,
+  temporary = FALSE, ...) {
+  # https://technet.microsoft.com/en-us/library/aa258255(v=sql.80).aspx
+  # https://msdn.microsoft.com/en-us/library/ms174979.aspx
+  assertthat::assert_that(assertthat::is.string(table), is.character(types))
+  field_names <- dplyr::escape(dplyr::ident(names(types)),
+    collapse = NULL, con = con)
+  fields <- sql_vector(paste0(field_names, " ", types), parens = TRUE,
+    collapse = ", ", con = con)
+  sql <- dplyr::build_sql("CREATE TABLE ", if (temporary) dplyr::sql("#"),
+    dplyr::ident(table), " ", fields, con = con)
+  dbGetQuery(con, sql)
+}
+
+#' @importFrom dplyr db_insert_into
+#' @export
+db_insert_into.SQLServerConnection <- function (con, table, values, ...) {
+  # Convert factors to strings
+  is_factor <- vapply(values, is.factor, logical(1))
+  values[is_factor] <- lapply(values[is_factor], as.character)
+  # Encode special characters in strings
+  is_char <- vapply(values, is.character, logical(1))
+  values[is_char] <- lapply(values[is_char], encodeString)
+  # Write data frame to disk and then bulk insert into SQL
+  tmp <- tempfile(fileext = ".csv")
+  # https://msdn.microsoft.com/en-us/library/ms188365.aspx
+  # https://technet.microsoft.com/en-us/library/aa225968(v=sql.80).aspx
+  # ALSO see this for SS2000 eol: http://stackoverflow.com/posts/479916/revisions
+  # Use Windows line endings as this is default in BULK INSERT (even for SS2000)
+  write.table(values, tmp, sep = "\t", quote = FALSE, qmethod = "escape",
+    row.names = FALSE, col.names = FALSE, eol = '\r\n')
+  sql <- dplyr::build_sql("BULK INSERT ", dplyr::ident(table),
+    " FROM ", encodeString(tmp), " WITH (TABLOCK)", con = con)
+  dbGetQuery(con, sql)
+  invisible()
+}
+
+
 #
 # #' @importFrom dplyr db_explain
 # #' @export
