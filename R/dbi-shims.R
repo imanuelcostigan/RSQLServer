@@ -55,36 +55,6 @@ db_query_rows.SQLServerConnection <- function(con, sql, ...) {
   as.integer(dbGetQuery(con, qry))
 }
 
-#' @importFrom dplyr db_data_type
-#' @export
-db_data_type.SQLServerConnection <- function (con, fields) {
-  # Based on db_data_type.MySQLConnection from dplyr
-  # https://msdn.microsoft.com/en-us/library/ms187752(v=sql.90).aspx
-  char_type <- function (x) {
-    n <- max(nchar(as.character(x)))
-    if (n <= 8000) {
-      paste0("varchar(", n, ")")
-    } else {
-      "text"
-    }
-  }
-  data_type <- function (x) {
-    switch(class(x)[1],
-      logical = "bit",
-      integer = "int",
-      numeric = "float",
-      factor =  char_type(x),
-      character = char_type(x),
-      # SQL Server does not have a date data type without time corresponding
-      # to R's Date class
-      Date = "datetime",
-      POSIXct = "datetime",
-      stop("Unknown class ", paste(class(x), collapse = "/"), call. = FALSE)
-    )
-  }
-  vapply(fields, data_type, character(1))
-}
-
 #' @importFrom dplyr db_create_table
 #' @export
 db_create_table.SQLServerConnection <- function (con, table, types,
