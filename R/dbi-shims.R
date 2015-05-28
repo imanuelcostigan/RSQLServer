@@ -1,7 +1,7 @@
 #' @importFrom dplyr db_list_tables
 #' @export
 db_list_tables.SQLServerConnection <- function (con) {
-  RJDBC::dbListTables(con)
+  dbListTables(con)
 }
 
 #' @importFrom dplyr db_has_table
@@ -19,7 +19,7 @@ db_query_fields.SQLServerConnection <- function (con, sql, ...) {
   # Condition WHERE 0 = 1 will force query to return 0 records.
   fields <- build_sql("SELECT * FROM ", sql, " WHERE 0=1", con = con)
   qry <- dbSendQuery(con, fields)
-  on.exit(RJDBC::dbClearResult(qry))
+  on.exit(dbClearResult(qry))
   sqlServerListFields(qry)
 }
 
