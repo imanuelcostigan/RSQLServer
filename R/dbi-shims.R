@@ -94,8 +94,9 @@ db_insert_into.SQLServerConnection <- function (con, table, values, ...) {
   invisible()
 }
 
+#' @importFrom dplyr db_drop_table
 #' @export
-db_drop_table.DBIConnection <- function (con, table, force = FALSE, ...) {
+db_drop_table.SQLServerConnection <- function (con, table, force = FALSE, ...) {
   message("The 'force' argument is ignored.")
   dbRemoveTable(con, table)
 }

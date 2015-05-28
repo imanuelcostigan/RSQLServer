@@ -31,6 +31,11 @@ names2 <- function(x) {
 
 "%||%" <- function (x, y) if (is.null(x)) y else x
 
+# From random_table_name
+random_ident_name <- function (n = 10) {
+  paste0(sample(letters, n, replace = TRUE), collapse = "")
+}
+
 # all_calls <- function(x) {
 #   if (!is.call(x)) return(NULL)
 #
