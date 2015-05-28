@@ -101,13 +101,15 @@ db_drop_table.SQLServerConnection <- function (con, table, force = FALSE, ...) {
   dbRemoveTable(con, table)
 }
 
+#' @importFrom dplyr db_analyze
+#' @export
 db_analyze.SQLServerConnection <- function (con, table, ...) {
 #   https://msdn.microsoft.com/en-us/library/ms188038(v=sql.90).aspx
 #   http://ss64.com/sql/stats_c.html
 #   name <- paste0("stat_", random_ident_name())
 #   sql <- build_sql("CREATE STATISTICS ", name, " ON ", ident(table), con = con)
 #   dbGetQuery(con, sql)
-#   Not enabled at present
+#   Not enabled at present so just return TRUE
   TRUE
 }
 

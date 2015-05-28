@@ -10,7 +10,7 @@
 \alias{show,SQLServerDriver-method}
 \title{An S4 class to represent a SQL Server driver}
 \usage{
-SQLServer(identifier.quote = "[")
+SQLServer(identifier.quote = "\\"")
 
 \S4method{dbListConnections}{SQLServerDriver}(drv, ...)
 
@@ -23,7 +23,8 @@ SQLServer(identifier.quote = "[")
 \arguments{
 \item{identifier.quote}{quote character for a SQL Server identifier can be a
 single quotation mark (\code{\'}), a left or right bracket (\code{[]},
-defaults to \code{[}), or a double quotation mark (\code{\"}).}
+defaults to \code{[}), or a double quotation mark (\code{\"}), the last of
+which is the default.}
 
 \item{drv}{a \code{\linkS4class{SQLServerDriver}} object}
 
