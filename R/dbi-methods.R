@@ -3,19 +3,6 @@ NULL
 
 # Drivers ----------------------------------------------------------------
 
-#' @param drv a \code{\linkS4class{SQLServerDriver}} object
-#' @param ... other parameters which are not passed on further but necessary to
-#' match generic signature
-#' @rdname SQLServerDriver-class
-#' @export
-
-setMethod(f = 'dbListConnections', signature = 'SQLServerDriver',
-  definition = function (drv, ...) {
-    warning ("JDBC driver maintains no list of active connections.")
-    list()
-  }
-)
-
 #' @param  dbObj a \code{\linkS4class{SQLServerDriver}} object
 #' @rdname SQLServerDriver-class
 #' @export
