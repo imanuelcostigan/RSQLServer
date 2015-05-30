@@ -246,6 +246,16 @@ setMethod (f = 'dbIsValid', signature = 'SQLServerResult',
   }
 )
 
+# Per DBI documentation:
+# "fetch is provided for compatibility with older DBI clients - for all new
+# code you are strongly encouraged to use dbFetch."
+# RJDBC does not currently have a dbFetch method.
+
+#' @export
+setMethod("dbFetch", "SQLServerResult", function (res, n = -1, ...) {
+  RJDBC::fetch(res, n)
+})
+
 # Based on:
 # http://stackoverflow.com/a/3818712/1193481
 
@@ -259,25 +269,16 @@ sqlServerListFields <- function (res) {
 }
 
 
-# Per DBI documentation:
-# "fetch is provided for compatibility with older DBI clients - for all new
-# code you are strongly encouraged to use dbFetch."
-# JDBC does not currently have a dbFetch method.
-
-#' @export
-setMethod("dbFetch", "SQLServerResult", function (res, n = -1, ...) {
-  RJDBC::fetch(res, n)
-})
-
 # JDBC does not currently have a dbHasCompleted method
 # Does not appear as though such a method is available in the JDBC API
 
 # Inherited from DBI:
+# show()
 # dbFetch()
 #
 # Inherited from RJDBC:
 # fetch()
-# dbClearResult: Inherits from JDBCResult
-# dbGetInfo: Inherits from JDBCResult
+# dbClearResult()
+# dbGetInfo()
 # dbColumnInfo: Inherits from JDBCResult
 
