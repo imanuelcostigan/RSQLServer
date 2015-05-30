@@ -182,7 +182,6 @@ setMethod("dbSendQuery",
   }
 )
 
-# Will be called by dplyr::db_begin.DBIConnection
 
 sqlReadTable <- function (con, table) {
   dplyr::build_sql("SELECT * FROM", dplyr::ident(table), con = con)
@@ -198,6 +197,7 @@ setMethod(f = "dbReadTable", signature = "SQLServerConnection",
 )
 
 
+# Will be called by dplyr::db_begin.DBIConnection
 setMethod(f = "dbBegin", signature = "SQLServerConnection",
   definition = function (conn, ...) {
     # https://technet.microsoft.com/en-us/library/aa225983(v=sql.80).aspx
@@ -235,12 +235,12 @@ setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
   }
 )
 
-# dbDisconnect: Inherits from JDBCConnection
-# dbGetQuery: Inherits from JDBCConnection
-# dbGetException: Inherits from JDBCConnection
-# dbListResults: Inherits from JDBCConnection
-# dbListTables: Inherits from JDBCConnection
-# dbReadTable: Inherits from JDBCConnection
+# Inherited from RJDBC:
+# dbDisconnect()
+# dbGetQuery()
+# dbGetException()
+# dbListResults()
+# dbListTables()
 # dbWriteTable: Inherits from JDBCConnection
 # dbExistsTable: Inherits from JDBCConnection
 # dbRemoveTable: Inherits from JDBCConnection
@@ -287,7 +287,11 @@ setMethod("dbFetch", "SQLServerResult", function (res, n = -1, ...) {
 # JDBC does not currently have a dbHasCompleted method
 # Does not appear as though such a method is available in the JDBC API
 
-# fetch: Inherits from JDBCResult
+# Inherited from DBI:
+# dbFetch()
+#
+# Inherited from RJDBC:
+# fetch()
 # dbClearResult: Inherits from JDBCResult
 # dbGetInfo: Inherits from JDBCResult
 # dbColumnInfo: Inherits from JDBCResult
