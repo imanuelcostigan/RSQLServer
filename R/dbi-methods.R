@@ -115,7 +115,9 @@ setMethod(f = "show", signature = "SQLServerConnection",
 #' @export
 
 setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
-  definition = function (dbObj, ...) !rJava::.jcall(dbObj@jc, "Z", "isClosed")
+  definition = function (dbObj, ...) {
+    !rJava::.jcall(dbObj@jc, "Z", "isClosed")
+  }
 )
 
 #' Send query to SQL Server
