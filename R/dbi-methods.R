@@ -74,10 +74,10 @@ setMethod(f = 'dbConnect', signature = "SQLServerDriver",
   }
 )
 
-# Inherited from DBI
+# DBI methods inherited from DBI
 # dbDriver()
 #
-# Inherited from RJDBC
+# DBI methods inherited from RJDBC
 # dbUnloadDriver()
 
 
@@ -220,20 +220,19 @@ setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
   }
 )
 
-# Inherited from RJDBC:
+# DBI methods that inherit from RJDBC:
 # dbDisconnect()
 # dbGetQuery()
 # dbGetException()
 # dbListResults()
+# dbListFields()
 # dbListTables()
 # dbReadTable()
-# dbWriteTable: Inherits from JDBCConnection
-# dbExistsTable: Inherits from JDBCConnection
-# dbRemoveTable: Inherits from JDBCConnection
-# dbListFields: Inherits from JDBCConnection
-# dbCommit: Inherits from JDBCConnection
-# dbRollback: Inherits from JDBCConnection
-# dbCallProc: Not yet implemented
+# dbWriteTable()
+# dbExistsTable()
+# dbRemoveTable()
+# dbCommit()
+# dbRollback()
 
 # Results ----------------------------------------------------------------
 
