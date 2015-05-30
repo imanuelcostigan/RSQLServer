@@ -24,13 +24,6 @@ setMethod(f = "show", signature = "SQLServerDriver",
   }
 )
 
-#' @param drv a \code{\linkS4class{SQLServerDriver}} object
-#' @rdname SQLServerDriver-class
-#' @export
-
-setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) FALSE)
-
-
 # Connections ------------------------------------------------------------
 
 #' Connect to/disconnect from a SQL Server database.
