@@ -74,6 +74,13 @@ setMethod(f = 'dbConnect', signature = "SQLServerDriver",
   }
 )
 
+# Inherited from DBI
+# dbDriver()
+#
+# Inherited from RJDBC
+# dbUnloadDriver()
+
+
 # Connections ------------------------------------------------------------
 
 #' @rdname SQLServerConnection-class
@@ -96,8 +103,11 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
 setMethod(f = "show", signature = "SQLServerConnection",
   definition = function (object) {
     info <- dbGetInfo(object)
-    cat("SQLServerConnection to", info$db.product.name,
-      "version", info$db.version)
+    cat("<SQLServerConnection>\n")
+    cat(info$db.product.name, " v.", info$db.version, "\n", sep = "")
+    if (!dbIsValid(object)) {
+      cat("  DISCONNECTED\n")
+    }
   }
 )
 
