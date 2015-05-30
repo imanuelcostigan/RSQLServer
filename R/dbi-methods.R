@@ -184,6 +184,20 @@ setMethod("dbSendQuery",
 
 # Will be called by dplyr::db_begin.DBIConnection
 
+sqlReadTable <- function (con, table) {
+  dplyr::build_sql("SELECT * FROM", dplyr::ident(table), con = con)
+}
+
+#' @rdname dbReadTable
+#' @export
+setMethod(f = "dbReadTable", signature = "SQLServerConnection",
+  def = function (conn, name, ...) {
+    # More or less same as RJDBC method but using sqlReadTable
+    dbGetQuery(conn, sqlReadTable(conn, table))
+  }
+)
+
+
 setMethod(f = "dbBegin", signature = "SQLServerConnection",
   definition = function (conn, ...) {
     # https://technet.microsoft.com/en-us/library/aa225983(v=sql.80).aspx
