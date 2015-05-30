@@ -24,8 +24,6 @@ setMethod(f = "show", signature = "SQLServerDriver",
   }
 )
 
-# Connections ------------------------------------------------------------
-
 #' Connect to/disconnect from a SQL Server database.
 #'
 #' @param drv An objected of class \code{\linkS4class{SQLServerDriver}}, or an
@@ -75,6 +73,8 @@ setMethod(f = 'dbConnect', signature = "SQLServerDriver",
     new("SQLServerConnection", jc = jc, identifier.quote = drv@identifier.quote)
   }
 )
+
+# Connections ------------------------------------------------------------
 
 #' @rdname SQLServerConnection-class
 #' @export
