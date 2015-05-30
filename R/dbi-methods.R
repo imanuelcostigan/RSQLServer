@@ -182,21 +182,6 @@ setMethod("dbSendQuery",
   }
 )
 
-
-sqlReadTable <- function (con, table) {
-  dplyr::build_sql("SELECT * FROM", dplyr::ident(table), con = con)
-}
-
-#' @rdname dbReadTable
-#' @export
-setMethod(f = "dbReadTable", signature = "SQLServerConnection",
-  def = function (conn, name, ...) {
-    # More or less same as RJDBC method but using sqlReadTable
-    dbGetQuery(conn, sqlReadTable(conn, table))
-  }
-)
-
-
 # Will be called by dplyr::db_begin.DBIConnection
 setMethod(f = "dbBegin", signature = "SQLServerConnection",
   definition = function (conn, ...) {
@@ -241,6 +226,7 @@ setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
 # dbGetException()
 # dbListResults()
 # dbListTables()
+# dbReadTable()
 # dbWriteTable: Inherits from JDBCConnection
 # dbExistsTable: Inherits from JDBCConnection
 # dbRemoveTable: Inherits from JDBCConnection
