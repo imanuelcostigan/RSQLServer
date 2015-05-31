@@ -267,6 +267,7 @@ setMethod("dbColumnInfo", "SQLServerResult", def = function (res, ...) {
 })
 
 sqlServerToRType <- function (type) {
+  # https://msdn.microsoft.com/en-us/library/ms187752(v=sql.90).aspx
   mapping <- c("bigint" = "integer", "int" = "integer", "smallint" = "integer",
     "tinyint" = "integer", "bit" = "logical", "decimal" = "double",
     "numeric" = "double", "money" = "double", "smallmoney" = "double",
