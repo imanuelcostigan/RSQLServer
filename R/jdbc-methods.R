@@ -2,7 +2,7 @@ jdbcColumnMeta <- function (md, meta, jtype) {
   n <- rJava::.jcall(md, "I", "getColumnCount")
   rtype <- j_to_r_type(jtype)
   res <- vector(rtype, length = n)
-  for (i in seq_along(n)) {
+  for (i in 1:n) {
     res[i] <- rJava::.jcall(md, jtype, paste0("getColumn", meta), i)
   }
   res
