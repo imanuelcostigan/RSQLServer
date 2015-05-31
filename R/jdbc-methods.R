@@ -40,3 +40,21 @@ jdbcToSqlServerType <- function (jtype) {
   unname(mapping[jtype])
 }
 
+jdbcToRType <- function (type) {
+  # http://docs.oracle.com/javase/7/docs/api/constant-values.html#java.sql
+  if (type %in% c(2, 3, 6, 7, 8)) {
+    return("numeric")
+  } else if (type %in% c(-5, -6, 4, 5)) {
+    return("integer")
+  } else if (type %in% c(-7, 16)) {
+    return("logical")
+  } else if (type == 91) {
+    return("Date")
+  } else if (type == 93) {
+    return("POSIXct")
+  } else if (type >= -4 & type <= -2) {
+    return("raw")
+  } else {
+    return("character")
+  }
+}
