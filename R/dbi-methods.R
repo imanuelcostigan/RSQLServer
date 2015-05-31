@@ -254,15 +254,41 @@ setMethod("dbFetch", "SQLServerResult", function (res, n = -1, ...) {
 })
 
 #' @export
+setMethod(f = "dbGetInfo", signature = "JDBCResult",
+  def = function (dbObj, ...) {
+    list(statement = dbObj@stat,
+      row.count = rJava::.jcall(dbObj@res, "I", "getRow"),
+      rows.affected = rJava::.jcall(dbObj@res, "I", "getFetchSize"),
+      has.completed = rJava::.jcall(dbObj@res, "Z", "isClosed"),
+      # No JDBC method is available that determines whether statement is a
+      # SELECT
+      is.select = NA)
+  }
+)
+
+#' @export
 setMethod("dbColumnInfo", "SQLServerResult", def = function (res, ...) {
-  names <- jdbcColumnNames(res@md)
-  field.types <- jdbcToSqlServerType(jdbcColumnTypeNames(res@md))
-  data.types <- sqlServerToRType(field.types)
-  dplyr::data_frame(name = names,
-    field.type = field.types,
-    data.type = data.types)
+  # Inspired by RJDBC method for JDBCResult
+  # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R
+  cols <- rJava::.jcall(res@md, "I", "getColumnCount")
+  df <- dplyr::data_frame(field.name = character(),
+    field.type = character(),
+    data.type = character())
+  if (cols < 1) return(df)
+  for (i in 1:cols) {
+    df$field.name[i] <- rJava::.jcall(res@md, "S", "getColumnName", i)
+    df$field.type[i] <- rJava::.jcall(res@md, "S", "getColumnTypeName", i)
+    ct <- rJava::.jcall(res@md, "I", "getColumnType", i)
+    df$data.type[i] <- jdbcToRType(ct)
+  }
+  df
 })
 
+#' @export
+setMethod("dbHasCompleted", "SQLServerResult", def = function (res, ...) {
+  # Need to override RJDBC method as it always returns TRUE
+  dbGetInfo(res)$has.completed
+})
 
 
 # Inherited from DBI:
