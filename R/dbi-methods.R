@@ -236,10 +236,7 @@ setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
 
 # Results ----------------------------------------------------------------
 
-#' @param dbObj a \code{\linkS4class{SQLServerResult}} object
-#' @rdname SQLServerResult-class
 #' @export
-
 setMethod (f = 'dbIsValid', signature = 'SQLServerResult',
   definition = function (dbObj) {
     rJava::.jcall(dbObj@jr, "Z", "isClosed")
