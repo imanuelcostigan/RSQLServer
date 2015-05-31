@@ -190,7 +190,7 @@ setMethod(f = "dbBegin", signature = "SQLServerConnection",
   definition = function (conn, ...) {
     # https://technet.microsoft.com/en-us/library/aa225983(v=sql.80).aspx
     # https://msdn.microsoft.com/en-us/library/ms188929.aspx
-    dbGetQuery(con, "BEGIN TRANSACTION")
+    dbGetQuery(conn, "BEGIN TRANSACTION")
   }
 )
 
