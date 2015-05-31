@@ -20,7 +20,7 @@ db_query_fields.SQLServerConnection <- function (con, sql, ...) {
   fields <- build_sql("SELECT * FROM ", sql, " WHERE 0=1", con = con)
   qry <- dbSendQuery(con, fields)
   on.exit(dbClearResult(qry))
-  sqlServerListFields(qry)
+  jdbcColumnNames(qry@md)
 }
 
 # https://technet.microsoft.com/en-us/library/aa224033(v=sql.80).aspx

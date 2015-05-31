@@ -256,18 +256,28 @@ setMethod("dbFetch", "SQLServerResult", function (res, n = -1, ...) {
   RJDBC::fetch(res, n)
 })
 
-# Based on:
-# http://stackoverflow.com/a/3818712/1193481
+#' @export
+setMethod("dbColumnInfo", "SQLServerResult", def = function (res, ...) {
+  names <- jdbcColumnNames(res@md)
+  field.types <- jdbcToSqlServerType(jdbcColumnTypeNames(res@md))
+  data.types <- sqlServerToRType(field.types)
+  dplyr::data_frame(name = names,
+    field.type = field.types,
+    data.type = data.types)
+})
 
-sqlServerListFields <- function (res) {
-  column_count <- rJava::.jcall(res@md, "I", "getColumnCount")
-  column_names <- vector("character", column_count)
-  for (i in seq_along(column_names)) {
-    column_names[i] <- rJava::.jcall(res@md, "S", "getColumnName", i)
-  }
-  column_names
+sqlServerToRType <- function (type) {
+  mapping <- c("bigint" = "integer", "int" = "integer", "smallint" = "integer",
+    "tinyint" = "integer", "bit" = "logical", "decimal" = "double",
+    "numeric" = "double", "money" = "double", "smallmoney" = "double",
+    "float" = "double", "real" = "double", "datetime" = "POSIXct",
+    "smalldatetime" = "POSIXct", "char" = "character", "varchar" = "character",
+    "text" = "character", "nchar" = "character", "nvarchar" = "character",
+    "ntext" = "character", "binary" = "raw", "varbinary" = "raw",
+    "image" = "raw")
+  assertthat::assert_that(assertthat::has_name(mapping, type))
+  unname(mapping[type])
 }
-
 
 # JDBC does not currently have a dbHasCompleted method
 # Does not appear as though such a method is available in the JDBC API

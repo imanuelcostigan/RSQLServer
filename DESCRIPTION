@@ -39,6 +39,7 @@ Collate:
     'dbi-shims.R'
     'dplyr-imports.R'
     'dplyr.R'
+    'jdbc-methods.R'
     'onLoad.R'
     'sql-backends.R'
     'utils.R'
