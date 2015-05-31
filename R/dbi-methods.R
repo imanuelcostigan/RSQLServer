@@ -277,16 +277,16 @@ sqlServerToRType <- function (type) {
   unname(mapping[type])
 }
 
-# JDBC does not currently have a dbHasCompleted method
-# Does not appear as though such a method is available in the JDBC API
 
 # Inherited from DBI:
 # show()
 # dbFetch()
+# dbGetStatement()
+# dbGetRowsAffected()
+# dbGetRowCount()
 #
 # Inherited from RJDBC:
 # fetch()
 # dbClearResult()
 # dbGetInfo()
-# dbColumnInfo: Inherits from JDBCResult
 
