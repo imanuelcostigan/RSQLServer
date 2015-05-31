@@ -42,4 +42,5 @@ Collate:
     'jdbc-methods.R'
     'onLoad.R'
     'sql-backends.R'
+    'sql-methods.R'
     'utils.R'
