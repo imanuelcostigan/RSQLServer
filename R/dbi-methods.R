@@ -4,6 +4,7 @@ NULL
 # Drivers ----------------------------------------------------------------
 
 #' @param  dbObj a \code{\linkS4class{SQLServerDriver}} object
+#' @param ... Other arguments to methods.
 #' @rdname SQLServerDriver-class
 #' @export
 
@@ -182,8 +183,10 @@ setMethod("dbSendQuery",
   }
 )
 
-# Will be called by dplyr::db_begin.DBIConnection
+#' @rdname SQLServerConnection-class
+#' @export
 setMethod(f = "dbBegin", signature = "SQLServerConnection",
+  # Will be called by dplyr::db_begin.DBIConnection
   definition = function (conn, ...) {
     # https://technet.microsoft.com/en-us/library/aa225983(v=sql.80).aspx
     # https://msdn.microsoft.com/en-us/library/ms188929.aspx
@@ -191,10 +194,13 @@ setMethod(f = "dbBegin", signature = "SQLServerConnection",
   }
 )
 
-# RJDBC method is too crude. See:
-# https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R
+#' @param obj An R object whose SQL type we want to determine
+#' @rdname SQLServerConnection-class
+#' @export
 setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
   def = function (dbObj, obj, ...) {
+    # RJDBC method is too crude. See:
+    # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R
     # Based on db_data_type.MySQLConnection from dplyr
     # https://msdn.microsoft.com/en-us/library/ms187752(v=sql.90).aspx
     char_type <- function (x) {
@@ -236,6 +242,8 @@ setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
 
 # Results ----------------------------------------------------------------
 
+#' @param dbObj An object inheriting from \code{\linkS4class{SQLServerResult}}
+#' @rdname SQLServerResult-class
 #' @export
 setMethod (f = 'dbIsValid', signature = 'SQLServerResult',
   definition = function (dbObj) {
@@ -248,13 +256,21 @@ setMethod (f = 'dbIsValid', signature = 'SQLServerResult',
 # code you are strongly encouraged to use dbFetch."
 # RJDBC does not currently have a dbFetch method.
 
+#' @param res an object inheriting from \code{\linkS4class{SQLServerResult}}
+#' @param n  If n is -1 then the current implementation fetches 32k rows first
+#' and then (if not sufficient) continues with chunks of 512k rows, appending
+#' them. If the size of the result set is known in advance, it is most efficient
+#' to set n to that size.
+#' @param ... other arguments passed to method
+#' @rdname SQLServerResult-class
 #' @export
 setMethod("dbFetch", "SQLServerResult", function (res, n = -1, ...) {
   RJDBC::fetch(res, n)
 })
 
+#' @rdname SQLServerResult-class
 #' @export
-setMethod(f = "dbGetInfo", signature = "JDBCResult",
+setMethod(f = "dbGetInfo", signature = "SQLServerResult",
   def = function (dbObj, ...) {
     list(statement = dbObj@stat,
       row.count = rJava::.jcall(dbObj@res, "I", "getRow"),
@@ -266,6 +282,7 @@ setMethod(f = "dbGetInfo", signature = "JDBCResult",
   }
 )
 
+#' @rdname SQLServerResult-class
 #' @export
 setMethod("dbColumnInfo", "SQLServerResult", def = function (res, ...) {
   # Inspired by RJDBC method for JDBCResult
@@ -284,6 +301,7 @@ setMethod("dbColumnInfo", "SQLServerResult", def = function (res, ...) {
   df
 })
 
+#' @rdname SQLServerResult-class
 #' @export
 setMethod("dbHasCompleted", "SQLServerResult", def = function (res, ...) {
   # Need to override RJDBC method as it always returns TRUE

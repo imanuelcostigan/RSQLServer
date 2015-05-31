@@ -4,6 +4,8 @@
 \name{SQLServerConnection-class}
 \alias{SQLServerConnection-class}
 \alias{SQLServerConnection-method}
+\alias{dbBegin,SQLServerConnection-method}
+\alias{dbDataType,SQLServerConnection-method}
 \alias{dbGetInfo,SQLServerConnection-method}
 \alias{dbIsValid,SQLServerConnection-method}
 \alias{dbSendQuery,}
@@ -19,6 +21,10 @@
 
 \S4method{dbSendQuery}{SQLServerConnection,character}(conn, statement, ...,
   list = NULL)
+
+\S4method{dbBegin}{SQLServerConnection}(conn, ...)
+
+\S4method{dbDataType}{SQLServerConnection}(dbObj, obj, ...)
 }
 \arguments{
 \item{dbObj}{a \code{\linkS4class{SQLServerConnection}}}
@@ -32,6 +38,8 @@
 \item{statement}{SQL statement to execute}
 
 \item{list}{undocumented}
+
+\item{obj}{An R object whose SQL type we want to determine}
 }
 \value{
 a \code{\linkS4class{SQLServerResult}} object

@@ -3,13 +3,34 @@
 \docType{class}
 \name{SQLServerResult-class}
 \alias{SQLServerResult-class}
+\alias{dbColumnInfo,SQLServerResult-method}
+\alias{dbFetch,SQLServerResult-method}
+\alias{dbGetInfo,SQLServerResult-method}
+\alias{dbHasCompleted,SQLServerResult-method}
 \alias{dbIsValid,SQLServerResult-method}
 \title{An S4 class to represent a SQL Server result set}
 \usage{
 \S4method{dbIsValid}{SQLServerResult}(dbObj)
+
+\S4method{dbFetch}{SQLServerResult}(res, n = -1, ...)
+
+\S4method{dbGetInfo}{SQLServerResult}(dbObj, ...)
+
+\S4method{dbColumnInfo}{SQLServerResult}(res, ...)
+
+\S4method{dbHasCompleted}{SQLServerResult}(res, ...)
 }
 \arguments{
-\item{dbObj}{a \code{\linkS4class{SQLServerResult}} object}
+\item{dbObj}{An object inheriting from \code{\linkS4class{SQLServerResult}}}
+
+\item{res}{an object inheriting from \code{\linkS4class{SQLServerResult}}}
+
+\item{n}{If n is -1 then the current implementation fetches 32k rows first
+and then (if not sufficient) continues with chunks of 512k rows, appending
+them. If the size of the result set is known in advance, it is most efficient
+to set n to that size.}
+
+\item{...}{other arguments passed to method}
 }
 \description{
 This class extends the \code{\link[RJDBC:JDBCResult-class]{JDBCResult}}

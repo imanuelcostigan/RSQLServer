@@ -58,11 +58,11 @@ file <- system.file("extdata", "sql.yaml", package = "RSQLServer")
 readLines(file)
 # Connect using ~/sql.yaml file
 if (have_test_server()) {
- dbConnect(SQLServer(), "TEST")
+ dbConnect(RSQLServer::SQLServer(), "TEST")
 }
 # Don't use file argument:
 \dontrun{
-dbConnect(SQLServer(), server="11.1.111.11", port=1434,
+dbConnect(RSQLServer::SQLServer(), server="11.1.111.11", port=1434,
    properties=list(useNTLMv2="true", domain="myco", user="me",
      password="asecret"))
 }

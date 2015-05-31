@@ -12,13 +12,9 @@
 \usage{
 SQLServer(identifier.quote = "\\"")
 
-\S4method{dbListConnections}{SQLServerDriver}(drv, ...)
-
 \S4method{dbGetInfo}{SQLServerDriver}(dbObj, ...)
 
 \S4method{show}{SQLServerDriver}(object)
-
-\S4method{dbUnloadDriver}{SQLServerDriver}(drv, ...)
 }
 \arguments{
 \item{identifier.quote}{quote character for a SQL Server identifier can be a
@@ -26,16 +22,11 @@ single quotation mark (\code{\'}), a left or right bracket (\code{[]},
 defaults to \code{[}), or a double quotation mark (\code{\"}), the last of
 which is the default.}
 
-\item{drv}{a \code{\linkS4class{SQLServerDriver}} object}
-
-\item{...}{other parameters which are not passed on further but necessary to
-match generic signature}
-
 \item{dbObj}{a \code{\linkS4class{SQLServerDriver}} object}
 
-\item{object}{a \code{\linkS4class{SQLServerDriver}} object}
+\item{...}{Other arguments to methods.}
 
-\item{drv}{a \code{\linkS4class{SQLServerDriver}} object}
+\item{object}{a \code{\linkS4class{SQLServerDriver}} object}
 }
 \value{
 An object of class \linkS4class{SQLServerDriver}.
