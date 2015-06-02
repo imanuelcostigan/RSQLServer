@@ -9,14 +9,14 @@ sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
     "offset", "fetch")
 
   if (!is.null(top)) {
-    assertthat::assert_that(is.integer(top), length(top) == 1L)
+    assertthat::assert_that(assertthat::is.number(top))
     top <- build_sql("TOP ", dplyr::escape(top))
   }
 
   assertthat::assert_that(is.character(select), length(select) > 0L)
   out$select <- dplyr::build_sql("SELECT ", top, " ",
     dplyr::escape(select, collapse = ", ", con = con))
-  assertthat::assert_that(is.character(from), length(from) == 1L)
+  assertthat::assert_that(assertthat::is.string(from))
   out$from <- dplyr::build_sql("FROM ", from, con = con)
 
   if (length(where) > 0L) {
@@ -32,7 +32,7 @@ sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
   }
 
   if (!is.null(having)) {
-    assertthat::assert_that(is.character(having), length(having) == 1L)
+    assertthat::assert_that(assertthat::is.string(having))
     out$having <- dplyr::build_sql("HAVING ",
       dplyr::escape(having, collapse = ", ", con = con))
   }
@@ -59,19 +59,18 @@ sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
     # MSSQL versioning: http://support2.microsoft.com/kb/321185
     # OFFSET/FETCH: http://msdn.microsoft.com/en-us/library/ms188385(v=sql.110).aspx
     assertthat::assert_that(!is.null(order_by), dbGetInfo(con)$db.version >= 11,
-      is.integer(offset), length(offset) == 1L)
+      assertthat::is.number(offset))
     out$offset <- dplyr::build_sql("OFFSET ", offset, con = con)
   }
 
   if (!is.null(fetch)) {
     # SQL Server 2012 + equivalent of LIMIT is FETCH (used with OFFSET)
     # out$offset will be non-NULL if it is set and SQL Server dependency is met.
-    assertthat::assert_that(!is.null(out$offset), is.integer(fetch),
-      length(fetch) == 1L)
+    assertthat::assert_that(!is.null(out$offset), assertthat::is.number(fetch))
     out$fetch <- dplyr::build_sql("FETCH NEXT ", fetch, " ONLY", con = con)
   }
-  dplyr::escape(unname(dplyr:::compact(out)),
-    collapse = "\n", parens = FALSE, con = con)
+  dplyr::escape(unname(dplyr:::compact(out)), collapse = "\n",
+    parens = FALSE, con = con)
 }
 
 build_query <- function (x, top = NULL) {
