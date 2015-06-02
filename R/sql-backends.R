@@ -66,7 +66,8 @@ sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
   if (!is.null(fetch)) {
     # SQL Server 2012 + equivalent of LIMIT is FETCH (used with OFFSET)
     # out$offset will be non-NULL if it is set and SQL Server dependency is met.
-    assertthat::assert_that(!is.null(out$offset), assertthat::is.number(fetch))
+    assertthat::assert_that(!is.null(out$offset),
+      dbGetInfo(con)$db.version >= 11, assertthat::is.number(fetch))
     out$fetch <- dplyr::build_sql("FETCH NEXT ", fetch, " ONLY", con = con)
   }
   dplyr::escape(unname(dplyr:::compact(out)), collapse = "\n",
