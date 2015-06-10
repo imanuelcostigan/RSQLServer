@@ -273,9 +273,9 @@ setMethod("dbFetch", "SQLServerResult", function (res, n = -1, ...) {
 setMethod(f = "dbGetInfo", signature = "SQLServerResult",
   def = function (dbObj, ...) {
     list(statement = dbObj@stat,
-      row.count = rJava::.jcall(dbObj@res, "I", "getRow"),
-      rows.affected = rJava::.jcall(dbObj@res, "I", "getFetchSize"),
-      has.completed = rJava::.jcall(dbObj@res, "Z", "isClosed"),
+      row.count = rJava::.jcall(dbObj@jr, "I", "getRow"),
+      rows.affected = rJava::.jcall(dbObj@jr, "I", "getFetchSize"),
+      has.completed = rJava::.jcall(dbObj@jr, "Z", "isClosed"),
       # No JDBC method is available that determines whether statement is a
       # SELECT
       is.select = NA)
