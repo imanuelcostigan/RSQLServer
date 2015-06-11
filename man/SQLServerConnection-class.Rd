@@ -5,7 +5,7 @@
 \alias{SQLServerConnection-class}
 \alias{SQLServerConnection-method}
 \alias{dbBegin,SQLServerConnection-method}
-\alias{dbDataType,SQLServerConnection,ANY-method}
+\alias{dbDataType,SQLServerConnection-method}
 \alias{dbGetInfo,SQLServerConnection-method}
 \alias{dbIsValid,SQLServerConnection-method}
 \alias{dbSendQuery,}
@@ -24,7 +24,7 @@
 
 \S4method{dbBegin}{SQLServerConnection}(conn, ...)
 
-\S4method{dbDataType}{SQLServerConnection,ANY}(dbObj, obj, ...)
+\S4method{dbDataType}{SQLServerConnection}(dbObj, obj, ...)
 }
 \arguments{
 \item{dbObj}{a \code{\linkS4class{SQLServerConnection}}}
