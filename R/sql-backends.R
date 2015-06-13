@@ -1,6 +1,6 @@
 #' @importFrom dplyr sql_select
 #' @export
-sql_select.SQLServerConnection <- function(con, select, from, where = NULL,
+sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
   group_by = NULL, having = NULL, order_by = NULL, top = NULL,
   offset = NULL, fetch = NULL, ...) {
 
