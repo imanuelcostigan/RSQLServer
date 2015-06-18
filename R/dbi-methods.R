@@ -105,7 +105,7 @@ setMethod(f = "show", signature = "SQLServerConnection",
   definition = function (object) {
     info <- dbGetInfo(object)
     cat("<SQLServerConnection>\n")
-    cat(info$db.product.name, " v.", info$db.version, "\n", sep = "")
+    cat(info$db.product.name, " ", info$db.version, "\n", sep = "")
     if (!dbIsValid(object)) {
       cat("  DISCONNECTED\n")
     }
