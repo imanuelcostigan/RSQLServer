@@ -7,7 +7,11 @@ db_list_tables.SQLServerConnection <- function (con) {
 #' @importFrom dplyr db_has_table
 #' @export
 db_has_table.SQLServerConnection <- function (con, table) {
-  table %in% db_list_tables(con)
+  # Like method for MySQL, RSQLServer has no way to list temporary tables, so we
+  # always NA to skip any local checks and rely on the database to throw
+  # informative errors
+  # See: https://github.com/imanuelcostigan/RSQLServer/issues/29
+  NA
 }
 
 # Following shim written partly because:
