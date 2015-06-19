@@ -321,3 +321,8 @@ setMethod("dbHasCompleted", "SQLServerResult", def = function (res, ...) {
 # dbClearResult()
 # dbGetInfo()
 
+# Other ----------------------------------------------------------------
+
+# Inherited from DBI:
+# dbQuoteString()
+# dbQuoteIdentifier()
