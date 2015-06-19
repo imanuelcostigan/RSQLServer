@@ -50,15 +50,9 @@ db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
   name
 }
 
-#' @importFrom dplyr db_query_rows
-#' @export
-db_query_rows.SQLServerConnection <- function(con, sql, ...) {
-  # https://msdn.microsoft.com/en-us/library/ms187316.aspx
-  qry <- dplyr::build_sql(sql, con = con)
-  dbSendQuery(con, qry)
-  qry <- dplyr::build_sql("SELECT @@ROWCOUNT")
-  as.integer(dbGetQuery(con, qry))
-}
+#
+# db_query_row method inherits from DBIConnection method.
+#
 
 #' @importFrom dplyr db_create_table
 #' @export
