@@ -264,9 +264,34 @@ setMethod (f = 'dbIsValid', signature = 'SQLServerResult',
 #' @param ... other arguments passed to method
 #' @rdname SQLServerResult-class
 #' @export
-setMethod("dbFetch", "SQLServerResult", function (res, n = -1, ...) {
-  RJDBC::fetch(res, n)
-})
+setMethod(f = "dbFetch", signature = "SQLServerResult",
+  def = function (res, n = -1, ...) {
+    # RJDBC hasn't yet implemented dbFetch method
+    df <- RJDBC::fetch(res, n)
+    ####
+    # RJDBC translates SQL Server fields to numeric and character vectors only.
+    # This means that for eg, date fields types are represented by character
+    # vectors. A bit of post-processing will be good. At some point should
+    # file a bug report to RJDBC about this.
+    ####
+    # Assume that RJDBC doesn't change column order in fetching result
+    # First find JDBC column types and turn them into R types
+    rcts <- jdbcToRType(jdbcColumnTypes(res@md))
+    # Check which columns need conversion
+    df_cts <- vapply(df, class, "character", USE.NAMES = FALSE)
+    to_convert <- rcts != df_cts
+    # Conversion time
+    if (any(to_convert)) {
+      cnames <- colnames(df)
+      names(rcts) <- cnames
+      for (cname in cnames[to_convert]) {
+        f <- paste0("as.", rcts[cname])
+        df[, cname] <- call(f, df[, cname])
+      }
+    }
+    df
+  }
+)
 
 #' @rdname SQLServerResult-class
 #' @export
