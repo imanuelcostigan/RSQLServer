@@ -285,8 +285,8 @@ setMethod(f = "dbFetch", signature = "SQLServerResult",
       cnames <- colnames(df)
       names(rcts) <- cnames
       for (cname in cnames[to_convert]) {
-        f <- paste0("as.", rcts[cname])
-        df[, cname] <- call(f, df[, cname])
+        f <- paste0("as.", unname(rcts[cname]))
+        df[, cname] <- eval(call(f, df[, cname]))
       }
     }
     df
