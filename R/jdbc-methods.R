@@ -21,11 +21,19 @@ jdbcColumnTypes <- function (md) {
 }
 
 j_to_r_type <- function (jtype) {
-  mapping <- c("I" = "integer", "D" = "double", "J" = "integer",
-    "F" = "double", "Z" = "logical", "C" = "integer", "B" = "raw",
-    "S" = "character")
+  mapping <- c("S" = "character", "I" = "integer", "D" = "double",
+    "J" = "integer", "F" = "double", "Z" = "logical", "C" = "integer",
+    "B" = "raw")
   assertthat::assert_that(assertthat::has_name(mapping, jtype))
   unname(mapping[jtype])
+}
+
+r_to_j_type <- function (rtype) {
+  mapping <- c("S" = "character", "I" = "integer", "D" = "double",
+    "J" = "integer", "F" = "double", "Z" = "logical", "C" = "integer",
+    "B" = "raw")
+  # Default return value is "S" (string)
+  names(mapping)[match(rtype, mapping, 1)]
 }
 
 jdbcToSqlServerType <- function (jtype) {
@@ -42,19 +50,36 @@ jdbcToSqlServerType <- function (jtype) {
 
 jdbcToRType <- function (type) {
   # http://docs.oracle.com/javase/7/docs/api/constant-values.html#java.sql
-  if (type %in% c(2, 3, 6, 7, 8)) {
-    return("numeric")
-  } else if (type %in% c(-5, -6, 4, 5)) {
-    return("integer")
-  } else if (type %in% c(-7, 16)) {
-    return("logical")
-  } else if (type == 91) {
-    return("Date")
-  } else if (type == 93) {
-    return("POSIXct")
-  } else if (type >= -4 & type <= -2) {
-    return("raw")
+  # BIGINT (-5) is -2^63 to 2^63-1 which corresponds to Java's long. However,
+  # R does not have an integer type correspond to Java's long and rJava
+  # uses numeric / double instead. See footnote: http://www.rforge.net/rJava/
+  jnumeric <- c(-5, 2, 3, 6, 7, 8)
+  names(jnumeric) <- rep_len("numeric", length(jnumeric))
+  jinteger <- c(-6, 4, 5)
+  names(jinteger) <- rep_len("integer", length(jinteger))
+  jlogical <- c(-7, 16)
+  names(jlogical) <- rep_len("logical", length(jlogical))
+  jdate <- 91
+  names(jdate) <- rep_len("Date", length(jdate))
+  jdatetime <- 93
+  names(jdatetime) <- rep_len("POSIXct", length(jdatetime))
+  jraw <- c(-4, -3, -2)
+  names(jraw) <- rep_len("raw", length(jraw))
+  jother <- 1 # CHAR
+  names(jother) <- "character"
+  mapping <- c(jother, jnumeric, jinteger, jlogical, jdate, jdatetime, jraw)
+  # If no match, mapping to 1 = CHAR
+  res <- names(mapping)[match(type, mapping, 1)]
+  if (length(res)) {
+    return(res)
   } else {
-    return("character")
+    return(rep_len("character", length(type)))
   }
+}
+
+jdbcGetter <- function (type) {
+  mapping <- c("Double" = "numeric", "Int" = "integer", "Boolean" = "logical",
+    "Date" = "Date", "Date" = "POSIXct", "Byte" = "raw", "String" = "character")
+  rtype <- jdbcToRType(type)
+  paste0("get", names(mapping)[match(rtype, mapping, 0)])
 }
