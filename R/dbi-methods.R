@@ -226,7 +226,7 @@ setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
   }
 )
 
-# Copied from RJDBC
+# Modified from RJDBC
 # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L63
 .fillStatementParameters <- function(s, l) {
   for (i in 1:length(l)) {
