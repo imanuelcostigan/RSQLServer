@@ -233,21 +233,21 @@ setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
     v <- l[[i]]
     if (is.na(v)) { # map NAs to NULLs (courtesy of Axel Klenk)
       sqlType <- rToJdbcType(class(v))
-      .jcall(s, "V", "setNull", i, as.integer(sqlType))
+      rJava::.jcall(s, "V", "setNull", i, as.integer(sqlType))
     } else if (is.integer(v)) {
-      .jcall(s, "V", "setInt", i, v[1])
+      rJava::.jcall(s, "V", "setInt", i, v[1])
     } else if (is.numeric(v)) {
-      .jcall(s, "V", "setDouble", i, as.double(v)[1])
+      rJava::.jcall(s, "V", "setDouble", i, as.double(v)[1])
     } else if (is.logical(v)) {
-      .jcall(s, "V", "setBoolean", i, as.logical(v)[1])
+      rJava::.jcall(s, "V", "setBoolean", i, as.logical(v)[1])
     } else if (lubridate::is.Date(v)) {
-      .jcall(s, "V", "setDate", i, as.Date(v)[1])
+      rJava::.jcall(s, "V", "setDate", i, as.Date(v)[1])
     } else if (lubridate::is.POSIXct(v)) {
-      .jcall(s, "V", "setTimeStamp", i, as.POSIXct(v)[1])
+      rJava::.jcall(s, "V", "setTimeStamp", i, as.POSIXct(v)[1])
     } else if (is.raw(v)) {
-      .jcall(s, "V", "setByte", i, as.raw(v)[1])
+      rJava::.jcall(s, "V", "setByte", i, as.raw(v)[1])
     } else {
-      .jcall(s, "V", "setString", i, as.character(v)[1])
+      rJava::.jcall(s, "V", "setString", i, as.character(v)[1])
     }
   }
 }
@@ -258,7 +258,7 @@ setMethod("dbWriteTable", "SQLServerConnection",
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L242
     # However require `value` to be a data frame. No coercion will take place
     assertthat::assert_that(is.data.frame(value), ncol(value) > 0)
-    ac <- .jcall(conn@jc, "Z", "getAutoCommit")
+    ac <- rJava::.jcall(conn@jc, "Z", "getAutoCommit")
     overwrite <- isTRUE(as.logical(overwrite))
     append <- if (overwrite) FALSE else isTRUE(as.logical(append))
     if (dbExistsTable(conn, name)) {
@@ -268,8 +268,8 @@ setMethod("dbWriteTable", "SQLServerConnection",
       stop("Cannot append to a non-existing table '", name, "'")
     }
     if (ac) {
-      .jcall(conn@jc, "V", "setAutoCommit", FALSE)
-      on.exit(.jcall(conn@jc, "V", "setAutoCommit", ac))
+      rJava::.jcall(conn@jc, "V", "setAutoCommit", FALSE)
+      on.exit(rJava::.jcall(conn@jc, "V", "setAutoCommit", ac))
     }
     fts <- vapply(value, dbDataType, "character", dbObj=conn, USE.NAMES = FALSE)
     fdef <- paste(dplyr::ident(names(value)), fts, collapse = ', ')
@@ -421,7 +421,7 @@ setMethod("dbHasCompleted", "SQLServerResult", def = function (res, ...) {
     if (is.jnull(x))
       stop(...)
     else
-      stop(...," (",.jcall(x, "S", "getMessage"),")")
+      stop(...," (",rJava::.jcall(x, "S", "getMessage"),")")
   }
 }
 # Inherited from DBI:
