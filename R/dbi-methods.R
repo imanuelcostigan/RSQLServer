@@ -261,9 +261,9 @@ setMethod("dbWriteTable", "SQLServerConnection",
     ac <- rJava::.jcall(conn@jc, "Z", "getAutoCommit")
     overwrite <- isTRUE(as.logical(overwrite))
     append <- if (overwrite) FALSE else isTRUE(as.logical(append))
-    if (dbExistsTable(conn, name)) {
+    if (RJDBC::dbExistsTable(conn, name)) {
       msg <- paste0("Table '", name, "' already exists")
-      if (overwrite) dbRemoveTable(conn, name) else if (!append) stop(msg)
+      if (overwrite) RJDBC::dbRemoveTable(conn, name) else if (!append) stop(msg)
     } else if (append) {
       stop("Cannot append to a non-existing table '", name, "'")
     }
@@ -276,17 +276,17 @@ setMethod("dbWriteTable", "SQLServerConnection",
     qname <- dplyr::ident(name)
     if (!append) {
       ct <- paste("CREATE TABLE ", qname, " (", fdef, ")", sep= '')
-      dbSendUpdate(conn, ct)
+      RJDBC::dbSendUpdate(conn, ct)
     }
     if (length(value[[1]])) {
       # Use Prepared Statement.
       inss <- paste("INSERT INTO ", qname, " VALUES(",
         paste(rep("?", length(value)), collapse = ','), ")", sep = '')
       for (j in 1:length(value[[1]])) {
-        dbSendUpdate(conn, inss, list = as.list(value[j, ]))
+        RJDBC::dbSendUpdate(conn, inss, list = as.list(value[j, ]))
       }
     }
-    if (ac) dbCommit(conn)
+    if (ac) RJDBC::dbCommit(conn)
 })
 
 
@@ -416,12 +416,12 @@ setMethod("dbHasCompleted", "SQLServerResult", def = function (res, ...) {
 # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L18
 
 .verify.JDBC.result <- function (result, ...) {
-  if (is.jnull(result)) {
-    x <- .jgetEx(TRUE)
-    if (is.jnull(x))
+  if (rJava::is.jnull(result)) {
+    x <- rJava::.jgetEx(TRUE)
+    if (rJava::is.jnull(x))
       stop(...)
     else
-      stop(...," (",rJava::.jcall(x, "S", "getMessage"),")")
+      stop(..., " (", rJava::.jcall(x, "S", "getMessage"), ")")
   }
 }
 # Inherited from DBI:
