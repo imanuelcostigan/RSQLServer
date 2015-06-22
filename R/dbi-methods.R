@@ -252,13 +252,6 @@ setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
   }
 }
 
-# Copied from RJDBC:
-# https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L106
-if (is.null(getGeneric("dbSendUpdate"))) {
-  setGeneric("dbSendUpdate",
-    function(conn, statement, ...) standardGeneric("dbSendUpdate"))
-}
-
 #' Send query to SQL Server
 #'
 #' This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendUpdate}}
@@ -269,6 +262,7 @@ if (is.null(getGeneric("dbSendUpdate"))) {
 #' @param ... additional arguments to prepared statement substituted for "?"
 #' @param list undocumented
 #' @rdname SQLServerConnection-class
+#' @importMethodsFrom RJDBC dbSendUpdate
 #' @export
 
 setMethod("dbSendUpdate",  c(conn="SQLServerConnection", statement="character"),

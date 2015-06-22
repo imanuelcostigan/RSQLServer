@@ -10,6 +10,7 @@
 \alias{dbIsValid,SQLServerConnection-method}
 \alias{dbSendQuery,}
 \alias{dbSendQuery,SQLServerConnection,character-method}
+\alias{dbSendUpdate,SQLServerConnection,character-method}
 \alias{show,SQLServerConnection-method}
 \title{An S4 class to represent a SQL Server connection}
 \usage{
@@ -25,6 +26,9 @@
 \S4method{dbBegin}{SQLServerConnection}(conn, ...)
 
 \S4method{dbDataType}{SQLServerConnection}(dbObj, obj, ...)
+
+\S4method{dbSendUpdate}{SQLServerConnection,character}(conn, statement, ...,
+  list = NULL)
 }
 \arguments{
 \item{dbObj}{a \code{\linkS4class{SQLServerConnection}}}
@@ -40,6 +44,12 @@
 \item{list}{undocumented}
 
 \item{obj}{An R object whose SQL type we want to determine}
+
+\item{statement}{SQL statement to execute}
+
+\item{...}{additional arguments to prepared statement substituted for "?"}
+
+\item{list}{undocumented}
 }
 \value{
 a \code{\linkS4class{SQLServerResult}} object
@@ -51,6 +61,10 @@ class to represent a SQL Server connection.
 This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendQuery}}
 method for JDBCConnection, except that this returns a
 \code{\linkS4class{SQLServerResult}} rather than a JDBCResult.
+
+This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendUpdate}}
+method for JDBCConnection, except that this makes use of a more refined
+(private) \code{.fillStatementParameters} function.
 }
 \section{Slots}{
 
