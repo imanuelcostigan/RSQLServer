@@ -49,7 +49,7 @@ jdbcToSqlServerType <- function (jtype) {
 }
 
 jdbcToRType <- function (type) {
-  # http://docs.oracle.com/javase/7/docs/api/constant-values.html#java.sql
+  # http://docs.oracle.com/javase/7/docs/api/constant-values.html#java.sql.Types
   # BIGINT (-5) is -2^63 to 2^63-1 which corresponds to Java's long. However,
   # R does not have an integer type correspond to Java's long and rJava
   # uses numeric / double instead. See footnote: http://www.rforge.net/rJava/
@@ -75,6 +75,15 @@ jdbcToRType <- function (type) {
   } else {
     return(rep_len("character", length(type)))
   }
+}
+
+rToJdbcType <- function (type) {
+  # JDBC API:
+  # http://docs.oracle.com/javase/7/docs/api/constant-values.html#java.sql.Types
+  mapping <- c("character" = 12, "numeric" = 8, "integer" = 4, "logical" = 16,
+    "Date" = 91, "POSIXct" = 93, "raw" = -3)
+  # Default map of R type is to "character" unless specific mapping is available
+  mapping[match(type, names(mapping), 1)]
 }
 
 jdbcGetter <- function (type) {

@@ -232,14 +232,23 @@ setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
   for (i in 1:length(l)) {
     v <- l[[i]]
     if (is.na(v)) { # map NAs to NULLs (courtesy of Axel Klenk)
-      sqlType <- if (is.integer(v)) 4 else if (is.numeric(v)) 8 else 12
+      sqlType <- rToJdbcType(class(v))
       .jcall(s, "V", "setNull", i, as.integer(sqlType))
-    } else if (is.integer(v))
+    } else if (is.integer(v)) {
       .jcall(s, "V", "setInt", i, v[1])
-    else if (is.numeric(v))
+    } else if (is.numeric(v)) {
       .jcall(s, "V", "setDouble", i, as.double(v)[1])
-    else
+    } else if (is.logical(v)) {
+      .jcall(s, "V", "setBoolean", i, as.logical(v)[1])
+    } else if (lubridate::is.Date(v)) {
+      .jcall(s, "V", "setDate", i, as.Date(v)[1])
+    } else if (lubridate::is.POSIXct(v)) {
+      .jcall(s, "V", "setTimeStamp", i, as.POSIXct(v)[1])
+    } else if (is.raw(v)) {
+      .jcall(s, "V", "setByte", i, as.raw(v)[1])
+    } else {
       .jcall(s, "V", "setString", i, as.character(v)[1])
+    }
   }
 }
 
