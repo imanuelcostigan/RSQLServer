@@ -221,6 +221,7 @@ setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
       # to R's Date class
       Date = "datetime",
       POSIXct = "datetime",
+      raw = "binary",
       stop("Unknown class ", paste(class(obj), collapse = "/"), call. = FALSE)
     )
   }
