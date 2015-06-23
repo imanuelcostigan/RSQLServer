@@ -259,9 +259,10 @@ setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
       # as.integer converts POSIXct to seconds since epoch. Timestamp
       # constructor needs milliseconds so multiply by 1000
       # http://docs.oracle.com/javase/7/docs/api/java/sql/Timestamp.html
-      milliseconds <- as.integer(as.POSIXct(v)[1] * 1000)
-      vtimestamp <- rJava::.jnew("java/sql/Timestamp", milliseconds)
-      rJava::.jcall(s, "V", "setTimeStamp", i, vtimestamp)
+      milliseconds <- as.integer(as.POSIXct(v)[1]) * 1000
+      vtimestamp <- rJava::.jnew("java/sql/Timestamp",
+        rJava::.jlong(milliseconds))
+      rJava::.jcall(s, "V", "setTimestamp", i, vtimestamp)
     } else if (is.raw(v)) {
       rJava::.jcall(s, "V", "setByte", i, as.raw(v)[1])
     } else {
