@@ -47,12 +47,6 @@
 \item{list}{undocumented}
 
 \item{obj}{An R object whose SQL type we want to determine}
-
-\item{statement}{SQL statement to execute}
-
-\item{...}{additional arguments to prepared statement substituted for "?"}
-
-\item{list}{undocumented}
 }
 \value{
 a \code{\linkS4class{SQLServerResult}} object
@@ -64,10 +58,6 @@ class to represent a SQL Server connection.
 This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendQuery}}
 method for JDBCConnection, except that this returns a
 \code{\linkS4class{SQLServerResult}} rather than a JDBCResult.
-
-This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendUpdate}}
-method for JDBCConnection, except that this makes use of a more refined
-(private) \code{.fillStatementParameters} function.
 }
 \section{Slots}{
 

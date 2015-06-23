@@ -276,15 +276,6 @@ setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
   }
 }
 
-#' Send query to SQL Server
-#'
-#' This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendUpdate}}
-#' method for JDBCConnection, except that this makes use of a more refined
-#' (private) \code{.fillStatementParameters} function.
-#'
-#' @param statement SQL statement to execute
-#' @param ... additional arguments to prepared statement substituted for "?"
-#' @param list undocumented
 #' @rdname SQLServerConnection-class
 #' @importMethodsFrom RJDBC dbSendUpdate
 #' @export
@@ -372,7 +363,6 @@ setMethod("dbWriteTable", "SQLServerConnection",
 
 # DBI methods that inherit from RJDBC:
 # dbDisconnect()
-# dbGetQuery()
 # dbGetException()
 # dbListResults()
 # dbListFields()
