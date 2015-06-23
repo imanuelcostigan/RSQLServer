@@ -243,7 +243,12 @@ setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
     } else if (lubridate::is.Date(v)) {
       rJava::.jcall(s, "V", "setDate", i, as.Date(v)[1])
     } else if (lubridate::is.POSIXct(v)) {
-      rJava::.jcall(s, "V", "setTimeStamp", i, as.POSIXct(v)[1])
+      # as.integer converts POSIXct to seconds since epoch. Timestamp
+      # constructor needs milliseconds so multiply by 1000
+      # http://docs.oracle.com/javase/7/docs/api/java/sql/Timestamp.html
+      milliseconds <- as.integer(as.POSIXct(v)[1] * 1000)
+      vtimestamp <- rJava::.jnew("java/sql/Timestamp", milliseconds)
+      rJava::.jcall(s, "V", "setTimeStamp", i, vtimestamp)
     } else if (is.raw(v)) {
       rJava::.jcall(s, "V", "setByte", i, as.raw(v)[1])
     } else {
