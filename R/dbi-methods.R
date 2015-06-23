@@ -182,6 +182,8 @@ setMethod("dbSendQuery",
   }
 )
 
+#' @rdname SQLServerConnection-class
+#' @export
 setMethod(f = "dbGetQuery", signature = c("SQLServerConnection", "character"),
   def = function (conn, statement, ...) {
     # Copied from RJDBC:
@@ -189,7 +191,7 @@ setMethod(f = "dbGetQuery", signature = c("SQLServerConnection", "character"),
     # Necessary because otherwise dbGetQuery will call RJDBC's fetch function
     # which isn't very granular (see RJDBC #22)
     res <- dbSendQuery(conn, statement, ...)
-    on.exit(rJava::.rcall(r@stat, "V", "close"))
+    on.exit(rJava::.jcall(res@stat, "V", "close"))
     dbFetch(res, -1)
 })
 
