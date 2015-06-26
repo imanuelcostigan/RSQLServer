@@ -14,6 +14,18 @@ db_has_table.SQLServerConnection <- function (con, table) {
   NA
 }
 
+# This is needed because DBI method doesn't name the resulting count and
+# the RSQLServer dbGetQuery->dbFetch query expects a name for each column.
+
+#' @importFrom dplyr db_query_rows
+#' @export
+db_query_rows.DBIConnection <- function(con, sql, ...) {
+  from <- sql_subquery(con, sql, "master")
+  rows <- build_sql("SELECT count(*) AS COUNT FROM ", from, con = con)
+  as.integer(dbGetQuery(con, rows)[[1]])
+}
+
+
 # Following shim written partly because:
 # https://github.com/hadley/dplyr/issues/1107
 # But this may be more efficent than dplyr's DBIConnection method
