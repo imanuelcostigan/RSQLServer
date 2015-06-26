@@ -200,9 +200,9 @@ setMethod(f = "dbGetQuery", signature = c("SQLServerConnection", "character"),
 setMethod(f = "dbBegin", signature = "SQLServerConnection",
   # Will be called by dplyr::db_begin.DBIConnection
   definition = function (conn, ...) {
-    # https://technet.microsoft.com/en-us/library/aa225983(v=sql.80).aspx
-    # https://msdn.microsoft.com/en-us/library/ms188929.aspx
-    dbGetQuery(conn, "BEGIN TRANSACTION")
+    # http://stackoverflow.com/questions/4940648/how-to-start-a-transaction-in-jdbc
+    # Return error per DBI v 0.3.0 NEWS item
+    stop("JDBC connections start with auto-commit on.\n")
   }
 )
 
