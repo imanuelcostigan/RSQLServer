@@ -28,6 +28,14 @@ an example is provided in \code{extdata/sql.yaml} (see example). At a
 high level, each server should be documented in its own associative array
 with each aspect of the server documented in an associative array.
 }
+\examples{
+# See:
+# http://sqlblog.com/blogs/jamie_thomson/archive/2012/03/27/adventureworks2012-now-available-to-all-on-sql-azure.aspx
+aw <- dbConnect(SQLServer(), server = "mhknbn2kdz.database.windows.net",
+ database = 'AdventureWorks2012',
+ properties = list(user = "sqlfamily", password = "sqlf@m1ly"))
+dbListTables(aw)
+}
 \seealso{
 \href{https://github.com/yaml/yaml}{YAML}
 }

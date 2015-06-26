@@ -61,6 +61,13 @@ jtds_url <- function (server, type = "sqlserver", port = "", database = "",
 #' \code{file}. It stops and returns an error if \code{port} and \code{type}
 #' keys are not specified for found \code{server}. If the \code{file} does not
 #' contain the \code{server} key an empty list is returned.
+#' @examples
+#' # See:
+#' # http://sqlblog.com/blogs/jamie_thomson/archive/2012/03/27/adventureworks2012-now-available-to-all-on-sql-azure.aspx
+#' aw <- dbConnect(SQLServer(), server = "mhknbn2kdz.database.windows.net",
+#'  database = 'AdventureWorks2012',
+#'  properties = list(user = "sqlfamily", password = "sqlf@@m1ly"))
+#' dbListTables(aw)
 #' @seealso
 #' \href{https://github.com/yaml/yaml}{YAML}
 #' @keywords internal
