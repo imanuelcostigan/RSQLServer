@@ -19,7 +19,7 @@ db_has_table.SQLServerConnection <- function (con, table) {
 
 #' @importFrom dplyr db_query_rows
 #' @export
-db_query_rows.DBIConnection <- function(con, sql, ...) {
+db_query_rows.SQLServerConnection <- function(con, sql, ...) {
   from <- sql_subquery(con, sql, "master")
   rows <- build_sql("SELECT count(*) AS COUNT FROM ", from, con = con)
   as.integer(dbGetQuery(con, rows)[[1]])
