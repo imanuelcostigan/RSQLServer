@@ -8,22 +8,18 @@ NULL
 #' @rdname SQLServerDriver-class
 #' @export
 
-setMethod(f = 'dbGetInfo', signature = 'SQLServerDriver',
-  definition = function (dbObj, ...) {
-    list(name = 'RSQLServer (jTDS)',
-      driver.version = rJava::.jcall(dbObj@jdrv, "S", "getVersion"))
-  }
-)
+setMethod('dbGetInfo', 'SQLServerDriver', definition = function (dbObj, ...) {
+  list(name = 'RSQLServer (jTDS)',
+    driver.version = rJava::.jcall(dbObj@jdrv, "S", "getVersion"))
+})
 
 #' @param  object a \code{\linkS4class{SQLServerDriver}} object
 #' @rdname SQLServerDriver-class
 #' @export
 
-setMethod(f = "show", signature = "SQLServerDriver",
-  definition = function (object) {
-    cat("<SQLServerDriver>\n")
-  }
-)
+setMethod("show", "SQLServerDriver", definition = function (object) {
+  cat("<SQLServerDriver>\n")
+})
 
 #' Connect to/disconnect from a SQL Server database.
 #'
@@ -49,7 +45,7 @@ setMethod(f = "show", signature = "SQLServerDriver",
 #' @rdname SQLServer
 #' @export
 
-setMethod(f = 'dbConnect', signature = "SQLServerDriver",
+setMethod('dbConnect', "SQLServerDriver",
   definition = function (drv, server, file = NULL, database = "",
     type = "sqlserver", port = "", properties = list()) {
     # Use sql.yaml file if file is not missing. Note this will then ignore
@@ -87,7 +83,7 @@ setMethod(f = 'dbConnect', signature = "SQLServerDriver",
 #' @rdname SQLServerConnection-class
 #' @export
 
-setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
+setMethod('dbGetInfo', 'SQLServerConnection',
   definition = function (dbObj, ...) {
     meta <- rJava::.jcall(dbObj@jc, "Ljava/sql/DatabaseMetaData;",
       "getMetaData")
@@ -101,25 +97,21 @@ setMethod(f = 'dbGetInfo', signature = 'SQLServerConnection',
 #' @rdname SQLServerConnection-class
 #' @export
 
-setMethod(f = "show", signature = "SQLServerConnection",
-  definition = function (object) {
-    info <- dbGetInfo(object)
-    cat("<SQLServerConnection>\n")
-    cat(info$db.product.name, " ", info$db.version, "\n", sep = "")
-    if (!dbIsValid(object)) {
-      cat("  DISCONNECTED\n")
-    }
+setMethod("show", "SQLServerConnection", definition = function (object) {
+  info <- dbGetInfo(object)
+  cat("<SQLServerConnection>\n")
+  cat(info$db.product.name, " ", info$db.version, "\n", sep = "")
+  if (!dbIsValid(object)) {
+    cat("  DISCONNECTED\n")
   }
-)
+})
 
 #' @rdname SQLServerConnection-class
 #' @export
 
-setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
-  definition = function (dbObj, ...) {
-    !rJava::.jcall(dbObj@jc, "Z", "isClosed")
-  }
-)
+setMethod('dbIsValid', 'SQLServerConnection', function (dbObj, ...) {
+  !rJava::.jcall(dbObj@jc, "Z", "isClosed")
+})
 
 #' Send query to SQL Server
 #'
@@ -134,8 +126,7 @@ setMethod(f = 'dbIsValid', signature = 'SQLServerConnection',
 #' @rdname SQLServerConnection-class
 #' @export
 
-setMethod("dbSendQuery",
-  signature(conn = "SQLServerConnection", statement = "character"),
+setMethod("dbSendQuery", "SQLServerConnection",
   def = function (conn, statement, ..., list=NULL) {
     statement <- as.character(statement)[1L]
     ## if the statement starts with {call or {?= call then we use CallableStatement
@@ -184,7 +175,7 @@ setMethod("dbSendQuery",
 
 #' @rdname SQLServerConnection-class
 #' @export
-setMethod(f = "dbGetQuery", signature = c("SQLServerConnection", "character"),
+setMethod("dbGetQuery", "SQLServerConnection",
   def = function (conn, statement, ...) {
     # Copied from RJDBC:
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L136
@@ -197,19 +188,18 @@ setMethod(f = "dbGetQuery", signature = c("SQLServerConnection", "character"),
 
 #' @rdname SQLServerConnection-class
 #' @export
-setMethod(f = "dbBegin", signature = "SQLServerConnection",
-  # Will be called by dplyr::db_begin.DBIConnection
-  definition = function (conn, ...) {
-    # http://stackoverflow.com/questions/4940648/how-to-start-a-transaction-in-jdbc
-    # Return error per DBI v 0.3.0 NEWS item
-    stop("JDBC connections start with auto-commit on.\n")
+setMethod("dbBegin", "SQLServerConnection", definition = function (conn, ...) {
+    # Will be called by dplyr::db_begin.DBIConnection
+    # https://technet.microsoft.com/en-us/library/aa225983(v=sql.80).aspx
+    # https://msdn.microsoft.com/en-us/library/ms188929.aspx
+    dbGetQuery(conn, "BEGIN TRANSACTION")
   }
 )
 
 #' @param obj An R object whose SQL type we want to determine
 #' @rdname SQLServerConnection-class
 #' @export
-setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
+setMethod("dbDataType", "SQLServerConnection",
   def = function (dbObj, obj, ...) {
     # RJDBC method is too crude. See:
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R
@@ -280,7 +270,7 @@ setMethod(f = "dbDataType", signature = c("SQLServerConnection", "ANY"),
 #' @importMethodsFrom RJDBC dbSendUpdate
 #' @export
 
-setMethod("dbSendUpdate",  c(conn="SQLServerConnection", statement="character"),
+setMethod("dbSendUpdate",  "SQLServerConnection",
   def = function (conn, statement, ..., list = NULL) {
     # Modified from RJDBC
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L108
@@ -378,11 +368,9 @@ setMethod("dbWriteTable", "SQLServerConnection",
 #' @param dbObj An object inheriting from \code{\linkS4class{SQLServerResult}}
 #' @rdname SQLServerResult-class
 #' @export
-setMethod (f = 'dbIsValid', signature = 'SQLServerResult',
-  definition = function (dbObj) {
-    rJava::.jcall(dbObj@jr, "Z", "isClosed")
-  }
-)
+setMethod ('dbIsValid', 'SQLServerResult', function (dbObj) {
+  rJava::.jcall(dbObj@jr, "Z", "isClosed")
+})
 
 # Per DBI documentation:
 # "fetch is provided for compatibility with older DBI clients - for all new
@@ -397,49 +385,45 @@ setMethod (f = 'dbIsValid', signature = 'SQLServerResult',
 #' @param ... other arguments passed to method
 #' @rdname SQLServerResult-class
 #' @export
-setMethod(f = "dbFetch", signature = "SQLServerResult",
-  def = function (res, n = -1, ...) {
-    # RJDBC hasn't yet implemented dbFetch method
-    df <- RJDBC::fetch(res, n)
-    ####
-    # RJDBC translates SQL Server fields to numeric and character vectors only.
-    # This means that for eg, date fields types are represented by character
-    # vectors. A bit of post-processing will be good. At some point should
-    # file a bug report to RJDBC about this.
-    ####
-    # Assume that RJDBC doesn't change column order in fetching result
-    # First find JDBC column types and turn them into R types
-    rcts <- jdbcToRType(jdbcColumnTypes(res@md))
-    # Check which columns need conversion
-    df_cts <- vapply(df, class, "character", USE.NAMES = FALSE)
-    to_convert <- rcts != df_cts
-    # Conversion time
-    if (any(to_convert)) {
-      cnames <- colnames(df)
-      names(rcts) <- cnames
-      for (cname in cnames[to_convert]) {
-        f <- paste0("as.", unname(rcts[cname]))
-        df[, cname] <- eval(call(f, df[, cname]))
-      }
+setMethod("dbFetch", "SQLServerResult", def = function (res, n = -1, ...) {
+  # RJDBC hasn't yet implemented dbFetch method
+  df <- RJDBC::fetch(res, n)
+  ####
+  # RJDBC translates SQL Server fields to numeric and character vectors only.
+  # This means that for eg, date fields types are represented by character
+  # vectors. A bit of post-processing will be good. At some point should
+  # file a bug report to RJDBC about this.
+  ####
+  # Assume that RJDBC doesn't change column order in fetching result
+  # First find JDBC column types and turn them into R types
+  rcts <- jdbcToRType(jdbcColumnTypes(res@md))
+  # Check which columns need conversion
+  df_cts <- vapply(df, class, "character", USE.NAMES = FALSE)
+  to_convert <- rcts != df_cts
+  # Conversion time
+  if (any(to_convert)) {
+    cnames <- colnames(df)
+    names(rcts) <- cnames
+    for (cname in cnames[to_convert]) {
+      f <- paste0("as.", unname(rcts[cname]))
+      df[, cname] <- eval(call(f, df[, cname]))
     }
-    df
   }
-)
+  df
+})
 
 #' @rdname SQLServerResult-class
 #' @export
-setMethod(f = "dbGetInfo", signature = "SQLServerResult",
-  def = function (dbObj, ...) {
-    list(statement = dbObj@stat,
-      row.count = rJava::.jcall(dbObj@jr, "I", "getRow"),
-      rows.affected = rJava::.jcall(dbObj@jr, "I", "getFetchSize"),
-      # http://docs.oracle.com/javase/7/docs/api/java/sql/ResultSet.html#isAfterLast()
-      has.completed = rJava::.jcall(dbObj@jr, "Z", "isAfterLast"),
-      # No JDBC method is available that determines whether statement is a
-      # SELECT
-      is.select = NA)
-  }
-)
+setMethod("dbGetInfo", "SQLServerResult", def = function (dbObj, ...) {
+  list(statement = dbObj@stat,
+    row.count = rJava::.jcall(dbObj@jr, "I", "getRow"),
+    rows.affected = rJava::.jcall(dbObj@jr, "I", "getFetchSize"),
+    # http://docs.oracle.com/javase/7/docs/api/java/sql/ResultSet.html#isAfterLast()
+    has.completed = rJava::.jcall(dbObj@jr, "Z", "isAfterLast"),
+    # No JDBC method is available that determines whether statement is a
+    # SELECT
+    is.select = NA)
+})
 
 #' @rdname SQLServerResult-class
 #' @export
