@@ -458,7 +458,6 @@ setMethod("dbHasCompleted", "SQLServerResult", def = function (res, ...) {
 
 # Inherited from DBI:
 # show()
-# dbFetch()
 # dbGetStatement()
 # dbGetRowsAffected()
 # dbGetRowCount()
