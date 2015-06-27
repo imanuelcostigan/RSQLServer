@@ -113,6 +113,10 @@ setMethod('dbIsValid', 'SQLServerConnection', function (dbObj, ...) {
   !rJava::.jcall(dbObj@jc, "Z", "isClosed")
 })
 
+# Inherited from DBI:
+# dbQuoteString()
+# dbQuoteIdentifier()
+
 #' Send query to SQL Server
 #'
 #' This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendQuery}}
@@ -478,6 +482,3 @@ setMethod("dbHasCompleted", "SQLServerResult", def = function (res, ...) {
       stop(..., " (", rJava::.jcall(x, "S", "getMessage"), ")")
   }
 }
-# Inherited from DBI:
-# dbQuoteString()
-# dbQuoteIdentifier()
