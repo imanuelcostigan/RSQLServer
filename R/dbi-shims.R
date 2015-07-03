@@ -39,15 +39,6 @@ db_query_fields.SQLServerConnection <- function (con, sql, ...) {
   jdbcColumnNames(qry@md)
 }
 
-# https://technet.microsoft.com/en-us/library/aa224033(v=sql.80).aspx
-# Using [ doens't work
-# https://github.com/hadley/dplyr/issues/1164
-# # @importFrom dplyr sql_escape_ident
-# # @export
-# sql_escape_ident.SQLServerConnection <- function (con, x) {
-#   dplyr::sql_quote(x, "[")
-# }
-
 #' @importFrom dplyr db_save_query
 #' @export
 db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
