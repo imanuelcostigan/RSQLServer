@@ -37,16 +37,7 @@ sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
       dplyr::escape(having, collapse = ", ", con = con))
   }
 
-  if (is.null(order_by)) {
-    if (!is.null(top)) {
-      # MS best practice: use ORDER BY clause when using TOP clause
-      # This is the only way to predictably indicate which rows are affected by
-      # TOP.
-      # Source: http://msdn.microsoft.com/en-us/library/ms189463.aspx
-      out$order_by <- dplyr::build_sql("ORDER BY ",
-        dplyr::escape(order_by, collapse = ", ", con = con))
-    }
-  } else {
+  if (!is.null(order_by)) {
     assertthat::assert_that(is.character(order_by), length(order_by) > 0L)
     out$order_by <- dplyr::build_sql("ORDER BY ",
       dplyr::escape(order_by, collapse = ", ", con = con))
