@@ -33,8 +33,7 @@ db_query_rows.SQLServerConnection <- function(con, sql, ...) {
 #' @export
 db_query_fields.SQLServerConnection <- function (con, sql, ...) {
   # Condition WHERE 0 = 1 will force query to return 0 records.
-  fields <- build_sql("SELECT * FROM ", dplyr::ident(sql),
-    " WHERE 0=1", con = con)
+  fields <- build_sql("SELECT * FROM ", sql, " WHERE 0=1", con = con)
   qry <- dbSendQuery(con, fields)
   on.exit(dbClearResult(qry))
   jdbcColumnNames(qry@md)
