@@ -376,11 +376,6 @@ setMethod ('dbIsValid', 'SQLServerResult', function (dbObj) {
   rJava::.jcall(dbObj@jr, "Z", "isClosed")
 })
 
-# Per DBI documentation:
-# "fetch is provided for compatibility with older DBI clients - for all new
-# code you are strongly encouraged to use dbFetch."
-# RJDBC does not currently have a dbFetch method.
-
 #' @param res an object inheriting from \code{\linkS4class{SQLServerResult}}
 #' @param n  If n is -1 then the current implementation fetches 32k rows first
 #' and then (if not sufficient) continues with chunks of 512k rows, appending
@@ -390,7 +385,10 @@ setMethod ('dbIsValid', 'SQLServerResult', function (dbObj) {
 #' @rdname SQLServerResult-class
 #' @export
 setMethod("dbFetch", "SQLServerResult", def = function (res, n = -1, ...) {
-  # RJDBC hasn't yet implemented dbFetch method
+  # Per DBI documentation:
+  # "fetch is provided for compatibility with older DBI clients - for all new
+  # code you are strongly encouraged to use dbFetch."
+  # RJDBC does not currently have a dbFetch method.
   df <- RJDBC::fetch(res, n)
   ####
   # RJDBC translates SQL Server fields to numeric and character vectors only.
@@ -414,6 +412,15 @@ setMethod("dbFetch", "SQLServerResult", def = function (res, n = -1, ...) {
     }
   }
   df
+})
+
+#' @rdname SQLServerResult-class
+#' @export
+setMethod("fetch", c("SQLServerResult", "numeric"), function(res, n = -1, ...) {
+  # Needed because dplyr's Query class calls the S4 fetch method when it calls
+  # its R6 fetch method. See:
+  # https://github.com/hadley/dplyr/blob/db2f59ce3a0732c81a4fde2b60b06c048eaf1291/R/query.r#L44
+  dbFetch(res, n, ...)
 })
 
 #' @rdname SQLServerResult-class

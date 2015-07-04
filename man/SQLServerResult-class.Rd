@@ -8,11 +8,14 @@
 \alias{dbGetInfo,SQLServerResult-method}
 \alias{dbHasCompleted,SQLServerResult-method}
 \alias{dbIsValid,SQLServerResult-method}
+\alias{fetch,SQLServerResult,numeric-method}
 \title{An S4 class to represent a SQL Server result set}
 \usage{
 \S4method{dbIsValid}{SQLServerResult}(dbObj)
 
 \S4method{dbFetch}{SQLServerResult}(res, n = -1, ...)
+
+\S4method{fetch}{SQLServerResult,numeric}(res, n = -1, ...)
 
 \S4method{dbGetInfo}{SQLServerResult}(dbObj, ...)
 
