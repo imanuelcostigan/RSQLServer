@@ -20,37 +20,6 @@ jdbcColumnTypes <- function (md) {
   jdbcColumnMeta(md, "Type", "I")
 }
 
-jdbcTableTypes <- function (db_md) {
-  tbls <- rJava::.jcall(db_md, "Ljava/sql/ResultSet;", "getTableTypes",
-    check = FALSE)
-  while (rJava::.jcall(tbls, "Z", "next")) {
-
-  }
-}
-
-jdbcListTables <- function (db_md, catalog = NULL, schema = NULL, name = NULL,
-  types = NULL) {
-  if (is.null(catalog)) catalog <- rJava::.jnull("java/lang/String")
-  if (is.null(schema)) schema <- rJava::.jnull("java/lang/String")
-  if (is.null(name)) name <- "%"
-  if (is.null(types)) types <- rJava::.jnull("[Ljava/lang/String;")
-  tbl_md <- rJava::.jcall(db_md, "Ljava/sql/ResultSet;", "getTables",
-    catalog, schema, name, types, check = FALSE)
-  tbls <- vector("character")
-  dfs <- data_frame(Name = character(), Type = character(), Cat = character(),
-    Schema = character(), Generator = character())
-  i <- 1
-  while (rJava::.jcall(tbl_md, "Z", "next")) {
-    dfs[i, "Name"] <- rJava::.jcall(tbl_md, "S", "getString", "TABLE_NAME")
-    dfs[i, "Type"] <- rJava::.jcall(tbl_md, "S", "getString", "TABLE_TYPE")
-    dfs[i, "Cat"] <- rJava::.jcall(tbl_md, "S", "getString", "TABLE_CAT")
-    dfs[i, "Schema"]<- rJava::.jcall(tbl_md, "S", "getString", "TABLE_SCHEM")
-    i <- i + 1
-    # if (tbl_type != "SYSTEM_TABLE") tbls <- c(tbls, tbl_name)
-  }
-  dfs
-}
-
 j_to_r_type <- function (jtype) {
   mapping <- c("S" = "character", "I" = "integer", "D" = "double",
     "J" = "integer", "F" = "double", "Z" = "logical", "C" = "integer",
