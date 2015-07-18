@@ -28,11 +28,9 @@ db_query_rows.SQLServerConnection <- function(con, sql, ...) {
 #' @importFrom dplyr db_query_fields
 #' @export
 db_query_fields.SQLServerConnection <- function (con, sql, ...) {
-  # Following shim written partly because:
-  # https://github.com/hadley/dplyr/issues/1107
-  # But this may be more efficent than dplyr's DBIConnection method
-  # Condition WHERE 0 = 1 will force query to return 0 records.
-  fields <- build_sql("SELECT * FROM ", sql, " WHERE 0=1", con = con)
+  # Using MSFT recommendation linked here:
+  # https://github.com/imanuelcostigan/RSQLServer/issues/23
+  fields <- dplyr::build_sql("SELECT TOP 0 * FROM ", sql, con = con)
   qry <- dbSendQuery(con, fields)
   on.exit(dbClearResult(qry))
   jdbcColumnNames(qry@md)
