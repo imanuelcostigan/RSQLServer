@@ -130,7 +130,7 @@ setMethod('dbIsValid', 'SQLServerConnection', function (dbObj, ...) {
 #' @rdname SQLServerConnection-class
 #' @export
 
-setMethod("dbSendQuery", "SQLServerConnection",
+setMethod("dbSendQuery", c("SQLServerConnection", "character"),
   def = function (conn, statement, ..., list=NULL) {
     statement <- as.character(statement)[1L]
     ## if the statement starts with {call or {?= call then we use CallableStatement
@@ -179,7 +179,7 @@ setMethod("dbSendQuery", "SQLServerConnection",
 
 #' @rdname SQLServerConnection-class
 #' @export
-setMethod("dbGetQuery", "SQLServerConnection",
+setMethod("dbGetQuery", c("SQLServerConnection", "character"),
   def = function (conn, statement, ...) {
     # Copied from RJDBC:
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L136
@@ -203,7 +203,7 @@ setMethod("dbBegin", "SQLServerConnection", definition = function (conn, ...) {
 #' @param obj An R object whose SQL type we want to determine
 #' @rdname SQLServerConnection-class
 #' @export
-setMethod("dbDataType", "SQLServerConnection",
+setMethod("dbDataType", c("SQLServerConnection", "ANY"),
   def = function (dbObj, obj, ...) {
     # RJDBC method is too crude. See:
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R
@@ -274,7 +274,7 @@ setMethod("dbDataType", "SQLServerConnection",
 #' @importMethodsFrom RJDBC dbSendUpdate
 #' @export
 
-setMethod("dbSendUpdate",  "SQLServerConnection",
+setMethod("dbSendUpdate", c("SQLServerConnection", "character"),
   def = function (conn, statement, ..., list = NULL) {
     # Modified from RJDBC
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L108
@@ -401,7 +401,7 @@ setMethod ('dbIsValid', 'SQLServerResult', function (dbObj) {
 #' @rdname SQLServerResult-class
 #' @export
 setMethod("fetch", c("SQLServerResult", "numeric"),
-  def = function (res, n = -1, ...) {
+  def = function (res, n, ...) {
     # Needed because dplyr's Query class calls the S4 fetch method when it calls
     # its R6 fetch method. See:
     # https://github.com/hadley/dplyr/blob/db2f59ce3a0732c81a4fde2b60b06c048eaf1291/R/query.r#L44
@@ -433,7 +433,7 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
 
 #' @rdname SQLServerResult-class
 #' @export
-setMethod("dbFetch", c("SQLServerResult", "numeric"), function(res, n = -1, ...) {
+setMethod("dbFetch", c("SQLServerResult", "numeric"), function(res, n, ...) {
   # Per DBI documentation:
   # "fetch is provided for compatibility with older DBI clients - for all new
   # code you are strongly encouraged to use dbFetch."
