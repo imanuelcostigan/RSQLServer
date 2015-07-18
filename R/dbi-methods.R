@@ -354,7 +354,23 @@ setMethod("dbWriteTable", "SQLServerConnection",
     if (ac) dbCommit(conn)
 })
 
-
+setMethod("dbListTables", "SQLServerConnection", function(conn, ...) {
+  md <- rJava::.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData",
+    check = FALSE)
+  .verify.JDBC.result(md, "Unable to retrieve JDBC database metadata")
+  # Create arguments for call to getTables
+  jns <- rJava::.jnull("java/lang/String")
+  table_types <- rJava::.jarray(c("TABLE", "VIEW"))
+  rs <- rJava::.jcall(md, "Ljava/sql/ResultSet;", "getTables",
+    jns, jns, jns, table_types, check = FALSE)
+  .verify.JDBC.result(rs, "Unable to retrieve JDBC tables list")
+  on.exit(rJava::.jcall(rs, "V", "close"))
+  tbls <- character()
+  while (rJava::.jcall(rs, "Z", "next")) {
+    tbls <- c(tbls, rJava::.jcall(rs, "S", "getString", "TABLE_NAME"))
+  }
+  tbls
+})
 # DBI methods that inherit from RJDBC:
 # dbDisconnect()
 # dbGetException()
