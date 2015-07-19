@@ -76,14 +76,14 @@ db_analyze.SQLServerConnection <- function (con, table, ...) {
 
 # Inherited db_create_index.DBIConnection method from dplyr
 
-#
-# #' @importFrom dplyr db_explain
-# #' @export
-# db_explain.SQLServerConnection <- function (con, sql, ...) {
-#   message('SQL Server does not provide an EXPLAIN statement.')
-#   # Though may be possible to use SHOWPLAN
-#   # http://msdn.microsoft.com/en-us/library/ms187735.aspx
-#   # http://stackoverflow.com/questions/7359702/how-do-i-obtain-a-query-execution-plan
-#   # Maybe use same strategy as db_query_rows
-# }
-#
+#' @importFrom dplyr db_explain
+#' @export
+db_explain.SQLServerConnection <- function (con, sql, ...) {
+  # http://msdn.microsoft.com/en-us/library/ms187735.aspx
+  # http://stackoverflow.com/a/7359705/1193481
+  # dbSendUpdate(con, "SET SHOWPLAN_TEXT ON")
+  # on.exit(dbSendUpdate(con, "SET SHOWPLAN_TEXT OFF"))
+  # dbGetQuery(con, sql)
+  message("SHOWPLAN will be supported in a future release of RSQLServer.")
+}
+
