@@ -40,12 +40,11 @@ db_query_fields.SQLServerConnection <- function (con, sql, ...) {
 #' @export
 db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
   ...) {
-  # https://msdn.microsoft.com/en-us/library/ms174979.aspx
-  prefix <- if (temporary) "#" else ""
-  name <- paste0(prefix, name)
-  tt_sql <- dplyr::build_sql("CREATE TABLE ", dplyr::ident(name), " AS ",
-    sql, con = con)
-  dbGetQuery(con, tt_sql)
+  # http://smallbusiness.chron.com/create-table-query-results-microsoft-sql-50836.html
+  if (temporary) name <- paste0("#", name)
+  tt_sql <- dplyr::build_sql("SELECT * INTO ", dplyr::ident(name), " FROM ",
+    sql_subquery(con, sql), con = con)
+  a <- dbSendUpdate(con, tt_sql)
   name
 }
 

@@ -104,15 +104,17 @@ copy_to.src_sqlserver <- function (dest, df, name = deparse(substitute(df)),
   tbl(dest, name)
 }
 
+
+#' @importFrom dplyr compute
+#' @export
+compute.tbl_sqlserver <- function (x, name = random_ident_name(),
+  temporary = TRUE, ...) {
+  name <- db_save_query(x$src$con, x$query$sql, name = name,
+    temporary = temporary)
+  update(dplyr::tbl(x$src, name), group_by = dplyr::groups(x))
+}
+
 #
-# #' @importFrom dplyr compute
-# #' @export
-# compute.tbl_sqlserver <- function (x, name = random_table_name(),
-#   temporary = TRUE, ...) {
-#   name <- paste0(if (temporary) dplyr::sql("#"), name)
-#   db_save_query(x$src$con, x$query$sql, name = name, temporary = temporary)
-#   update(dplyr::tbl(x$src, name), group_by = dplyr::groups(x))
-# }
 #
 # #' @importFrom dplyr intersect
 # #' @export
