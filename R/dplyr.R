@@ -68,7 +68,12 @@ tbl.src_sqlserver <- function (src, from, ...) {
 #' @export
 src_translate_env.src_sqlserver <- function (x) {
   dplyr::sql_variant(
-    scalar = dplyr::base_scalar,
+    scalar = dplyr::sql_translator(.parent = dplyr::base_scalar,
+      # http://sqlserverplanet.com/tsql/format-string-to-date
+      as.POSIXct = function(x) build_sql("CAST(", x, " AS DATETIME)"),
+      # DATE data type only available since SQL Server 2008
+      as.Date = function (x) build_sql("CAST(", x, " AS DATE)")
+    ),
     aggregate = dplyr::sql_translator(.parent = dplyr::base_agg,
       n = function() dplyr::sql("COUNT(*)"),
       mean = dplyr::sql_prefix('AVG'),

@@ -43,11 +43,10 @@ db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
   # http://smallbusiness.chron.com/create-table-query-results-microsoft-sql-50836.html
   if (temporary) name <- paste0("#", name)
   tt_sql <- dplyr::build_sql("SELECT * INTO ", dplyr::ident(name), " FROM ",
-    sql_subquery(con, sql), con = con)
+    dplyr::sql_subquery(con, sql), con = con)
   a <- dbSendUpdate(con, tt_sql)
   name
 }
-
 
 #' @importFrom dplyr db_drop_table
 #' @export
