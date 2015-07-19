@@ -36,6 +36,14 @@ random_ident_name <- function (n = 10) {
   paste0(sample(letters, n, replace = TRUE), collapse = "")
 }
 
+db_create_indexes <- function(con, table, indexes = NULL, ...) {
+  if (is.null(indexes)) return()
+  assertthat::assert_that(is.list(indexes))
+  for(index in indexes) {
+    db_create_index(con, table, index, ...)
+  }
+}
+
 # all_calls <- function(x) {
 #   if (!is.call(x)) return(NULL)
 #

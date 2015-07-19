@@ -4,7 +4,6 @@
 \name{SQLServerConnection-class}
 \alias{SQLServerConnection-class}
 \alias{SQLServerConnection-method}
-\alias{dbBegin,SQLServerConnection-method}
 \alias{dbDataType,SQLServerConnection-method}
 \alias{dbGetInfo,SQLServerConnection-method}
 \alias{dbGetQuery,SQLServerConnection,character-method}
@@ -25,8 +24,6 @@
   list = NULL)
 
 \S4method{dbGetQuery}{SQLServerConnection,character}(conn, statement, ...)
-
-\S4method{dbBegin}{SQLServerConnection}(conn, ...)
 
 \S4method{dbDataType}{SQLServerConnection}(dbObj, obj, ...)
 

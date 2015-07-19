@@ -88,14 +88,16 @@ db_drop_table.SQLServerConnection <- function (con, table, force = FALSE, ...) {
 #' @importFrom dplyr db_analyze
 #' @export
 db_analyze.SQLServerConnection <- function (con, table, ...) {
-#   https://msdn.microsoft.com/en-us/library/ms188038(v=sql.90).aspx
-#   http://ss64.com/sql/stats_c.html
-#   name <- paste0("stat_", random_ident_name())
-#   sql <- build_sql("CREATE STATISTICS ", name, " ON ", ident(table), con = con)
-#   dbGetQuery(con, sql)
-#   Not enabled at present so just return TRUE
-  TRUE
+  # https://msdn.microsoft.com/en-us/library/ms188038(v=sql.90).aspx
+  # "Only the table owner can create statistics on that table....
+  # Requires ALTER permission on the table or view."
+  # http://ss64.com/sql/stats_c.html
+  name <- paste0("STAT_", random_ident_name())
+  sql <- build_sql("CREATE STATISTICS ", name, " ON ", ident(table), con = con)
+  dbGetQuery(con, sql)
 }
+
+# Inherited db_create_index.DBIConnection method from dplyr
 
 #
 # #' @importFrom dplyr db_explain
