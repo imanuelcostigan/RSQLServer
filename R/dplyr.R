@@ -92,7 +92,7 @@ head.tbl_sqlserver <- function (x, n = 6L, ...) {
 
 copy_to.src_sqlserver <- function (dest, df, name = deparse(substitute(df)),
   types = NULL, temporary = TRUE, indexes = NULL, analyze = TRUE, ...) {
-  assert_that(is.data.frame(df), assertthat::is.string(name),
+  assertthat::assert_that(is.data.frame(df), assertthat::is.string(name),
     assertthat::is.flag(temporary))
   con <- dest$con
   types <- types %||% db_data_type(con, df)
