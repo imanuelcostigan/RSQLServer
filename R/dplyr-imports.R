@@ -44,6 +44,70 @@ db_create_indexes <- function(con, table, indexes = NULL, ...) {
   }
 }
 
+common_by <- function(by = NULL, x, y) {
+  if (is.list(by)) return(by)
+
+  if (!is.null(by)) {
+    x <- names(by) %||% by
+    y <- unname(by)
+
+    # If x partially named, assume unnamed are the same in both tables
+    x[x == ""] <- y[x == ""]
+
+    return(list(x = x, y = y))
+  }
+
+  by <- intersect(dplyr::tbl_vars(x), dplyr::tbl_vars(y))
+  if (length(by) == 0) {
+    stop("No common variables. Please specify `by` param.", call. = FALSE)
+  }
+  message("Joining by: ", capture.output(dput(by)))
+
+  list(
+    x = by,
+    y = by
+  )
+}
+
+auto_names <- function(x) {
+  nms <- names2(x)
+  missing <- nms == ""
+  if (all(!missing)) return(nms)
+
+  deparse2 <- function(x) paste(deparse(x, 500L), collapse = "")
+  defaults <- vapply(x[missing], deparse2, character(1), USE.NAMES = FALSE)
+
+  nms[missing] <- defaults
+  nms
+}
+
+unique_names <- function(x_names, y_names, by, x_suffix = ".x", y_suffix = ".y") {
+  # See: https://github.com/hadley/dplyr/issues/709
+  common <- intersect(x_names, y_names)
+  if (length(common) == 0) return(NULL)
+
+  x_match <- match(common, x_names)
+  x_new <- x_names
+  x_new[x_match] <- paste0(x_names[x_match], x_suffix)
+
+  y_match <- match(common, y_names)
+  y_new <- y_names
+  y_new[y_match] <- paste0(y_names[y_match], y_suffix)
+
+  list(x = setNames(x_new, x_names), y = setNames(y_new, y_names))
+}
+
+unique_name <- local({
+  i <- 0
+
+  function() {
+    i <<- i + 1
+    paste0("_W", i)
+  }
+})
+
+
+
 # all_calls <- function(x) {
 #   if (!is.call(x)) return(NULL)
 #
@@ -69,17 +133,6 @@ db_create_indexes <- function(con, table, indexes = NULL, ...) {
 #   UseMethod("auto_copy")
 # }
 #
-# auto_names <- function(x) {
-#   nms <- names2(x)
-#   missing <- nms == ""
-#   if (all(!missing)) return(nms)
-#
-#   deparse2 <- function(x) paste(deparse(x, 500L), collapse = "")
-#   defaults <- vapply(x[missing], deparse2, character(1), USE.NAMES = FALSE)
-#
-#   nms[missing] <- defaults
-#   nms
-# }
 #
 # base_symbols <- dplyr::sql_translator(
 #   pi = dplyr::sql("PI()"),
@@ -151,31 +204,7 @@ db_create_indexes <- function(con, table, indexes = NULL, ...) {
 #   list2env(l, parent = parent)
 # }
 #
-# common_by <- function(by = NULL, x, y) {
-#   if (is.list(by)) return(by)
-#
-#   if (!is.null(by)) {
-#     x <- names(by) %||% by
-#     y <- unname(by)
-#
-#     # If x partially named, assume unnamed are the same in both tables
-#     x[x == ""] <- y[x == ""]
-#
-#     return(list(x = x, y = y))
-#   }
-#
-#   by <- intersect(dplyr::tbl_vars(x), dplyr::tbl_vars(y))
-#   if (length(by) == 0) {
-#     stop("No common variables. Please specify `by` param.", call. = FALSE)
-#   }
-#   message("Joining by: ", capture.output(dput(by)))
-#
-#   list(
-#     x = by,
-#     y = by
-#   )
-# }
-#
+
 # compact <- function(x) Filter(Negate(is.null), x)
 #
 # copy_env <- function(from, to = NULL, parent = parent.env(from)) {
@@ -308,30 +337,6 @@ db_create_indexes <- function(con, table, indexes = NULL, ...) {
 #   )
 # }
 #
-# unique_name <- local({
-#   i <- 0
-#
-#   function() {
-#     i <<- i + 1
-#     paste0("_W", i)
-#   }
-# })
-#
-# unique_names <- function(x_names, y_names, by, x_suffix = ".x", y_suffix = ".y") {
-#   # See: https://github.com/hadley/dplyr/issues/709
-#   common <- intersect(x_names, y_names)
-#   if (length(common) == 0) return(NULL)
-#
-#   x_match <- match(common, x_names)
-#   x_new <- x_names
-#   x_new[x_match] <- paste0(x_names[x_match], x_suffix)
-#
-#   y_match <- match(common, y_names)
-#   y_new <- y_names
-#   y_new[y_match] <- paste0(y_names[y_match], y_suffix)
-#
-#   list(x = setNames(x_new, x_names), y = setNames(y_new, y_names))
-# }
 #
 # uses_window_fun <- function(x, tbl) {
 #   if (is.null(x)) return(FALSE)
