@@ -106,6 +106,17 @@ unique_name <- local({
   }
 })
 
+auto_copy <- function(x, y, copy = FALSE, ...) {
+  if (dplyr::same_src(x, y)) return(y)
+
+  if (!copy) {
+    stop("x and y don't share the same src. Set copy = TRUE to copy y into ",
+      "x's source (this may be time consuming).", call. = FALSE)
+  }
+
+  UseMethod("auto_copy")
+}
+
 
 
 # all_calls <- function(x) {
@@ -120,17 +131,6 @@ unique_name <- local({
 #   if (!is.call(x)) return(NULL)
 #
 #   unique(unlist(lapply(x[-1], all_names), use.names = FALSE))
-# }
-#
-# auto_copy <- function(x, y, copy = FALSE, ...) {
-#   if (dplyr::same_src(x, y)) return(y)
-#
-#   if (!copy) {
-#     stop("x and y don't share the same src. Set copy = TRUE to copy y into ",
-#       "x's source (this may be time consuming).", call. = FALSE)
-#   }
-#
-#   UseMethod("auto_copy")
 # }
 #
 #
