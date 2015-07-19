@@ -352,6 +352,8 @@ setMethod("dbWriteTable", "SQLServerConnection",
     if (ac) dbCommit(conn)
 })
 
+# Modified from RJDBC:
+# https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L161
 setMethod("dbListTables", "SQLServerConnection", function(conn, ...) {
   md <- rJava::.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData",
     check = FALSE)
@@ -369,6 +371,11 @@ setMethod("dbListTables", "SQLServerConnection", function(conn, ...) {
   }
   tbls
 })
+
+setMethod("dbExistsTable", "SQLServerConnection", function (conn, name, ...) {
+  all(name %in% dbListTables(conn))
+})
+
 # DBI methods that inherit from RJDBC:
 # dbDisconnect()
 # dbGetException()
