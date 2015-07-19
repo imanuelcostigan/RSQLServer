@@ -95,12 +95,9 @@ copy_to.src_sqlserver <- function (dest, df, name = deparse(substitute(df)),
   assertthat::assert_that(is.data.frame(df), assertthat::is.string(name),
     assertthat::is.flag(temporary))
   con <- dest$con
-  types <- types %||% db_data_type(con, df)
-  names(types) <- names(df)
-  # DB to throw error if table `name` already exists
-  db_create_table(con, name, types, temporary = temporary)
   if (temporary) name <- paste0("#", name)
-  db_insert_into(con, name, df)
+  # DB to throw error if table `name` already exists
+  dbWriteTable(con, name, df, overwrite = FALSE, append = FALSE)
   db_create_indexes(con, name, indexes)
   if (analyze) db_analyze(con, name)
   on.exit(NULL)

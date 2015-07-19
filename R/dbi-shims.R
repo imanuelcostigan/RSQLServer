@@ -53,27 +53,6 @@ db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
 # db_query_row method inherits from DBIConnection method.
 #
 
-#' @importFrom dplyr db_create_table
-#' @export
-db_create_table.SQLServerConnection <- function (con, table, types,
-  temporary = FALSE, ...) {
-  # https://technet.microsoft.com/en-us/library/aa258255(v=sql.80).aspx
-  # https://msdn.microsoft.com/en-us/library/ms174979.aspx
-  assertthat::assert_that(assertthat::is.string(table), is.character(types))
-  # Don't overwrite because this isn't default SQL Server behaviour. User
-  # should drop table before creating table with same name.
-  if (temporary) table <- paste0("#", table)
-  dbWriteTable(con, table, types, overwrite = FALSE, append = FALSE)
-}
-
-#' @importFrom dplyr db_insert_into
-#' @export
-db_insert_into.SQLServerConnection <- function (con, table, values, ...) {
-  # Assumes table already exists (at least dplyr's SQLite method assumes so)
-  # So don't overwrite and simply append.
-  dbWriteTable(con, table, values, overwrite = FALSE, append = TRUE)
-}
-
 #' @importFrom dplyr db_drop_table
 #' @export
 db_drop_table.SQLServerConnection <- function (con, table, force = FALSE, ...) {
@@ -93,8 +72,11 @@ db_analyze.SQLServerConnection <- function (con, table, ...) {
   # Requires ALTER permission on the table or view."
   # http://ss64.com/sql/stats_c.html
   name <- paste0("STAT_", random_ident_name())
-  sql <- build_sql("CREATE STATISTICS ", name, " ON ", ident(table), con = con)
-  dbGetQuery(con, sql)
+  cols <- db_query_fields(con, ident(table))
+  cols <- sql_vector(cols, collapse = ', ', con = con)
+  sql <- build_sql("CREATE STATISTICS ", ident(name),
+    " ON ", ident(table), " ", cols, con = con)
+  dbSendUpdate(con, sql)
 }
 
 # Inherited db_create_index.DBIConnection method from dplyr
