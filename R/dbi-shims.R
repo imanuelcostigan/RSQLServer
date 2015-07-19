@@ -49,9 +49,6 @@ db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
   name
 }
 
-#
-# db_query_row method inherits from DBIConnection method.
-#
 
 #' @importFrom dplyr db_drop_table
 #' @export
