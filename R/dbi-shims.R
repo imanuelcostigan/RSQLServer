@@ -30,7 +30,7 @@ db_query_rows.SQLServerConnection <- function(con, sql, ...) {
 db_query_fields.SQLServerConnection <- function (con, sql, ...) {
   # Using MSFT recommendation linked here:
   # https://github.com/imanuelcostigan/RSQLServer/issues/23
-  fields <- dplyr::build_sql("SELECT TOP 0 * FROM ", sql, con = con)
+  fields <- dplyr::build_sql("SELECT * FROM ", sql, " WHERE 0=1", con = con)
   qry <- dbSendQuery(con, fields)
   on.exit(dbClearResult(qry))
   jdbcColumnNames(qry@md)
