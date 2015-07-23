@@ -85,12 +85,6 @@ src_translate_env.src_sqlserver <- function (x) {
   )
 }
 
-#' @importFrom utils head
-#' @export
-head.tbl_sqlserver <- function (x, n = 6L, ...) {
-  assertthat::assert_that(length(n) == 1, n > 0L)
-  build_query(x, n)$fetch()
-}
 
 #' @importFrom dplyr copy_to
 #' @export
