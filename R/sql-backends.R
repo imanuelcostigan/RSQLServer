@@ -24,7 +24,7 @@ sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
   }
 
   out$select <- dplyr::build_sql("SELECT ", limit, " ",
-    paste0(select, collapse = ", "), con = con)
+    dplyr::escape(select, collapse = ", ", con = con), con = con)
 
   # INTO --------------------------------------------------------------------
 
