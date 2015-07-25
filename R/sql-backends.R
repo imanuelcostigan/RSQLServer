@@ -2,7 +2,7 @@
 #' @export
 sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
   group_by = NULL, having = NULL, order_by = NULL, limit = NULL,
-  offset = NULL, fetch = NULL, is_percent = NULL, ...) {
+  offset = NULL, fetch = NULL, is_percent = NULL, into = NULL, ...) {
 
   # REFERENCES --------------------------------------------------------------
   # 2000 : https://technet.microsoft.com/en-us/library/aa259187(v=sql.80).aspx
@@ -12,8 +12,8 @@ sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
   # SETUP -------------------------------------------------------------------
 
   out <- vector("list", 9)
-  names(out) <- c("select", "from", "where", "group_by", "having", "order_by",
-    "limit", "offset", "fetch")
+  names(out) <- c("select", "from", "where", "group_by", "having",
+    "order_by", "limit", "offset", "fetch", "into")
 
   # SELECT ------------------------------------------------------------------
 
@@ -28,7 +28,9 @@ sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
 
   # INTO --------------------------------------------------------------------
 
-  # Coming
+  if (!is.null(into)) {
+    out$into <- dplyr::build_sql("INTO ", into, con = con)
+  }
 
   # FROM --------------------------------------------------------------------
 
