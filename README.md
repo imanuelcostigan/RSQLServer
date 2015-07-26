@@ -83,7 +83,7 @@ dbClearResult(res)
 dbDisconnect(aw)
 
 #############
-##### dplyr
+# dplyr
 #############
 
 # Note we do not attach the RSQLServer library here either
