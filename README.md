@@ -58,7 +58,7 @@ First ensure that your `~/sql.yaml` file contains the `AW` entry described above
 # DBI
 #############
 
-# Note we do not attach the RSQLServer library.
+# Note we do not attach the RSQLServer package.
 library(DBI)
 # Connect to AW server in ~/sql.yaml
 # This is an Azure hosted SQL Server database provided at someone else's 
@@ -86,7 +86,7 @@ dbDisconnect(aw)
 # dplyr
 #############
 
-# Note we do not attach the RSQLServer library here either
+# Note we do not attach the RSQLServer package here either
 library(dplyr)
 aw <- RSQLServer::src_sqlserver("AW", database = "AdventureWorks2012")
 # Alas, cannot easily call tables in non-default schema
