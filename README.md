@@ -61,27 +61,37 @@ First ensure that your `~/sql.yaml` file contains the `AW` entry described above
 # Note we do not attach the RSQLServer library.
 library(DBI)
 # Connect to AW server in ~/sql.yaml
-conn <- dbConnect(RSQLServer::SQLServer(), "AW", database = 'AdventureWorks2012')
-
-dbListTables(conn)
-dbListFields(conn, 'tablename')
-dbReadTable(conn, 'tablename')
+# This is an Azure hosted SQL Server database provided at someone else's 
+# expense. Feel free to tip them some:
+# http://sqlblog.com/blogs/jamie_thomson/archive/2012/03/27/adventureworks2012-now-available-to-all-on-sql-azure.aspx
+aw <- dbConnect(RSQLServer::SQLServer(), "AW", database = 'AdventureWorks2012')
+# RSQLServer only returns tables with type TABLE and VIEW.
+# But this DB has lots of useless tables. 
+dbListTables(aw)
+dbListFields(aw, 'Department')
+# Department table is in accessible through the HumanResources schema
+# NB: The ModifiedDate field is returned as a POSIXct date type rather than 
+# as a string per JDBC interface.
+dbReadTable(aw, 'HumanResources.Department')
 
 # Fetch all results
-res <- dbSendQuery(conn, 'SELECT TOP 10 * FROM tablename')
+res <- dbSendQuery(aw, 'SELECT TOP 10 * FROM HumanResources.Department')
 dbFetch(res)
 dbClearResult(res)
 
 # Disconnect from DB
-dbDisconnect(conn)
+dbDisconnect(aw)
 
 #############
 ##### dplyr
 #############
 # Note we do not attach the RSQLServer library here either
 library(dplyr)
-db <- src_sqlserver("TEST", database = "db")
-tablename <- tbl(db, 'tablename')
+aw <- RSQLServer::src_sqlserver("AW", database = "AdventureWorks2012")
+# Alas, cannot easily call tables in non-default schema
+# https://github.com/hadley/dplyr/issues/244
+# Workaround:
+dept <- tbl(aw, sql("SELECT * FROM HumanResources.Department"))
 # The following is translated to SQL and executed on the server. Only
 # the first six records are retrieved and printed to the REPL.
 (suburb_summary <- tablename %>% 

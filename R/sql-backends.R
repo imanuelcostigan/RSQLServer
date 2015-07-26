@@ -155,7 +155,7 @@ mssql_top <- function (con, n, is_percent = NULL) {
   n <- as.integer(n)
   is_mssql_2000 <- dbGetInfo(con)$db.version == 8
   if (is.null(is_percent) || !isTRUE(is_percent)) {
-    if (!is_mssql_2000) n <- paste0("(", n, ")")
+    if (!is_mssql_2000) n <- escape(n, parens = TRUE)
     return(build_sql("TOP ", n))
   } else {
     # Assume TOP n PERCENT. n must already be >= 0
