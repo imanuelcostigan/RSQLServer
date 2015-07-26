@@ -138,9 +138,8 @@ setdiff.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
 #' @importFrom stats update
 #' @export
 update.tbl_sqlserver <- function(object, ...) {
-  # Exact copy of dplyr method.
-  # Need to bring this in because I need update to call the RSQLServer
-  # specific copy of build_query.
+  # Exact copy of dplyr method and in particular, not simply call NextMethod()
+  # because I need update to call the RSQLServer specific copy of build_query.
   # See #40 and #49.
   args <- list(...)
   assertthat::assert_that(only_has_names(args,
