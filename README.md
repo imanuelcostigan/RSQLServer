@@ -85,21 +85,20 @@ dbDisconnect(aw)
 #############
 ##### dplyr
 #############
+
 # Note we do not attach the RSQLServer library here either
 library(dplyr)
 aw <- RSQLServer::src_sqlserver("AW", database = "AdventureWorks2012")
 # Alas, cannot easily call tables in non-default schema
+# Workaround is to SELECT whole table
 # https://github.com/hadley/dplyr/issues/244
-# Workaround:
-dept <- tbl(aw, sql("SELECT * FROM HumanResources.Department"))
+# Retrieves and prints first ten rows of table only
+(dept <- tbl(aw, sql("SELECT * FROM HumanResources.Department")))
 # The following is translated to SQL and executed on the server. Only
-# the first six records are retrieved and printed to the REPL.
-(suburb_summary <- tablename %>% 
-  filter(state == "NSW") %>% 
-  arrange(postcode) %>%
-  mutate(address_upper = toupper(address)) %>% 
-  group_by(suburb) %>%
-  summarise(n()))
+# the first ten records are retrieved and printed to the REPL.
+rd <- dept %>% 
+  filter(GroupName == "Research and Development") %>% 
+  arrange(Name)
 # Bring the full data set back to R
-collect(suburb_summary)
+collect(rd)
 ```
