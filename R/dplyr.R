@@ -135,4 +135,30 @@ setdiff.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
   update(tbl(x$src, sql), group_by = dplyr::groups(x))
 }
 
+#' @importFrom dplyr update
+#' @export
+update.tbl_sqlserver <- function(object, ...) {
+  # Exact copy of dplyr method.
+  # Need to bring this in because I need update to call the RSQLServer
+  # specific copy of build_query.
+  # See #40 and #49.
+  args <- list(...)
+  assertthat::assert_that(only_has_names(args,
+    c("select", "where", "group_by", "order_by", "summarise")))
+
+  for (nm in names(args)) {
+    object[[nm]] <- args[[nm]]
+  }
+
+  # Figure out variables
+  if (is.null(object$select)) {
+    var_names <- db_query_fields(object$src$con, object$from)
+    vars <- lapply(var_names, as.name)
+    object$select <- vars
+  }
+
+  object$query <- build_query(object)
+  object
+}
+
 
