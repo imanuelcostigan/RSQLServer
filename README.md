@@ -23,6 +23,10 @@ NB: This package has only been tested on Windows 7 x64 (>= 6.1). However this pa
 
 
 ```R
+#############
+##### DBI
+#############
+# Note we do not attach the RSQLServer library.
 library(DBI)
 # Connect to TEST server in ~/sql.yaml
 conn <- dbConnect(RSQLServer::SQLServer(), "TEST", database = 'db')
@@ -38,6 +42,24 @@ dbClearResult(res)
 
 # Disconnect from DB
 dbDisconnect(conn)
+
+#############
+##### dplyr
+#############
+# Note we do not attach the RSQLServer library here either
+library(dplyr)
+db <- src_sqlserver("TEST", database = "db")
+tablename <- tbl(db, 'tablename')
+# The following is translated to SQL and executed on the server. Only
+# the first six records are retrieved and printed to the REPL.
+(suburb_summary <- tablename %>% 
+  filter(state == "NSW") %>% 
+  arrange(postcode) %>%
+  mutate(address_upper = toupper(address)) %>% 
+  group_by(suburb) %>%
+  summarise(n()))
+# Bring the full data set back to R
+collect(suburb_summary)
 ```
 
 ## Config file
@@ -63,6 +85,3 @@ SQL_DEV:
     useNTLMv2: *ntlm
 ```
 
-## dplyr
-
-The integration of the RSQLServer backend with dplyr is coming.
