@@ -19,30 +19,9 @@ devtools::install_github('imanuelcostigan/RSQLServer')
 
 NB: This package has only been tested on Windows 7 x64 (>= 6.1). However this package rests on the cross-platform jTDS driver. 
 
-## Usage
-
-
-```R
-library(DBI)
-# Connect to TEST server in ~/sql.yaml
-conn <- dbConnect(RSQLServer::SQLServer(), "TEST", database = 'db')
-
-dbListTables(conn)
-dbListFields(conn, 'tablename')
-dbReadTable(conn, 'tablename')
-
-# Fetch all results
-res <- dbSendQuery(conn, 'SELECT TOP 10 * FROM tablename')
-dbFetch(res)
-dbClearResult(res)
-
-# Disconnect from DB
-dbDisconnect(conn)
-```
-
 ## Config file
 
-As alluded to above, we recommend that you store server details and credentials in `~/sql.yaml`. This is partly so that you do not need to specify a username and password in calls to `dbConnect()`. But it is also because in testing, we've found that the jTDS single sign-on (SSO) library is a bit flaky. The contents of this file should look something like this:
+We recommend that you store server details and credentials in `~/sql.yaml`. This is partly so that you do not need to specify a username and password in calls to `dbConnect()`. But it is also because in testing, we've found that the jTDS single sign-on (SSO) library is a bit flaky. The contents of this file should look something like this:
 
 ```yaml
 SQL_PROD:
@@ -61,8 +40,65 @@ SQL_DEV:
     user: *user
     password: *pass
     useNTLMv2: *ntlm
+AW:
+   server: mhknbn2kdz.database.windows.net
+   type: sqlserver
+   user: sqlfamily
+   password: sqlf@m1ly
+   port: 1433
 ```
 
-## dplyr
+## Usage
 
-The integration of the RSQLServer backend with dplyr is coming.
+First ensure that your `~/sql.yaml` file contains the `AW` entry described above:
+
+```R
+
+#############
+# DBI
+#############
+
+# Note we do not attach the RSQLServer library.
+library(DBI)
+# Connect to AW server in ~/sql.yaml
+# This is an Azure hosted SQL Server database provided at someone else's 
+# expense. Feel free to tip them some:
+# http://sqlblog.com/blogs/jamie_thomson/archive/2012/03/27/adventureworks2012-now-available-to-all-on-sql-azure.aspx
+aw <- dbConnect(RSQLServer::SQLServer(), "AW", database = 'AdventureWorks2012')
+# RSQLServer only returns tables with type TABLE and VIEW.
+# But this DB has lots of useless tables. 
+dbListTables(aw)
+dbListFields(aw, 'Department')
+# Department table is in accessible through the HumanResources schema
+# NB: The ModifiedDate field is returned as a POSIXct date type rather than 
+# as a string per JDBC interface.
+dbReadTable(aw, 'HumanResources.Department')
+
+# Fetch all results
+res <- dbSendQuery(aw, 'SELECT TOP 10 * FROM HumanResources.Department')
+dbFetch(res)
+dbClearResult(res)
+
+# Disconnect from DB
+dbDisconnect(aw)
+
+#############
+##### dplyr
+#############
+
+# Note we do not attach the RSQLServer library here either
+library(dplyr)
+aw <- RSQLServer::src_sqlserver("AW", database = "AdventureWorks2012")
+# Alas, cannot easily call tables in non-default schema
+# Workaround is to SELECT whole table
+# https://github.com/hadley/dplyr/issues/244
+# Retrieves and prints first ten rows of table only
+(dept <- tbl(aw, sql("SELECT * FROM HumanResources.Department")))
+# The following is translated to SQL and executed on the server. Only
+# the first ten records are retrieved and printed to the REPL.
+rd <- dept %>% 
+  filter(GroupName == "Research and Development") %>% 
+  arrange(Name)
+# Bring the full data set back to R
+collect(rd)
+```

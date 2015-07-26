@@ -35,7 +35,7 @@ src_sqlserver <- function (server, file = NULL, database = "",
   type = "sqlserver", port = "", properties = list()) {
   con <- dbConnect(SQLServer(), server, file, database , type, port, properties)
   info <- dbGetInfo(con)
-  dplyr::src_sql("sqlserver", con, info = info)
+  src_sql("sqlserver", con, info = info)
 }
 
 #' @importFrom dplyr src_desc
@@ -48,7 +48,7 @@ src_desc.src_sqlserver <- function (x) {
 #' @importFrom dplyr tbl
 #' @export
 tbl.src_sqlserver <- function (src, from, ...) {
-  dplyr::tbl_sql("sqlserver", src = src, from = from, ...)
+  tbl_sql("sqlserver", src = src, from = from, ...)
 }
 
 ## Math (scalar) functions - no change across versions based on eyeballing:
@@ -67,55 +67,97 @@ tbl.src_sqlserver <- function (src, from, ...) {
 #' @importFrom dplyr src_translate_env
 #' @export
 src_translate_env.src_sqlserver <- function (x) {
-  dplyr::sql_variant(
-    scalar = dplyr::base_scalar,
-    aggregate = dplyr::sql_translator(.parent = dplyr::base_agg,
-      n = function() dplyr::sql("COUNT(*)"),
-      mean = dplyr::sql_prefix('AVG'),
-      sd = dplyr::sql_prefix("STDEV"),
-      sdp = dplyr::sql_prefix("STDEVP"),
-      varp = dplyr::sql_prefix("VARP")
+  sql_variant(
+    scalar = sql_translator(.parent = base_scalar,
+      # http://sqlserverplanet.com/tsql/format-string-to-date
+      as.POSIXct = function(x) build_sql("CAST(", x, " AS DATETIME)"),
+      # DATE data type only available since SQL Server 2008
+      as.Date = function (x) build_sql("CAST(", x, " AS DATE)")
     ),
-    window = dplyr::base_win
+    aggregate = sql_translator(.parent = base_agg,
+      n = function() sql("COUNT(*)"),
+      mean = sql_prefix('AVG'),
+      sd = sql_prefix("STDEV"),
+      sdp = sql_prefix("STDEVP"),
+      varp = sql_prefix("VARP")
+    ),
+    window = base_win
   )
 }
 
-#' @importFrom utils head
+
+#' @importFrom dplyr copy_to
 #' @export
-head.tbl_sqlserver <- function (x, n = 6L, ...) {
-  assertthat::assert_that(length(n) == 1, n > 0L)
-  build_query(x, n)$fetch()
+
+copy_to.src_sqlserver <- function (dest, df, name = deparse(substitute(df)),
+  types = NULL, temporary = TRUE, indexes = NULL, analyze = TRUE, ...) {
+  assertthat::assert_that(is.data.frame(df), assertthat::is.string(name),
+    assertthat::is.flag(temporary))
+  con <- dest$con
+  if (temporary) name <- paste0("#", name)
+  # DB to throw error if table `name` already exists
+  dbWriteTable(con, name, df, overwrite = FALSE, append = FALSE)
+  db_create_indexes(con, name, indexes)
+  if (analyze) db_analyze(con, name)
+  on.exit(NULL)
+  tbl(dest, name)
 }
 
 
-#
-# #' @importFrom dplyr compute
-# #' @export
-# compute.tbl_sqlserver <- function (x, name = random_table_name(),
-#   temporary = TRUE, ...) {
-#   name <- paste0(if (temporary) dplyr::sql("#"), name)
-#   db_save_query(x$src$con, x$query$sql, name = name, temporary = temporary)
-#   update(dplyr::tbl(x$src, name), group_by = dplyr::groups(x))
-# }
-#
-# #' @importFrom dplyr intersect
-# #' @export
-# intersect.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
-#   # SQL Server 2000 does not support INTERSECT or EXCEPT
-#   assertthat::assert_that(x$src$info$db.version > 8, y$src$info$db.version > 8)
-#   y <- auto_copy(x, y, copy)
-#   sql <- dplyr::sql_set_op(x$src$con, x, y, "INTERSECT")
-#   update(tbl(x$src, sql), group_by = dplyr::groups(x))
-# }
-#
-# #' @importFrom dplyr setdiff
-# #' @export
-# setdiff.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
-#   # SQL Server 2000 does not support INTERSECT or EXCEPT
-#   assertthat::assert_that(x$src$info$db.version > 8, y$src$info$db.version > 8)
-#   y <- auto_copy(x, y, copy)
-#   sql <- dplyr::sql_set_op(x$src$con, x, y, "EXCEPT")
-#   update(tbl(x$src, sql), group_by = dplyr::groups(x))
-# }
-#
-#
+#' @importFrom dplyr compute
+#' @export
+compute.tbl_sqlserver <- function (x, name = random_ident_name(),
+  temporary = TRUE, ...) {
+  name <- db_save_query(x$src$con, x$query$sql, name = name,
+    temporary = temporary)
+  update(tbl(x$src, name), group_by = groups(x))
+}
+
+
+
+#' @importFrom dplyr intersect
+#' @export
+intersect.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
+  # SQL Server 2000 does not support INTERSECT or EXCEPT
+  assertthat::assert_that(x$src$info$db.version > 8, y$src$info$db.version > 8)
+  y <- auto_copy(x, y, copy)
+  sql <- sql_set_op(x$src$con, x, y, "INTERSECT")
+  update(tbl(x$src, sql), group_by = groups(x))
+}
+
+#' @importFrom dplyr setdiff
+#' @export
+setdiff.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
+  # SQL Server 2000 does not support INTERSECT or EXCEPT
+  assertthat::assert_that(x$src$info$db.version > 8, y$src$info$db.version > 8)
+  y <- auto_copy(x, y, copy)
+  sql <- sql_set_op(x$src$con, x, y, "EXCEPT")
+  update(tbl(x$src, sql), group_by = groups(x))
+}
+
+#' @importFrom stats update
+#' @export
+update.tbl_sqlserver <- function(object, ...) {
+  # Exact copy of dplyr method and in particular, not simply call NextMethod()
+  # because I need update to call the RSQLServer specific copy of build_query.
+  # See #40 and #49.
+  args <- list(...)
+  assertthat::assert_that(only_has_names(args,
+    c("select", "where", "group_by", "order_by", "summarise")))
+
+  for (nm in names(args)) {
+    object[[nm]] <- args[[nm]]
+  }
+
+  # Figure out variables
+  if (is.null(object$select)) {
+    var_names <- db_query_fields(object$src$con, object$from)
+    vars <- lapply(var_names, as.name)
+    object$select <- vars
+  }
+
+  object$query <- build_query(object)
+  object
+}
+
+

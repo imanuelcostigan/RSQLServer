@@ -130,7 +130,7 @@ setMethod('dbIsValid', 'SQLServerConnection', function (dbObj, ...) {
 #' @rdname SQLServerConnection-class
 #' @export
 
-setMethod("dbSendQuery", "SQLServerConnection",
+setMethod("dbSendQuery", c("SQLServerConnection", "character"),
   def = function (conn, statement, ..., list=NULL) {
     statement <- as.character(statement)[1L]
     ## if the statement starts with {call or {?= call then we use CallableStatement
@@ -179,7 +179,7 @@ setMethod("dbSendQuery", "SQLServerConnection",
 
 #' @rdname SQLServerConnection-class
 #' @export
-setMethod("dbGetQuery", "SQLServerConnection",
+setMethod("dbGetQuery", c("SQLServerConnection", "character"),
   def = function (conn, statement, ...) {
     # Copied from RJDBC:
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L136
@@ -190,20 +190,10 @@ setMethod("dbGetQuery", "SQLServerConnection",
     dbFetch(res, -1)
 })
 
-#' @rdname SQLServerConnection-class
-#' @export
-setMethod("dbBegin", "SQLServerConnection", definition = function (conn, ...) {
-    # Will be called by dplyr::db_begin.DBIConnection
-    # https://technet.microsoft.com/en-us/library/aa225983(v=sql.80).aspx
-    # https://msdn.microsoft.com/en-us/library/ms188929.aspx
-    dbGetQuery(conn, "BEGIN TRANSACTION")
-  }
-)
-
 #' @param obj An R object whose SQL type we want to determine
 #' @rdname SQLServerConnection-class
 #' @export
-setMethod("dbDataType", "SQLServerConnection",
+setMethod("dbDataType", c("SQLServerConnection", "ANY"),
   def = function (dbObj, obj, ...) {
     # RJDBC method is too crude. See:
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R
@@ -274,7 +264,7 @@ setMethod("dbDataType", "SQLServerConnection",
 #' @importMethodsFrom RJDBC dbSendUpdate
 #' @export
 
-setMethod("dbSendUpdate",  "SQLServerConnection",
+setMethod("dbSendUpdate", c("SQLServerConnection", "character"),
   def = function (conn, statement, ..., list = NULL) {
     # Modified from RJDBC
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L108
@@ -323,7 +313,13 @@ setMethod("dbWriteTable", "SQLServerConnection",
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L242
     # However require `value` to be a data frame. No coercion will take place
     assertthat::assert_that(is.data.frame(value), ncol(value) > 0)
+    # Capture whether auto-commit is enabled on connection
+    # If it is, disable until this function exists, after which it should be
+    # enabled again. Should be disabled to ensure all SQL statements are
+    # committed together rather than separately.
+    # http://docs.oracle.com/javase/tutorial/jdbc/basics/transactions.html
     ac <- rJava::.jcall(conn@jc, "Z", "getAutoCommit")
+    # Check whether table already exists and needs to be dropped.
     overwrite <- isTRUE(as.logical(overwrite))
     append <- if (overwrite) FALSE else isTRUE(as.logical(append))
     if (dbExistsTable(conn, name)) {
@@ -332,28 +328,53 @@ setMethod("dbWriteTable", "SQLServerConnection",
     } else if (append) {
       stop("Cannot append to a non-existing table '", name, "'")
     }
+    # Set auto-commit state on exit if necessary.
     if (ac) {
       rJava::.jcall(conn@jc, "V", "setAutoCommit", FALSE)
       on.exit(rJava::.jcall(conn@jc, "V", "setAutoCommit", ac))
     }
+    # Create / append new table
     fts <- vapply(value, dbDataType, "character", dbObj=conn, USE.NAMES = FALSE)
-    fdef <- paste(dplyr::ident(names(value)), fts, collapse = ', ')
-    qname <- dplyr::ident(name)
+    fdef <- paste(ident(names(value)), fts, collapse = ', ')
+    qname <- ident(name)
     if (!append) {
       ct <- paste("CREATE TABLE ", qname, " (", fdef, ")", sep= '')
-      RJDBC::dbSendUpdate(conn, ct)
+      dbSendUpdate(conn, ct)
     }
     if (length(value[[1]])) {
       # Use Prepared Statement.
       inss <- paste("INSERT INTO ", qname, " VALUES(",
         paste(rep("?", length(value)), collapse = ','), ")", sep = '')
       for (j in 1:length(value[[1]])) {
-        RJDBC::dbSendUpdate(conn, inss, list = as.list(value[j, ]))
+        dbSendUpdate(conn, inss, list = as.list(value[j, ]))
       }
     }
     if (ac) dbCommit(conn)
 })
 
+# Modified from RJDBC:
+# https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L161
+setMethod("dbListTables", "SQLServerConnection", function(conn, ...) {
+  md <- rJava::.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData",
+    check = FALSE)
+  .verify.JDBC.result(md, "Unable to retrieve JDBC database metadata")
+  # Create arguments for call to getTables
+  jns <- rJava::.jnull("java/lang/String")
+  table_types <- rJava::.jarray(c("TABLE", "VIEW"))
+  rs <- rJava::.jcall(md, "Ljava/sql/ResultSet;", "getTables",
+    jns, jns, jns, table_types, check = FALSE)
+  .verify.JDBC.result(rs, "Unable to retrieve JDBC tables list")
+  on.exit(rJava::.jcall(rs, "V", "close"))
+  tbls <- character()
+  while (rJava::.jcall(rs, "Z", "next")) {
+    tbls <- c(tbls, rJava::.jcall(rs, "S", "getString", "TABLE_NAME"))
+  }
+  tbls
+})
+
+setMethod("dbExistsTable", "SQLServerConnection", function (conn, name, ...) {
+  all(name %in% dbListTables(conn))
+})
 
 # DBI methods that inherit from RJDBC:
 # dbDisconnect()
@@ -376,11 +397,6 @@ setMethod ('dbIsValid', 'SQLServerResult', function (dbObj) {
   rJava::.jcall(dbObj@jr, "Z", "isClosed")
 })
 
-# Per DBI documentation:
-# "fetch is provided for compatibility with older DBI clients - for all new
-# code you are strongly encouraged to use dbFetch."
-# RJDBC does not currently have a dbFetch method.
-
 #' @param res an object inheriting from \code{\linkS4class{SQLServerResult}}
 #' @param n  If n is -1 then the current implementation fetches 32k rows first
 #' and then (if not sufficient) continues with chunks of 512k rows, appending
@@ -389,31 +405,45 @@ setMethod ('dbIsValid', 'SQLServerResult', function (dbObj) {
 #' @param ... other arguments passed to method
 #' @rdname SQLServerResult-class
 #' @export
-setMethod("dbFetch", "SQLServerResult", def = function (res, n = -1, ...) {
-  # RJDBC hasn't yet implemented dbFetch method
-  df <- RJDBC::fetch(res, n)
-  ####
-  # RJDBC translates SQL Server fields to numeric and character vectors only.
-  # This means that for eg, date fields types are represented by character
-  # vectors. A bit of post-processing will be good. At some point should
-  # file a bug report to RJDBC about this.
-  ####
-  # Assume that RJDBC doesn't change column order in fetching result
-  # First find JDBC column types and turn them into R types
-  rcts <- jdbcToRType(jdbcColumnTypes(res@md))
-  # Check which columns need conversion
-  df_cts <- vapply(df, class, "character", USE.NAMES = FALSE)
-  to_convert <- rcts != df_cts
-  # Conversion time
-  if (any(to_convert)) {
-    cnames <- colnames(df)
-    names(rcts) <- cnames
-    for (cname in cnames[to_convert]) {
-      f <- paste0("as.", unname(rcts[cname]))
-      df[, cname] <- eval(call(f, df[, cname]))
+setMethod("fetch", c("SQLServerResult", "numeric"),
+  def = function (res, n, ...) {
+    # Needed because dplyr's Query class calls the S4 fetch method when it calls
+    # its R6 fetch method. See:
+    # https://github.com/hadley/dplyr/blob/db2f59ce3a0732c81a4fde2b60b06c048eaf1291/R/query.r#L44
+    df <- callNextMethod()
+
+    ####
+    # RJDBC translates SQL Server fields to numeric and character vectors only.
+    # This means that for eg, date fields types are represented by character
+    # vectors. A bit of post-processing will be good. At some point should
+    # file a bug report to RJDBC about this.
+    ####
+    # Assume that RJDBC doesn't change column order in fetching result
+    # First find JDBC column types and turn them into R types
+    rcts <- jdbcToRType(jdbcColumnTypes(res@md))
+    # Check which columns need conversion
+    df_cts <- vapply(df, class, "character", USE.NAMES = FALSE)
+    to_convert <- rcts != df_cts
+    # Conversion time
+    if (any(to_convert)) {
+      cnames <- colnames(df)
+      names(rcts) <- cnames
+      for (cname in cnames[to_convert]) {
+        f <- paste0("as.", unname(rcts[cname]))
+        df[, cname] <- eval(call(f, df[, cname]))
+      }
     }
-  }
-  df
+    df
+})
+
+#' @rdname SQLServerResult-class
+#' @export
+setMethod("dbFetch", c("SQLServerResult", "numeric"), function(res, n, ...) {
+  # Per DBI documentation:
+  # "fetch is provided for compatibility with older DBI clients - for all new
+  # code you are strongly encouraged to use dbFetch."
+  # RJDBC does not currently have a dbFetch method.
+  fetch(res, n, ...)
 })
 
 #' @rdname SQLServerResult-class
@@ -435,7 +465,7 @@ setMethod("dbColumnInfo", "SQLServerResult", def = function (res, ...) {
   # Inspired by RJDBC method for JDBCResult
   # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R
   cols <- rJava::.jcall(res@md, "I", "getColumnCount")
-  df <- dplyr::data_frame(field.name = character(),
+  df <- data_frame(field.name = character(),
     field.type = character(),
     data.type = character())
   if (cols < 1) return(df)

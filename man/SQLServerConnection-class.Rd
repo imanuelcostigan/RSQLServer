@@ -4,14 +4,13 @@
 \name{SQLServerConnection-class}
 \alias{SQLServerConnection-class}
 \alias{SQLServerConnection-method}
-\alias{dbBegin,SQLServerConnection-method}
 \alias{dbDataType,SQLServerConnection-method}
 \alias{dbGetInfo,SQLServerConnection-method}
-\alias{dbGetQuery,SQLServerConnection,ANY-method}
+\alias{dbGetQuery,SQLServerConnection,character-method}
 \alias{dbIsValid,SQLServerConnection-method}
 \alias{dbSendQuery,}
-\alias{dbSendQuery,SQLServerConnection,ANY-method}
-\alias{dbSendUpdate,SQLServerConnection,ANY-method}
+\alias{dbSendQuery,SQLServerConnection,character-method}
+\alias{dbSendUpdate,SQLServerConnection,character-method}
 \alias{show,SQLServerConnection-method}
 \title{An S4 class to represent a SQL Server connection}
 \usage{
@@ -21,16 +20,14 @@
 
 \S4method{dbIsValid}{SQLServerConnection}(dbObj, ...)
 
-\S4method{dbSendQuery}{SQLServerConnection,ANY}(conn, statement, ...,
+\S4method{dbSendQuery}{SQLServerConnection,character}(conn, statement, ...,
   list = NULL)
 
-\S4method{dbGetQuery}{SQLServerConnection,ANY}(conn, statement, ...)
-
-\S4method{dbBegin}{SQLServerConnection}(conn, ...)
+\S4method{dbGetQuery}{SQLServerConnection,character}(conn, statement, ...)
 
 \S4method{dbDataType}{SQLServerConnection}(dbObj, obj, ...)
 
-\S4method{dbSendUpdate}{SQLServerConnection,ANY}(conn, statement, ...,
+\S4method{dbSendUpdate}{SQLServerConnection,character}(conn, statement, ...,
   list = NULL)
 }
 \arguments{
