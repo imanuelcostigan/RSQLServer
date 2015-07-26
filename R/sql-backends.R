@@ -92,8 +92,7 @@ sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
 
   # Resulting SELECT --------------------------------------------------------
 
-  dplyr::escape(unname(dplyr:::compact(out)), collapse = "\n",
-    parens = FALSE, con = con)
+  dplyr::escape(unname(compact(out)), collapse = "\n", parens = FALSE, con = con)
 }
 
 #' @importFrom dplyr sql_join
