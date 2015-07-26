@@ -1,6 +1,6 @@
 Package: RSQLServer
 Type: Package
-Title: SQL Server R Database Interface (DBI)
+Title: SQL Server R Database Interface (DBI) and SQL backend to dplyr
 Version: 0.1.99
 Date: 2014-10-10
 Authors@R: as.person(c("Imanuel Costigan <i.costigan@me.com> [aut,cre]",
@@ -12,13 +12,13 @@ Authors@R: as.person(c("Imanuel Costigan <i.costigan@me.com> [aut,cre]",
     "The Legion Of The Bouncy Castle [cph,ctb]"))
 Maintainer: Imanuel Costigan <i.costigan@me.com>
 Description: RSQLServer wraps the jTDS Project's JDBC 3.0 SQL Server
-    driver and extends the RJDBC classes and DBI methods. It defines a
-    SQLServerDriver, SQLServerConnection & SQLServerRsult S4 classes as
-    extensions of the RJDBC equivalent classes. Most of the DBI methods will
-    simply be calls to methods defined by RJDBC classes. However, the dbConnect
-    and some of the dbGetInfo methods are specific to SQL Server. The jTDS
-    drivers do extend to Sybase SQL Server, but currently, only Microsoft SQL
-    Server is supported by this package.
+    driver, extends RJDBC classes and DBI methods and provides a SQL backend to
+    dplyr. It defines a SQLServerDriver, SQLServerConnection & SQLServerRsult
+    S4 classes as extensions of the RJDBC equivalent classes with most DBI
+    methods being thin extensions of the methods defined by RJDBC classes.
+    However, the dbConnect interface is more convenient, and the data reading
+    and writing capabilities found in RJDBC's fetch and dbWriteTable methods
+    have been refined. The package also implements a SQL backend to dplyr.
 License: GPL-2
 Depends:
     R (>= 3.2.0),
