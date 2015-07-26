@@ -135,7 +135,7 @@ setdiff.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
   update(tbl(x$src, sql), group_by = dplyr::groups(x))
 }
 
-#' @importFrom dplyr update
+#' @importFrom stats update
 #' @export
 update.tbl_sqlserver <- function(object, ...) {
   # Exact copy of dplyr method.
