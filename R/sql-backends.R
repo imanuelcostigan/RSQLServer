@@ -11,7 +11,7 @@ sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
 
   # SETUP -------------------------------------------------------------------
 
-  out <- vector("list", 9)
+  out <- vector("list", 10)
   names(out) <- c("select", "from", "where", "group_by", "having",
     "order_by", "limit", "offset", "fetch", "into")
 
@@ -155,7 +155,7 @@ mssql_top <- function (con, n, is_percent = NULL) {
   assertthat::assert_that(assertthat::is.number(n), n >= 0)
   n <- as.integer(n)
   is_mssql_2000 <- dbGetInfo(con)$db.version == 8
-  if (is.null(is_percent)) {
+  if (is.null(is_percent) || !isTRUE(is_percent)) {
     if (!is_mssql_2000) n <- paste0("(", n, ")")
     return(dplyr::build_sql("TOP ", n))
   } else {
