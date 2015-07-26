@@ -44,7 +44,7 @@ db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
   if (temporary) name <- paste0("#", name)
   tt_sql <- dplyr::build_sql("SELECT * INTO ", dplyr::ident(name), " FROM ",
     dplyr::sql_subquery(con, sql), con = con)
-  a <- dbSendUpdate(con, tt_sql)
+  dbSendUpdate(con, tt_sql)
   name
 }
 
