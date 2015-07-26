@@ -160,7 +160,7 @@ mssql_top <- function (con, n, is_percent = NULL) {
   } else {
     # Assume TOP n PERCENT. n must already be >= 0
     assertthat::assert_that(n <= 100)
-    if (!is_mssql_2000) n <- paste0("(", n, ")")
+    if (!is_mssql_2000) n <- escape(n, parens = TRUE)
     return(build_sql("TOP ", n, " PERCENT"))
   }
 }
