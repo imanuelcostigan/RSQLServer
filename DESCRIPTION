@@ -6,6 +6,9 @@ Date: 2014-10-10
 Authors@R: as.person(c("Imanuel Costigan <i.costigan@me.com> [aut,cre]",
     "The jTDS Project (for MSSQL Server driver) [aut]",
     "Simon Urbanek <Simon.Urbanek@r-project.org> [ctb]",
+    "Hadley Wickham <hadley@rstudio.com> [ctb]",
+    "Romain Francois <romain@r-enthusiasts.com> [ctb]",
+    "RStudio [cph]",
     "The Legion Of The Bouncy Castle [cph,ctb]"))
 Maintainer: Imanuel Costigan <i.costigan@me.com>
 Description: RSQLServer wraps the jTDS Project's JDBC 3.0 SQL Server
