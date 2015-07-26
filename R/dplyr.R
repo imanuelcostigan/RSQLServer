@@ -35,7 +35,7 @@ src_sqlserver <- function (server, file = NULL, database = "",
   type = "sqlserver", port = "", properties = list()) {
   con <- dbConnect(SQLServer(), server, file, database , type, port, properties)
   info <- dbGetInfo(con)
-  dplyr::src_sql("sqlserver", con, info = info)
+  src_sql("sqlserver", con, info = info)
 }
 
 #' @importFrom dplyr src_desc
@@ -48,7 +48,7 @@ src_desc.src_sqlserver <- function (x) {
 #' @importFrom dplyr tbl
 #' @export
 tbl.src_sqlserver <- function (src, from, ...) {
-  dplyr::tbl_sql("sqlserver", src = src, from = from, ...)
+  tbl_sql("sqlserver", src = src, from = from, ...)
 }
 
 ## Math (scalar) functions - no change across versions based on eyeballing:
@@ -67,21 +67,21 @@ tbl.src_sqlserver <- function (src, from, ...) {
 #' @importFrom dplyr src_translate_env
 #' @export
 src_translate_env.src_sqlserver <- function (x) {
-  dplyr::sql_variant(
-    scalar = dplyr::sql_translator(.parent = dplyr::base_scalar,
+  sql_variant(
+    scalar = sql_translator(.parent = base_scalar,
       # http://sqlserverplanet.com/tsql/format-string-to-date
       as.POSIXct = function(x) build_sql("CAST(", x, " AS DATETIME)"),
       # DATE data type only available since SQL Server 2008
       as.Date = function (x) build_sql("CAST(", x, " AS DATE)")
     ),
-    aggregate = dplyr::sql_translator(.parent = dplyr::base_agg,
-      n = function() dplyr::sql("COUNT(*)"),
-      mean = dplyr::sql_prefix('AVG'),
-      sd = dplyr::sql_prefix("STDEV"),
-      sdp = dplyr::sql_prefix("STDEVP"),
-      varp = dplyr::sql_prefix("VARP")
+    aggregate = sql_translator(.parent = base_agg,
+      n = function() sql("COUNT(*)"),
+      mean = sql_prefix('AVG'),
+      sd = sql_prefix("STDEV"),
+      sdp = sql_prefix("STDEVP"),
+      varp = sql_prefix("VARP")
     ),
-    window = dplyr::base_win
+    window = base_win
   )
 }
 
@@ -110,7 +110,7 @@ compute.tbl_sqlserver <- function (x, name = random_ident_name(),
   temporary = TRUE, ...) {
   name <- db_save_query(x$src$con, x$query$sql, name = name,
     temporary = temporary)
-  update(dplyr::tbl(x$src, name), group_by = dplyr::groups(x))
+  update(tbl(x$src, name), group_by = groups(x))
 }
 
 
@@ -121,8 +121,8 @@ intersect.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
   # SQL Server 2000 does not support INTERSECT or EXCEPT
   assertthat::assert_that(x$src$info$db.version > 8, y$src$info$db.version > 8)
   y <- auto_copy(x, y, copy)
-  sql <- dplyr::sql_set_op(x$src$con, x, y, "INTERSECT")
-  update(tbl(x$src, sql), group_by = dplyr::groups(x))
+  sql <- sql_set_op(x$src$con, x, y, "INTERSECT")
+  update(tbl(x$src, sql), group_by = groups(x))
 }
 
 #' @importFrom dplyr setdiff
@@ -131,8 +131,8 @@ setdiff.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
   # SQL Server 2000 does not support INTERSECT or EXCEPT
   assertthat::assert_that(x$src$info$db.version > 8, y$src$info$db.version > 8)
   y <- auto_copy(x, y, copy)
-  sql <- dplyr::sql_set_op(x$src$con, x, y, "EXCEPT")
-  update(tbl(x$src, sql), group_by = dplyr::groups(x))
+  sql <- sql_set_op(x$src$con, x, y, "EXCEPT")
+  update(tbl(x$src, sql), group_by = groups(x))
 }
 
 #' @importFrom stats update

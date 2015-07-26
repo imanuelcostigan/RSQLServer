@@ -30,7 +30,7 @@ db_query_rows.SQLServerConnection <- function(con, sql, ...) {
 db_query_fields.SQLServerConnection <- function (con, sql, ...) {
   # Using MSFT recommendation linked here:
   # https://github.com/imanuelcostigan/RSQLServer/issues/23
-  fields <- dplyr::build_sql("SELECT TOP 0 * FROM ", sql, con = con)
+  fields <- build_sql("SELECT TOP 0 * FROM ", sql, con = con)
   qry <- dbSendQuery(con, fields)
   on.exit(dbClearResult(qry))
   jdbcColumnNames(qry@md)
@@ -42,8 +42,8 @@ db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
   ...) {
   # http://smallbusiness.chron.com/create-table-query-results-microsoft-sql-50836.html
   if (temporary) name <- paste0("#", name)
-  tt_sql <- dplyr::build_sql("SELECT * INTO ", dplyr::ident(name), " FROM ",
-    dplyr::sql_subquery(con, sql), con = con)
+  tt_sql <- build_sql("SELECT * INTO ", ident(name), " FROM ",
+    sql_subquery(con, sql), con = con)
   dbSendUpdate(con, tt_sql)
   name
 }

@@ -11,7 +11,7 @@
 build_query <- function(x, limit = NULL, is_percent = NULL) {
   assertthat::assert_that(is.null(limit) || assertthat::is.number(limit))
   translate <- function(expr, ...) {
-    dplyr::translate_sql_q(expr, tbl = x, env = NULL, ...)
+    translate_sql_q(expr, tbl = x, env = NULL, ...)
   }
 
   if (x$summarise) {
@@ -99,7 +99,7 @@ translate_window_where <- function(expr, tbl, con = NULL) {
 
   if (is.call(expr) && as.character(expr[[1]]) %in% agg_f) {
     name <- unique_name()
-    sql <- dplyr::translate_sql_q(list(expr), tbl, env = NULL, window = TRUE)
+    sql <- translate_sql_q(list(expr), tbl, env = NULL, window = TRUE)
 
     return(list(expr = as.name(name), comp = setNames(list(sql), name)))
   }
@@ -175,13 +175,13 @@ sql_vector <- function (x, parens = NA, collapse = " ", con = NULL) {
   x <- names_to_as(x, con = con)
   x <- paste(x, collapse = collapse)
   if (parens) x <- paste0("(", x, ")")
-  dplyr::sql(x)
+  sql(x)
 }
 
 names_to_as <- function (x, con = NULL) {
   names <- names2(x)
   as <- ifelse(names == '', '',
-    paste0(' AS ', dplyr::sql_escape_ident(con, names)))
+    paste0(' AS ', sql_escape_ident(con, names)))
   paste0(x, as)
 }
 
@@ -221,7 +221,7 @@ common_by <- function(by = NULL, x, y) {
     return(list(x = x, y = y))
   }
 
-  by <- intersect(dplyr::tbl_vars(x), dplyr::tbl_vars(y))
+  by <- intersect(tbl_vars(x), tbl_vars(y))
   if (length(by) == 0) {
     stop("No common variables. Please specify `by` param.", call. = FALSE)
   }
@@ -271,7 +271,7 @@ unique_name <- local({
 })
 
 auto_copy <- function(x, y, copy = FALSE, ...) {
-  if (dplyr::same_src(x, y)) return(y)
+  if (same_src(x, y)) return(y)
 
   if (!copy) {
     stop("x and y don't share the same src. Set copy = TRUE to copy y into ",

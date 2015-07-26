@@ -335,8 +335,8 @@ setMethod("dbWriteTable", "SQLServerConnection",
     }
     # Create / append new table
     fts <- vapply(value, dbDataType, "character", dbObj=conn, USE.NAMES = FALSE)
-    fdef <- paste(dplyr::ident(names(value)), fts, collapse = ', ')
-    qname <- dplyr::ident(name)
+    fdef <- paste(ident(names(value)), fts, collapse = ', ')
+    qname <- ident(name)
     if (!append) {
       ct <- paste("CREATE TABLE ", qname, " (", fdef, ")", sep= '')
       dbSendUpdate(conn, ct)
@@ -465,7 +465,7 @@ setMethod("dbColumnInfo", "SQLServerResult", def = function (res, ...) {
   # Inspired by RJDBC method for JDBCResult
   # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R
   cols <- rJava::.jcall(res@md, "I", "getColumnCount")
-  df <- dplyr::data_frame(field.name = character(),
+  df <- data_frame(field.name = character(),
     field.type = character(),
     data.type = character())
   if (cols < 1) return(df)

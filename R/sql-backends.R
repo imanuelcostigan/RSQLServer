@@ -23,50 +23,50 @@ sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
     limit <- mssql_top(con, limit, is_percent)
   }
 
-  out$select <- dplyr::build_sql("SELECT ", limit, " ",
-    dplyr::escape(select, collapse = ", ", con = con), con = con)
+  out$select <- build_sql("SELECT ", limit, " ",
+    escape(select, collapse = ", ", con = con), con = con)
 
   # INTO --------------------------------------------------------------------
 
   if (!is.null(into)) {
-    out$into <- dplyr::build_sql("INTO ", into, con = con)
+    out$into <- build_sql("INTO ", into, con = con)
   }
 
   # FROM --------------------------------------------------------------------
 
   assertthat::assert_that(assertthat::is.string(from))
-  out$from <- dplyr::build_sql("FROM ", from, con = con)
+  out$from <- build_sql("FROM ", from, con = con)
 
   # WHERE -------------------------------------------------------------------
 
   if (length(where) > 0L) {
     assertthat::assert_that(is.character(where))
-    out$where <- dplyr::build_sql("WHERE ",
-      dplyr::escape(where, collapse = " AND ", con = con))
+    out$where <- build_sql("WHERE ",
+      escape(where, collapse = " AND ", con = con))
   }
 
   # GROUP BY ----------------------------------------------------------------
 
   if (!is.null(group_by)) {
     assertthat::assert_that(is.character(group_by), length(group_by) > 0L)
-    out$group_by <- dplyr::build_sql("GROUP BY ",
-      dplyr::escape(group_by, collapse = ", ", con = con))
+    out$group_by <- build_sql("GROUP BY ",
+      escape(group_by, collapse = ", ", con = con))
   }
 
   # HAVING ------------------------------------------------------------------
 
   if (!is.null(having)) {
     assertthat::assert_that(assertthat::is.string(having))
-    out$having <- dplyr::build_sql("HAVING ",
-      dplyr::escape(having, collapse = ", ", con = con))
+    out$having <- build_sql("HAVING ",
+      escape(having, collapse = ", ", con = con))
   }
 
   # ORDER BY ----------------------------------------------------------------
 
   if (!is.null(order_by)) {
     assertthat::assert_that(is.character(order_by), length(order_by) > 0L)
-    out$order_by <- dplyr::build_sql("ORDER BY ",
-      dplyr::escape(order_by, collapse = ", ", con = con))
+    out$order_by <- build_sql("ORDER BY ",
+      escape(order_by, collapse = ", ", con = con))
   }
 
   # Offset
@@ -78,7 +78,7 @@ sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
     # OFFSET/FETCH: http://msdn.microsoft.com/en-us/library/ms188385(v=sql.110).aspx
     assertthat::assert_that(!is.null(order_by),
       dbGetInfo(con)$db.version >= 11, is.integer(offset), offset >= 0)
-    out$offset <- dplyr::build_sql("OFFSET ", offset, con = con)
+    out$offset <- build_sql("OFFSET ", offset, con = con)
   }
 
   # Fetch
@@ -87,12 +87,12 @@ sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
     # offset will be non-NULL if it is set and SQL Server dependency is met.
     assertthat::assert_that(!is.null(offset), dbGetInfo(con)$db.version >= 11,
       is.integer(fetch), fetch >= 0)
-    out$fetch <- dplyr::build_sql("FETCH ", fetch, " ONLY", con = con)
+    out$fetch <- build_sql("FETCH ", fetch, " ONLY", con = con)
   }
 
   # Resulting SELECT --------------------------------------------------------
 
-  dplyr::escape(unname(compact(out)), collapse = "\n", parens = FALSE, con = con)
+  escape(unname(compact(out)), collapse = "\n", parens = FALSE, con = con)
 }
 
 #' @importFrom dplyr sql_join
@@ -100,10 +100,10 @@ sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
 sql_join.SQLServerConnection <- function(con, x, y, type = "inner",
   by = NULL, ...) {
   join <- switch(type,
-    left = dplyr::sql("LEFT"),
-    inner = dplyr::sql("INNER"),
-    right = dplyr::sql("RIGHT"),
-    full = dplyr::sql("FULL"),
+    left = sql("LEFT"),
+    inner = sql("INNER"),
+    right = sql("RIGHT"),
+    full = sql("FULL"),
     stop("Unknown join type:", type, call. = FALSE)
   )
 
@@ -129,18 +129,18 @@ sql_join.SQLServerConnection <- function(con, x, y, type = "inner",
   xname <- unique_name()
   yname <- unique_name()
   on <- sql_vector(paste0(
-    paste0(dplyr::sql_escape_ident(con, xname), ".",
-      dplyr::sql_escape_ident(con, by$x)), " = ",
-    paste0(dplyr::sql_escape_ident(con, yname), ".",
-      dplyr::sql_escape_ident(con, by$y)),
+    paste0(sql_escape_ident(con, xname), ".",
+      sql_escape_ident(con, by$x)), " = ",
+    paste0(sql_escape_ident(con, yname), ".",
+      sql_escape_ident(con, by$y)),
     collapse = " AND "), parens = TRUE)
-  cond <- dplyr::build_sql("ON ", on, con = con)
+  cond <- build_sql("ON ", on, con = con)
 
-  from <- dplyr::build_sql(
+  from <- build_sql(
     'SELECT * FROM ',
-    dplyr::sql_subquery(con, x$query$sql, xname), "\n\n",
+    sql_subquery(con, x$query$sql, xname), "\n\n",
     join, " JOIN \n\n" ,
-    dplyr::sql_subquery(con, y$query$sql, yname), "\n\n",
+    sql_subquery(con, y$query$sql, yname), "\n\n",
     cond, con = con
   )
   attr(from, "vars") <- lapply(sel_vars, as.name)
@@ -156,11 +156,11 @@ mssql_top <- function (con, n, is_percent = NULL) {
   is_mssql_2000 <- dbGetInfo(con)$db.version == 8
   if (is.null(is_percent) || !isTRUE(is_percent)) {
     if (!is_mssql_2000) n <- paste0("(", n, ")")
-    return(dplyr::build_sql("TOP ", n))
+    return(build_sql("TOP ", n))
   } else {
     # Assume TOP n PERCENT. n must already be >= 0
     assertthat::assert_that(n <= 100)
     if (!is_mssql_2000) n <- paste0("(", n, ")")
-    return(dplyr::build_sql("TOP ", n, " PERCENT"))
+    return(build_sql("TOP ", n, " PERCENT"))
   }
 }
