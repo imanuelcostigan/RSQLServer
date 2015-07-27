@@ -3,12 +3,10 @@
 \docType{class}
 \name{SQLServerConnection-class}
 \alias{SQLServerConnection-class}
-\alias{SQLServerConnection-method}
 \alias{dbDataType,SQLServerConnection-method}
 \alias{dbGetInfo,SQLServerConnection-method}
 \alias{dbGetQuery,SQLServerConnection,character-method}
 \alias{dbIsValid,SQLServerConnection-method}
-\alias{dbSendQuery,}
 \alias{dbSendQuery,SQLServerConnection,character-method}
 \alias{dbSendUpdate,SQLServerConnection,character-method}
 \alias{show,SQLServerConnection-method}
@@ -31,13 +29,9 @@
   list = NULL)
 }
 \arguments{
-\item{dbObj}{a \code{\linkS4class{SQLServerConnection}}}
-
 \item{...}{additional arguments to prepared statement substituted for "?"}
 
 \item{object}{a \code{\linkS4class{SQLServerConnection}} object}
-
-\item{conn}{a \code{\linkS4class{SQLServerConnection}}}
 
 \item{statement}{SQL statement to execute}
 
@@ -49,21 +43,12 @@
 a \code{\linkS4class{SQLServerResult}} object
 }
 \description{
-This class extends the \code{\link[RJDBC:JDBCConnection-class]{JDBCConnection}}
-class to represent a SQL Server connection.
+Extends the \code{\link[RJDBC:JDBCConnection-class]{JDBCConnection}}
+class.
 
 This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendQuery}}
 method for JDBCConnection, except that this returns a
 \code{\linkS4class{SQLServerResult}} rather than a JDBCResult.
 }
-\section{Slots}{
-
-\describe{
-\item{\code{jc}}{Java object representing the connection.}
-
-\item{\code{identifier.quote}}{quote character for a SQL Server identifier can be a
-single quotation mark (\code{\'}), a left or right bracket (\code{[]}), or a
-double quotation mark (\code{\"}). Usually inherited from
-\code{\linkS4class{SQLServerDriver}}.}
-}}
+\keyword{internal}
 

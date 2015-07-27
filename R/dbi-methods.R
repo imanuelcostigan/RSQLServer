@@ -3,8 +3,6 @@ NULL
 
 # Drivers ----------------------------------------------------------------
 
-#' @param  dbObj a \code{\linkS4class{SQLServerDriver}} object
-#' @param ... Other arguments to methods.
 #' @rdname SQLServerDriver-class
 #' @export
 
@@ -13,7 +11,6 @@ setMethod('dbGetInfo', 'SQLServerDriver', definition = function (dbObj, ...) {
     driver.version = rJava::.jcall(dbObj@jdrv, "S", "getVersion"))
 })
 
-#' @param  object a \code{\linkS4class{SQLServerDriver}} object
 #' @rdname SQLServerDriver-class
 #' @export
 

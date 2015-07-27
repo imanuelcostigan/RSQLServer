@@ -2,58 +2,21 @@
 % Please edit documentation in R/dbi-classes.R, R/dbi-methods.R
 \docType{class}
 \name{SQLServerDriver-class}
-\alias{SQLServer}
 \alias{SQLServerDriver-class}
 \alias{dbGetInfo,SQLServerDriver-method}
-\alias{dbListConnections,SQLServerDriver-method}
-\alias{dbUnloadDriver,SQLServerDriver-method}
 \alias{show,SQLServerDriver-method}
 \title{An S4 class to represent a SQL Server driver}
 \usage{
-SQLServer(identifier.quote = "\\"")
-
 \S4method{dbGetInfo}{SQLServerDriver}(dbObj, ...)
 
 \S4method{show}{SQLServerDriver}(object)
 }
-\arguments{
-\item{identifier.quote}{quote character for a SQL Server identifier can be a
-single quotation mark (\code{\'}), a left or right bracket (\code{[]},
-defaults to \code{[}), or a double quotation mark (\code{\"}), the last of
-which is the default.}
-
-\item{dbObj}{a \code{\linkS4class{SQLServerDriver}} object}
-
-\item{...}{Other arguments to methods.}
-
-\item{object}{a \code{\linkS4class{SQLServerDriver}} object}
-}
-\value{
-An object of class \linkS4class{SQLServerDriver}.
-}
 \description{
-This class extends the \code{\link[RJDBC:JDBCDriver-class]{JDBCDriver}} class
-to represent a SQL Server driver used to access SQL Server databases. This
-should always be initialised with \code{SQLServer()}. JDBCDriver extends
-DBIDriver. The package uses the jTDS driver set.
+Extends the \code{\link[RJDBC:JDBCDriver-class]{JDBCDriver}} class and
+uses jTDS driver.
 }
-\section{Slots}{
-
-\describe{
-\item{\code{identifier.quote}}{quote character for a SQL Server identifier can be a
-single quotation mark (\code{\'}), a left or right bracket (\code{[]},
-defaults to \code{[}), or a double quotation mark (\code{\"}).}
-
-\item{\code{jdrv}}{Java object reference to an instance of the SQL Server driver if
-the driver can be instantiated by a default constructor. This object is only
-used as a fall-back when the driver manager fails to find a driver.}
-}}
-\examples{
-\dontrun{
-SQLServer()
+\seealso{
+\code{\link{SQLServer}}
 }
-}
-\references{
-\href{http://jtds.sourceforge.net/}{jTDS project}
-}
+\keyword{internal}
 

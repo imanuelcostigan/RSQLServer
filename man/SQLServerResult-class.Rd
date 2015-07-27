@@ -36,19 +36,8 @@ to set n to that size.}
 \item{...}{other arguments passed to method}
 }
 \description{
-This class extends the \code{\link[RJDBC:JDBCResult-class]{JDBCResult}}
-class to represent a SQL Server result set
+Extends the \code{\link[RJDBC:JDBCResult-class]{JDBCResult}}
+class.
 }
-\section{Slots}{
-
-\describe{
-\item{\code{jr}}{Java reference to the JDBC result set}
-
-\item{\code{md}}{Java reference to the JDBC result set meta data}
-
-\item{\code{pull}}{Java reference to the JDBC result pull helper class (can be null
-reference before first pull)}
-
-\item{\code{stat}}{Java reference to the JDBC statement which generated this result}
-}}
+\keyword{internal}
 
