@@ -10,14 +10,14 @@ get_server_details(server, file = NULL)
 \item{server}{corresponds to the server name key in the YAML \code{file} and
 should be a string.}
 
-\item{file}{defaults to using \code{sql.yaml} in a user's \code{HOME}
-directory (\code{Sys.getenv("HOME")}).}
+\item{file}{defaults to \code{NULL} which means that it will use
+\code{$HOME/sql.yaml}.}
 }
 \value{
 a named list of \code{server} details if this is specified in the
 \code{file}. It stops and returns an error if \code{port} and \code{type}
-keys are not specified for found \code{server}. If the \code{file} does not
-contain the \code{server} key an empty list is returned.
+keys are not specified for found \code{server}. \code{NULL} is returned if
+the \code{file} does not contain the \code{server} key
 }
 \description{
 The \code{sql.yaml} file in a user's \code{HOME} directory can store
@@ -37,6 +37,7 @@ aw <- dbConnect(RSQLServer::SQLServer(), server = "mhknbn2kdz.database.windows.n
 dbListTables(aw)
 }
 \seealso{
+\href{https://github.com/imanuelcostigan/RSQLServer/blob/master/README.md}{RSQLServer README}
 \href{https://github.com/yaml/yaml}{YAML}
 }
 \keyword{internal}

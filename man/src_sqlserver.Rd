@@ -17,8 +17,9 @@ and any optional \code{properties} can be sourced from this file. If the
 (and in particular, those provided in other arguments to this function are
 ignored). The connection method prefers server details to be provided in
 a \code{"sql.yaml"} file rather than provided as arguments to this function.
-If you wish to specify the details as parameters, ensure that the \code{file}
-argument is missing from the call.}
+If you wish to specify the details as parameters, ensure that either the
+\code{file} does not exist or that the \code{server} details are not in the
+YAML file.}
 
 \item{database}{the name of the database hosted on the \code{server}. If an
 empty string, a connection to the default database on \code{server} is
@@ -27,8 +28,8 @@ assumed.}
 \item{type}{the server type. Must be either \code{"sqlserver"} or
 \code{"sybase"}. Defaults to \code{"sqlserver"}.}
 
-\item{port}{the TCP/IP default port. This will be coerced to a string. Defaults
-to \code{1433} if an empty string.}
+\item{port}{the TCP/IP default port. This will be coerced to a string.
+Defaults to \code{1433} if an empty string (jTDS behaviour).}
 
 \item{properties}{One or more \href{http://jtds.sourceforge.net/faq.html}{optional connection properties.}
 in a named list. Note if you intend to set the \code{useNTLMv2} property to \code{'true'}
