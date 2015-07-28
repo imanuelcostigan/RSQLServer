@@ -6,7 +6,6 @@
 \alias{dbDataType,SQLServerConnection-method}
 \alias{dbExistsTable,SQLServerConnection-method}
 \alias{dbGetInfo,SQLServerConnection-method}
-\alias{dbGetQuery,SQLServerConnection,character-method}
 \alias{dbIsValid,SQLServerConnection-method}
 \alias{dbListTables,SQLServerConnection-method}
 \alias{dbSendQuery,SQLServerConnection,character-method}
@@ -23,8 +22,6 @@
 
 \S4method{dbSendQuery}{SQLServerConnection,character}(conn, statement, ...,
   list = NULL)
-
-\S4method{dbGetQuery}{SQLServerConnection,character}(conn, statement, ...)
 
 \S4method{dbDataType}{SQLServerConnection}(dbObj, obj, ...)
 
