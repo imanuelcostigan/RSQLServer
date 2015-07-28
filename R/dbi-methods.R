@@ -61,9 +61,8 @@ setMethod('dbConnect', "SQLServerDriver",
       properties <- sd
     }
     url <- jtds_url(server, type, port, database, properties)
-    properties <- rJava::.jnew('java/util/Properties')
     jc <- rJava::.jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", url,
-      properties)
+      rJava::.jnew('java/util/Properties'))
     new("SQLServerConnection", jc = jc, identifier.quote = drv@identifier.quote)
   }
 )
