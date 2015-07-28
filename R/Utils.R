@@ -74,21 +74,14 @@ jtds_url <- function (server, type = "sqlserver", port = "", database = "",
 
 get_server_details <- function (server, file = NULL) {
   assertthat::assert_that(assertthat::is.string(server))
-  if (is.null(file)) {
-    file <- file.path(Sys.getenv("HOME"), "sql.yaml")
-  }
-  if (file.exists(file)) {
-    server_details <- yaml::yaml.load_file(file)
-    if (assertthat::has_name(server_details, server)) {
-      server_detail <- server_details[[server]]
-      assertthat::assert_that(!is.null(server_detail$port),
-        !is.null(server_detail$type))
-      return(server_detail)
-    } else {
-      return(list())
-    }
+  server_details <- yaml::yaml.load_file(file)
+  if (assertthat::has_name(server_details, server)) {
+    server_detail <- server_details[[server]]
+    assertthat::assert_that(!is.null(server_detail$port),
+      !is.null(server_detail$type))
+    return(server_detail)
   } else {
-    return(list())
+    return(NULL)
   }
 }
 

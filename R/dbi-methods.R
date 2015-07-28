@@ -45,13 +45,20 @@ setMethod("show", "SQLServerDriver", definition = function (object) {
 setMethod('dbConnect', "SQLServerDriver",
   definition = function (drv, server, file = NULL, database = "",
     type = "sqlserver", port = "", properties = list()) {
-    # Use sql.yaml file if file is not missing. Note this will then ignore
-    # the paramaters type, port and connection properties will be ignored and the
-    # information in sql.yaml will be used instead
-    sd <- get_server_details(server, file)
-    if (!identical(sd, list())) {
-      # Server details must include type and port otherwise get_server_file
-      # fails
+    # Set default value for file
+    if (is.null(file)) {
+      file <- file.path(Sys.getenv("HOME"), "sql.yaml")
+    }
+    # Use sql.yaml file if file is not missing. If so, then the paramaters
+    # type, port and connection properties will be ignored and the
+    # information in sql.yaml will be used instead.
+    if (file.exists(file)) {
+      sd <- get_server_details(server, file)
+    } else {
+      sd <- NULL
+    }
+    # Server details must include type and port otherwise get_server_file fails
+    if (!is.null(sd)) {
       server <- sd$server
       sd$server <- NULL
       type <- sd$type
