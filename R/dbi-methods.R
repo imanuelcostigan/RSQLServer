@@ -33,7 +33,8 @@ setMethod("show", "SQLServerDriver", definition = function (object) {
 #' if (have_test_server()) {
 #'  dbConnect(RSQLServer::SQLServer(), "TEST")
 #' }
-#' # Don't use file argument:
+#' # Example where ~/sql.yaml does not exist or where the server
+#' # is not in the YAML file.
 #' \dontrun{
 #' dbConnect(RSQLServer::SQLServer(), server="11.1.111.11", port=1434,
 #'    properties=list(useNTLMv2="true", domain="myco", user="me",

@@ -55,12 +55,12 @@ jtds_url <- function (server, type = "sqlserver", port = "", database = "",
 #'
 #' @param server corresponds to the server name key in the YAML \code{file} and
 #' should be a string.
-#' @param file defaults to using \code{sql.yaml} in a user's \code{HOME}
-#' directory (\code{Sys.getenv("HOME")}).
+#' @param file defaults to \code{NULL} which means that it will use
+#' \code{$HOME/sql.yaml}.
 #' @return a named list of \code{server} details if this is specified in the
 #' \code{file}. It stops and returns an error if \code{port} and \code{type}
-#' keys are not specified for found \code{server}. If the \code{file} does not
-#' contain the \code{server} key an empty list is returned.
+#' keys are not specified for found \code{server}. \code{NULL} is returned if
+#' the \code{file} does not contain the \code{server} key
 #' @examples
 #' # See:
 #' # http://sqlblog.com/blogs/jamie_thomson/archive/2012/03/27/adventureworks2012-now-available-to-all-on-sql-azure.aspx
@@ -69,6 +69,7 @@ jtds_url <- function (server, type = "sqlserver", port = "", database = "",
 #'  properties = list(user = "sqlfamily", password = "sqlf@@m1ly"))
 #' dbListTables(aw)
 #' @seealso
+#' \href{https://github.com/imanuelcostigan/RSQLServer/blob/master/README.md}{RSQLServer README}
 #' \href{https://github.com/yaml/yaml}{YAML}
 #' @keywords internal
 
