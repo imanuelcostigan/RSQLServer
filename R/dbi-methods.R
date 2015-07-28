@@ -97,7 +97,6 @@ setMethod('dbGetInfo', 'SQLServerConnection',
   }
 )
 
-#' @param  object a \code{\linkS4class{SQLServerConnection}} object
 #' @rdname SQLServerConnection-class
 #' @export
 
@@ -121,21 +120,15 @@ setMethod('dbIsValid', 'SQLServerConnection', function (dbObj, ...) {
 # dbQuoteString()
 # dbQuoteIdentifier()
 
-#' Send query to SQL Server
-#'
-#' This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendQuery}}
-#' method for JDBCConnection, except that this returns a
-#' \code{\linkS4class{SQLServerResult}} rather than a JDBCResult.
-#'
-#' @param statement SQL statement to execute
-#' @param ... additional arguments to prepared statement substituted for "?"
-#' @param list undocumented
-#' @return a \code{\linkS4class{SQLServerResult}} object
+
 #' @rdname SQLServerConnection-class
 #' @export
 
 setMethod("dbSendQuery", c("SQLServerConnection", "character"),
   def = function (conn, statement, ..., list=NULL) {
+    # This is basically a copy of RJDBC's dbSendQuery method for JDBCConnection,
+    # except that this returns a SQLServerResult rather than a JDBCResult.
+    # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L78
     statement <- as.character(statement)[1L]
     ## if the statement starts with {call or {?= call then we use CallableStatement
     if (isTRUE(as.logical(grepl("^\\{(call|\\?= *call)", statement)))) {
@@ -194,7 +187,6 @@ setMethod("dbGetQuery", c("SQLServerConnection", "character"),
     dbFetch(res, -1)
 })
 
-#' @param obj An R object whose SQL type we want to determine
 #' @rdname SQLServerConnection-class
 #' @export
 setMethod("dbDataType", c("SQLServerConnection", "ANY"),
@@ -227,9 +219,9 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
   }
 )
 
-# Modified from RJDBC
-# https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L63
 .fillStatementParameters <- function(s, l) {
+  # Modified from RJDBC
+  # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L63
   for (i in 1:length(l)) {
     v <- l[[i]]
     if (is.na(v)) { # map NAs to NULLs (courtesy of Axel Klenk)
@@ -267,7 +259,6 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
 #' @rdname SQLServerConnection-class
 #' @importMethodsFrom RJDBC dbSendUpdate
 #' @export
-
 setMethod("dbSendUpdate", c("SQLServerConnection", "character"),
   def = function (conn, statement, ..., list = NULL) {
     # Modified from RJDBC
@@ -311,6 +302,8 @@ setMethod("dbSendUpdate", c("SQLServerConnection", "character"),
   }
 )
 
+#' @rdname SQLServerConnection-class
+#' @export
 setMethod("dbWriteTable", "SQLServerConnection",
   function (conn, name, value, overwrite = TRUE, append = FALSE) {
     # Based on RJDBC method:
@@ -356,9 +349,11 @@ setMethod("dbWriteTable", "SQLServerConnection",
     if (ac) dbCommit(conn)
 })
 
-# Modified from RJDBC:
-# https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L161
+#' @rdname SQLServerConnection-class
+#' @export
 setMethod("dbListTables", "SQLServerConnection", function(conn, ...) {
+  # Modified from RJDBC:
+  # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L161
   md <- rJava::.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData",
     check = FALSE)
   .verify.JDBC.result(md, "Unable to retrieve JDBC database metadata")
@@ -376,6 +371,8 @@ setMethod("dbListTables", "SQLServerConnection", function(conn, ...) {
   tbls
 })
 
+#' @rdname SQLServerConnection-class
+#' @export
 setMethod("dbExistsTable", "SQLServerConnection", function (conn, name, ...) {
   all(name %in% dbListTables(conn))
 })
@@ -394,19 +391,12 @@ setMethod("dbExistsTable", "SQLServerConnection", function (conn, name, ...) {
 
 # Results ----------------------------------------------------------------
 
-#' @param dbObj An object inheriting from \code{\linkS4class{SQLServerResult}}
 #' @rdname SQLServerResult-class
 #' @export
 setMethod ('dbIsValid', 'SQLServerResult', function (dbObj) {
   rJava::.jcall(dbObj@jr, "Z", "isClosed")
 })
 
-#' @param res an object inheriting from \code{\linkS4class{SQLServerResult}}
-#' @param n  If n is -1 then the current implementation fetches 32k rows first
-#' and then (if not sufficient) continues with chunks of 512k rows, appending
-#' them. If the size of the result set is known in advance, it is most efficient
-#' to set n to that size.
-#' @param ... other arguments passed to method
 #' @rdname SQLServerResult-class
 #' @export
 setMethod("fetch", c("SQLServerResult", "numeric"),
@@ -503,10 +493,9 @@ setMethod("dbHasCompleted", "SQLServerResult", def = function (res, ...) {
 
 # Other ----------------------------------------------------------------
 
-# Copied from RJDBC:
-# https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L18
-
 .verify.JDBC.result <- function (result, ...) {
+  # Copied from RJDBC:
+  # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L18
   if (rJava::is.jnull(result)) {
     x <- rJava::.jgetEx(TRUE)
     if (rJava::is.jnull(x))

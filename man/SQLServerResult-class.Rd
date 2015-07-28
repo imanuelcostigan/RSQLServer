@@ -23,18 +23,6 @@
 
 \S4method{dbHasCompleted}{SQLServerResult}(res, ...)
 }
-\arguments{
-\item{dbObj}{An object inheriting from \code{\linkS4class{SQLServerResult}}}
-
-\item{res}{an object inheriting from \code{\linkS4class{SQLServerResult}}}
-
-\item{n}{If n is -1 then the current implementation fetches 32k rows first
-and then (if not sufficient) continues with chunks of 512k rows, appending
-them. If the size of the result set is known in advance, it is most efficient
-to set n to that size.}
-
-\item{...}{other arguments passed to method}
-}
 \description{
 Extends the \code{\link[RJDBC:JDBCResult-class]{JDBCResult}}
 class.

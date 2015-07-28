@@ -4,11 +4,14 @@
 \name{SQLServerConnection-class}
 \alias{SQLServerConnection-class}
 \alias{dbDataType,SQLServerConnection-method}
+\alias{dbExistsTable,SQLServerConnection-method}
 \alias{dbGetInfo,SQLServerConnection-method}
 \alias{dbGetQuery,SQLServerConnection,character-method}
 \alias{dbIsValid,SQLServerConnection-method}
+\alias{dbListTables,SQLServerConnection-method}
 \alias{dbSendQuery,SQLServerConnection,character-method}
 \alias{dbSendUpdate,SQLServerConnection,character-method}
+\alias{dbWriteTable,SQLServerConnection-method}
 \alias{show,SQLServerConnection-method}
 \title{An S4 class to represent a SQL Server connection}
 \usage{
@@ -27,28 +30,17 @@
 
 \S4method{dbSendUpdate}{SQLServerConnection,character}(conn, statement, ...,
   list = NULL)
-}
-\arguments{
-\item{...}{additional arguments to prepared statement substituted for "?"}
 
-\item{object}{a \code{\linkS4class{SQLServerConnection}} object}
+\S4method{dbWriteTable}{SQLServerConnection}(conn, name, value,
+  overwrite = TRUE, append = FALSE)
 
-\item{statement}{SQL statement to execute}
+\S4method{dbListTables}{SQLServerConnection}(conn, ...)
 
-\item{list}{undocumented}
-
-\item{obj}{An R object whose SQL type we want to determine}
-}
-\value{
-a \code{\linkS4class{SQLServerResult}} object
+\S4method{dbExistsTable}{SQLServerConnection}(conn, name, ...)
 }
 \description{
 Extends the \code{\link[RJDBC:JDBCConnection-class]{JDBCConnection}}
 class.
-
-This is basically a copy of RJDBC's \code{\link[RJDBC:JDBCConnection-methods]{dbSendQuery}}
-method for JDBCConnection, except that this returns a
-\code{\linkS4class{SQLServerResult}} rather than a JDBCResult.
 }
 \keyword{internal}
 
