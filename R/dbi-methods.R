@@ -126,53 +126,8 @@ setMethod('dbIsValid', 'SQLServerConnection', function (dbObj, ...) {
 
 setMethod("dbSendQuery", c("SQLServerConnection", "character"),
   def = function (conn, statement, ..., list=NULL) {
-    # This is basically a copy of RJDBC's dbSendQuery method for JDBCConnection,
-    # except that this returns a SQLServerResult rather than a JDBCResult.
-    # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L78
-    statement <- as.character(statement)[1L]
-    ## if the statement starts with {call or {?= call then we use CallableStatement
-    if (isTRUE(as.logical(grepl("^\\{(call|\\?= *call)", statement)))) {
-      s <- rJava::.jcall(conn@jc, "Ljava/sql/CallableStatement;", "prepareCall",
-        statement, check=FALSE)
-      .verify.JDBC.result(s, "Unable to execute JDBC callable statement ",
-        statement)
-      if (length(list(...)))
-        .fillStatementParameters(s, list(...))
-      if (!is.null(list))
-        .fillStatementParameters(s, list)
-      r <- rJava::.jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
-      .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ",
-        statement)
-    } else if (length(list(...)) || length(list)) {
-      ## use prepared statements if there are additional arguments
-      s <- rJava::.jcall(conn@jc, "Ljava/sql/PreparedStatement;",
-        "prepareStatement", statement, check=FALSE)
-      .verify.JDBC.result(s, "Unable to execute JDBC prepared statement ",
-        statement)
-      if (length(list(...)))
-        .fillStatementParameters(s, list(...))
-      if (!is.null(list))
-        .fillStatementParameters(s, list)
-      r <- rJava::.jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
-      .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ",
-        statement)
-    } else {
-      ## otherwise use a simple statement some DBs fail with the above)
-      s <- rJava::.jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
-      .verify.JDBC.result(s, "Unable to create simple JDBC statement ",
-        statement)
-      r <- rJava::.jcall(s, "Ljava/sql/ResultSet;", "executeQuery",
-        as.character(statement)[1], check=FALSE)
-      .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ",
-        statement)
-    }
-    md <- rJava::.jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData",
-      check=FALSE)
-    .verify.JDBC.result(md, "Unable to retrieve JDBC result set meta data for ",
-      statement, " in dbSendQuery")
-    new("SQLServerResult", jr=r, md=md, stat=s, pull=rJava::.jnull())
-  }
-)
+    new("SQLServerResult", callNextMethod())
+})
 
 #' @rdname SQLServerConnection-class
 #' @export
