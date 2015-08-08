@@ -365,8 +365,14 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
       cnames <- colnames(df)
       names(rcts) <- cnames
       for (cname in cnames[to_convert]) {
-        f <- paste0("as.", unname(rcts[cname]))
-        df[, cname] <- eval(call(f, df[, cname]))
+        # special case for bit columns,
+        # which become character vectors of "0" and "1"
+        if (rcts[cname] == "logical") {
+          df[, cname] <- as.logical(as.numeric(df[, cname]))
+        } else {
+          f <- paste0("as.", unname(rcts[cname]))
+          df[, cname] <- eval(call(f, df[, cname]))
+        }
       }
     }
     df
