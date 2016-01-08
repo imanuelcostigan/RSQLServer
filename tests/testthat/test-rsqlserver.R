@@ -7,7 +7,7 @@ test_that("get_server_details works", {
   expected_names <-
     c("server", "type", "port", "domain", "user", "password", "useNTLMv2")
   expect_equal(names(server_details), expected_names)
-  expect_equal(get_server_details("SQL_UAT", file), list())
+  expect_null(get_server_details("SQL_UAT", file))
   expect_error(get_server_details("SQL_TYPE_ERROR", file))
   expect_error(get_server_details("SQL_PORT_ERROR", file))
 })
