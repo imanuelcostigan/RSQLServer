@@ -62,8 +62,7 @@ jtds_url <- function (server, type = "sqlserver", port = "", database = "",
 #' keys are not specified for found \code{server}. \code{NULL} is returned if
 #' the \code{file} does not contain the \code{server} key
 #' @examples
-#' # See:
-#' # http://sqlblog.com/blogs/jamie_thomson/archive/2012/03/27/adventureworks2012-now-available-to-all-on-sql-azure.aspx
+#' # See link below
 #' aw <- dbConnect(RSQLServer::SQLServer(), server = "mhknbn2kdz.database.windows.net",
 #'  database = 'AdventureWorks2012',
 #'  properties = list(user = "sqlfamily", password = "sqlf@@m1ly"))
@@ -71,6 +70,7 @@ jtds_url <- function (server, type = "sqlserver", port = "", database = "",
 #' @seealso
 #' \href{https://github.com/imanuelcostigan/RSQLServer/blob/master/README.md}{RSQLServer README}
 #' \href{https://github.com/yaml/yaml}{YAML}
+#' \href{http://sqlblog.com/blogs/jamie_thomson/archive/2012/03/27/adventureworks2012-now-available-to-all-on-sql-azure.aspx}{Example SQL Server instance}
 #' @keywords internal
 
 get_server_details <- function (server, file = NULL) {

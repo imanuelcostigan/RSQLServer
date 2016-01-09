@@ -29,8 +29,7 @@ high level, each server should be documented in its own associative array
 with each aspect of the server documented in an associative array.
 }
 \examples{
-# See:
-# http://sqlblog.com/blogs/jamie_thomson/archive/2012/03/27/adventureworks2012-now-available-to-all-on-sql-azure.aspx
+# See link below
 aw <- dbConnect(RSQLServer::SQLServer(), server = "mhknbn2kdz.database.windows.net",
  database = 'AdventureWorks2012',
  properties = list(user = "sqlfamily", password = "sqlf@m1ly"))
@@ -39,6 +38,7 @@ dbListTables(aw)
 \seealso{
 \href{https://github.com/imanuelcostigan/RSQLServer/blob/master/README.md}{RSQLServer README}
 \href{https://github.com/yaml/yaml}{YAML}
+\href{http://sqlblog.com/blogs/jamie_thomson/archive/2012/03/27/adventureworks2012-now-available-to-all-on-sql-azure.aspx}{Example SQL Server instance}
 }
 \keyword{internal}
 
