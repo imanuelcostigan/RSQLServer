@@ -48,3 +48,4 @@ Collate:
     'onLoad.R'
     'sql-backends.R'
     'sql-methods.R'
+RoxygenNote: 5.0.1
