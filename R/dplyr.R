@@ -113,9 +113,8 @@ compute.tbl_sqlserver <- function (x, name = random_ident_name(),
   update(tbl(x$src, name), group_by = groups(x))
 }
 
-
-
 #' @importFrom dplyr intersect
+#' @export intersect
 #' @export
 intersect.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
   # SQL Server 2000 does not support INTERSECT or EXCEPT
@@ -126,6 +125,7 @@ intersect.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
 }
 
 #' @importFrom dplyr setdiff
+#' @export setdiff
 #' @export
 setdiff.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
   # SQL Server 2000 does not support INTERSECT or EXCEPT
