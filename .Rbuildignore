@@ -5,3 +5,4 @@
 ^NEWS\.md$
 ^dplyr/
 ^man-roxygen$
+^\.github$
