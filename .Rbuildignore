@@ -6,3 +6,4 @@
 ^dplyr/
 ^man-roxygen$
 ^\.github$
+^CONTRIBUTING\.md$
