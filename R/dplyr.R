@@ -115,9 +115,22 @@ compute.tbl_sqlserver <- function (x, name = random_ident_name(),
   update(tbl(x$src, name), group_by = groups(x))
 }
 
+#' Intersect and setdiff methods
+#'
+#' Customised intersect and setdiff methods for the dplyr generics (which
+#' override base package function definitions). These methods
+#' only support SQL Server 2005 and greater.
+#'
+#' @param x,y objects to compare (ignoring order)
+#' @param copy If \code{x} and \code{y} are not from the same data source,
+#'   and \code{copy} is \code{TRUE}, then \code{y} will be copied into the
+#'   same src as \code{x}.  This allows you to join tables across srcs, but
+#'   it is a potentially expensive operation so you must opt into it.
+#' @param ... other arguments passed on to methods
 #' @importFrom dplyr intersect sql_set_op
 #' @export intersect
 #' @export
+#' @name setops
 intersect.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
   # SQL Server 2000 does not support INTERSECT or EXCEPT
   assertthat::assert_that(x$src$info$db.version > 8, y$src$info$db.version > 8)
@@ -129,6 +142,7 @@ intersect.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
 #' @importFrom dplyr setdiff
 #' @export setdiff
 #' @export
+#' @rdname setops
 setdiff.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
   # SQL Server 2000 does not support INTERSECT or EXCEPT
   assertthat::assert_that(x$src$info$db.version > 8, y$src$info$db.version > 8)
