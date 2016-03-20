@@ -25,6 +25,7 @@
 # http://stackoverflow.com/questions/20515358/rcmd-check-unexported-objects-imported-by-calls#comment30669909_20515358
 # https://stat.ethz.ch/pipermail/r-devel/2013-August/thread.html#67180
 
+#' @importFrom dplyr translate_sql_q build_sql ident query
 build_query <- function(x, limit = NULL, is_percent = NULL) {
   assertthat::assert_that(is.null(limit) || assertthat::is.number(limit))
   translate <- function(expr, ...) {
@@ -195,6 +196,7 @@ sql_vector <- function (x, parens = NA, collapse = " ", con = NULL) {
   sql(x)
 }
 
+#' @importFrom dplyr sql_escape_ident
 names_to_as <- function (x, con = NULL) {
   names <- names2(x)
   as <- ifelse(names == '', '',
@@ -217,6 +219,7 @@ random_ident_name <- function (n = 10) {
   paste0(sample(letters, n, replace = TRUE), collapse = "")
 }
 
+#' @importFrom dplyr db_create_index
 db_create_indexes <- function(con, table, indexes = NULL, ...) {
   if (is.null(indexes)) return()
   assertthat::assert_that(is.list(indexes))
@@ -225,6 +228,7 @@ db_create_indexes <- function(con, table, indexes = NULL, ...) {
   }
 }
 
+#' @importFrom dplyr tbl_vars
 common_by <- function(by = NULL, x, y) {
   if (is.list(by)) return(by)
 
@@ -287,6 +291,7 @@ unique_name <- local({
   }
 })
 
+#' @importFrom dplyr same_src
 auto_copy <- function(x, y, copy = FALSE, ...) {
   if (same_src(x, y)) return(y)
 
@@ -299,3 +304,35 @@ auto_copy <- function(x, y, copy = FALSE, ...) {
 }
 
 compact <- function(x) Filter(Negate(is.null), x)
+
+
+base_symbols <- dplyr::sql_translator(
+  pi = dplyr::sql("PI()"),
+  `*` = dplyr::sql("*"),
+  `NULL` = dplyr::sql("NULL")
+)
+
+all_names <- function(x) {
+  if (is.name(x)) return(as.character(x))
+  if (!is.call(x)) return(NULL)
+
+  unique(unlist(lapply(x[-1], all_names), use.names = FALSE))
+}
+
+#' @importFrom dplyr sql_infix
+default_op <- function(x) {
+  assertthat::assert_that(is.string(x))
+  infix <- c("::", "$", "@", "^", "*", "/", "+", "-", ">", ">=", "<", "<=",
+    "==", "!=", "!", "&", "&&", "|", "||", "~", "<-", "<<-")
+
+  if (x %in% infix) {
+    sql_infix(x)
+  } else if (grepl("^%.*%$", x)) {
+    x <- substr(x, 2, nchar(x) - 1)
+    sql_infix(x)
+  } else {
+    sql_prefix(x)
+  }
+}
+
+

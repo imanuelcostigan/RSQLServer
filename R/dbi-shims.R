@@ -14,7 +14,7 @@ db_has_table.SQLServerConnection <- function (con, table) {
   NA
 }
 
-#' @importFrom dplyr db_query_rows
+#' @importFrom dplyr db_query_rows sql_subquery
 #' @export
 db_query_rows.SQLServerConnection <- function(con, sql, ...) {
   # This is needed because DBI method doesn't name the resulting count and
@@ -59,7 +59,7 @@ db_drop_table.SQLServerConnection <- function (con, table, force = FALSE, ...) {
   identical(res, logical(0)) || isTRUE(res)
 }
 
-#' @importFrom dplyr db_analyze
+#' @importFrom dplyr db_analyze ident build_sql
 #' @export
 db_analyze.SQLServerConnection <- function (con, table, ...) {
   # https://msdn.microsoft.com/en-us/library/ms188038(v=sql.90).aspx

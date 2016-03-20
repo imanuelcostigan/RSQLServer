@@ -95,7 +95,7 @@ sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
   escape(unname(compact(out)), collapse = "\n", parens = FALSE, con = con)
 }
 
-#' @importFrom dplyr sql_join
+#' @importFrom dplyr sql_join sql sql_escape_ident
 #' @export
 sql_join.SQLServerConnection <- function(con, x, y, type = "inner",
   by = NULL, ...) {
@@ -148,6 +148,7 @@ sql_join.SQLServerConnection <- function(con, x, y, type = "inner",
   from
 }
 
+#' @importFrom dplyr escape
 mssql_top <- function (con, n, is_percent = NULL) {
   # https://technet.microsoft.com/en-us/library/aa259187(v=sql.80).aspx
   # https://msdn.microsoft.com/en-us/library/ms189463(v=sql.90).aspx

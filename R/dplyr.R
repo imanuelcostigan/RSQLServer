@@ -30,6 +30,7 @@
 #' by_field %>% summarise(ave = mean(numeric.field))
 #' # See dplyr documentation for further information on data operations
 #' }
+#' @importFrom dplyr src_sql
 #' @export
 src_sqlserver <- function (server, file = NULL, database = "",
   type = "sqlserver", port = "", properties = list()) {
@@ -45,7 +46,7 @@ src_desc.src_sqlserver <- function (x) {
   paste0(info$db.product.name, ' version ', info$db.version, " [", info$user, "]")
 }
 
-#' @importFrom dplyr tbl
+#' @importFrom dplyr tbl_sql
 #' @export
 tbl.src_sqlserver <- function (src, from, ...) {
   tbl_sql("sqlserver", src = src, from = from, ...)
@@ -64,7 +65,8 @@ tbl.src_sqlserver <- function (src, from, ...) {
 # MSSQL 2008r2*: https://technet.microsoft.com/en-US/library/ms173454(v=sql.100).aspx
 # MSSQL 2012*: https://technet.microsoft.com/en-US/library/ms173454(v=sql.110).aspx
 # MSSQL 2014: https://technet.microsoft.com/en-US/library/ms173454(v=sql.120).aspx
-#' @importFrom dplyr src_translate_env
+#' @importFrom dplyr src_translate_env sql_variant sql_translator base_scalar
+#' @importFrom dplyr base_agg sql_prefix base_win
 #' @export
 src_translate_env.src_sqlserver <- function (x) {
   sql_variant(
@@ -104,7 +106,7 @@ copy_to.src_sqlserver <- function (dest, df, name = deparse(substitute(df)),
 }
 
 
-#' @importFrom dplyr compute
+#' @importFrom dplyr compute groups
 #' @export
 compute.tbl_sqlserver <- function (x, name = random_ident_name(),
   temporary = TRUE, ...) {
@@ -113,7 +115,7 @@ compute.tbl_sqlserver <- function (x, name = random_ident_name(),
   update(tbl(x$src, name), group_by = groups(x))
 }
 
-#' @importFrom dplyr intersect
+#' @importFrom dplyr intersect sql_set_op
 #' @export intersect
 #' @export
 intersect.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {

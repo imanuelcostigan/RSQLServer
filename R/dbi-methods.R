@@ -402,6 +402,7 @@ setMethod("dbGetInfo", "SQLServerResult", def = function (dbObj, ...) {
 })
 
 #' @rdname SQLServerResult-class
+#' @importFrom dplyr data_frame
 #' @export
 setMethod("dbColumnInfo", "SQLServerResult", def = function (res, ...) {
   # Inspired by RJDBC method for JDBCResult
