@@ -46,7 +46,7 @@ src_desc.src_sqlserver <- function (x) {
   paste0(info$db.product.name, ' version ', info$db.version, " [", info$user, "]")
 }
 
-#' @importFrom dplyr tbl_sql
+#' @importFrom dplyr tbl tbl_sql
 #' @export
 tbl.src_sqlserver <- function (src, from, ...) {
   tbl_sql("sqlserver", src = src, from = from, ...)
