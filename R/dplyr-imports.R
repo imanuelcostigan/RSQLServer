@@ -321,7 +321,7 @@ all_names <- function(x) {
 
 #' @importFrom dplyr sql_infix
 default_op <- function(x) {
-  assertthat::assert_that(is.string(x))
+  assertthat::assert_that(assertthat::is.string(x))
   infix <- c("::", "$", "@", "^", "*", "/", "+", "-", ">", ">=", "<", "<=",
     "==", "!=", "!", "&", "&&", "|", "||", "~", "<-", "<<-")
 
