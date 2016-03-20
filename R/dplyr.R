@@ -130,6 +130,8 @@ compute.tbl_sqlserver <- function (x, name = random_ident_name(),
 #' @importFrom dplyr intersect sql_set_op
 #' @export intersect
 #' @export
+#' @seealso \code{\link[dplyr]{setdiff}} \code{\link[dplyr]{intersect}}
+#' @aliases setdiff intersect
 #' @name setops
 intersect.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
   # SQL Server 2000 does not support INTERSECT or EXCEPT
