@@ -1,24 +1,29 @@
 Package: RSQLServer
 Type: Package
-Title: SQL Server R Database Interface (DBI) and SQL backend to dplyr
+Title: SQL Server R Database Interface (DBI) and dplyr SQL Backend
 Version: 0.2
-Date: 2016-01-09
-Authors@R: as.person(c("Imanuel Costigan <i.costigan@me.com> [aut,cre]",
-    "The jTDS Project (for MSSQL Server driver) [aut]",
-    "Simon Urbanek <Simon.Urbanek@r-project.org> [ctb]",
-    "Hadley Wickham <hadley@rstudio.com> [ctb]",
-    "Romain Francois <romain@r-enthusiasts.com> [ctb]",
-    "RStudio [cph]",
-    "The Legion Of The Bouncy Castle [cph,ctb]"))
-Maintainer: Imanuel Costigan <i.costigan@me.com>
-Description: RSQLServer wraps the jTDS Project's JDBC 3.0 SQL Server
-    driver, extends RJDBC classes and DBI methods and provides a SQL backend to
-    dplyr. It defines a SQLServerDriver, SQLServerConnection & SQLServerRsult
-    S4 classes as extensions of the RJDBC equivalent classes with most DBI
+Date: 2016-03-20
+Authors@R: c(person("Imanuel", "Costigan", role = c("aut", "cre"),
+                    email = "i.costigan@me.com"),
+             person("The jTDS Project (for MSSQL Server driver)",
+                    role = "aut"),
+             person("Simon", "Urbanek", role = "ctb",
+                    email = "Simon.Urbanek@r-project.org"),
+             person("Hadley", "Wickham", email = "hadley@rstudio.com",
+                    role = "ctb"),
+             person("Romain", "Francois", email = "romain@r-enthusiasts.com",
+                    role = "ctb"),
+             person("RStudio", role = "cph"),
+             person("The Legion Of The Bouncy Castle", role = c("cph", "ctb")))
+Description: Utilises The jTDS Project's JDBC 3.0 SQL Server
+    driver to extend the RJDBC classes and DBI methods. It defines a
+    SQLServerDriver, SQLServerConnection & SQLServerRsult S4 classes as
+    extensions of the RJDBC equivalent classes with most DBI
     methods being thin extensions of the methods defined by RJDBC classes.
     However, the dbConnect interface is more convenient, and the data reading
     and writing capabilities found in RJDBC's fetch and dbWriteTable methods
-    have been refined. The package also implements a SQL backend to dplyr.
+    have been refined. The package also implements a SQL backend to the dplyr
+    package.
 License: GPL-2
 Depends:
     R (>= 3.2.0),
