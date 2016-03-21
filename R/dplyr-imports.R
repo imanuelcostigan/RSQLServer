@@ -229,6 +229,7 @@ db_create_indexes <- function(con, table, indexes = NULL, ...) {
 }
 
 #' @importFrom dplyr tbl_vars
+#' @importFrom utils capture.output
 common_by <- function(by = NULL, x, y) {
   if (is.list(by)) return(by)
 

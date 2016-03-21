@@ -122,6 +122,7 @@ setMethod('dbIsValid', 'SQLServerConnection', function (dbObj, ...) {
 
 
 #' @rdname SQLServerConnection-class
+#' @importFrom methods callNextMethod
 #' @export
 
 setMethod("dbSendQuery", c("SQLServerConnection", "character"),

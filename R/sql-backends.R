@@ -96,6 +96,7 @@ sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
 }
 
 #' @importFrom dplyr sql_join sql sql_escape_ident
+#' @importFrom stats setNames
 #' @export
 sql_join.SQLServerConnection <- function(con, x, y, type = "inner",
   by = NULL, ...) {
