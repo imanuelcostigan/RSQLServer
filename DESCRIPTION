@@ -2,7 +2,7 @@ Package: RSQLServer
 Type: Package
 Title: SQL Server R Database Interface (DBI) and dplyr SQL Backend
 Version: 0.2
-Date: 2016-03-20
+Date: 2016-03-22
 Authors@R: c(person("Imanuel", "Costigan", role = c("aut", "cre"),
                     email = "i.costigan@me.com"),
              person("The jTDS Project (for MSSQL Server driver)",
