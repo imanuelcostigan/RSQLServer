@@ -1,6 +1,7 @@
 # Version 0.2.099
 
 - Bumped DBI requirement
+- Added Travis-CI support
 
 # Version 0.2.0
 
