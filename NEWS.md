@@ -1,5 +1,6 @@
 # Version 0.2.099
 
+- Bumped DBI requirement
 
 # Version 0.2.0
 
