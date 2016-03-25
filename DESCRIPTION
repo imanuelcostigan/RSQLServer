@@ -37,7 +37,8 @@ Imports:
     yaml (>= 2.1.13),
     lubridate (>= 1.3.3)
 Suggests:
-    testthat
+    testthat,
+    DBItest
 Remotes:
     rstats-db/DBI
 SystemRequirements: Java (>= 1.3)
