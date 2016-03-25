@@ -3,7 +3,7 @@
 \docType{class}
 \name{SQLServerConnection-class}
 \alias{SQLServerConnection-class}
-\alias{dbDataType,SQLServerConnection-method}
+\alias{dbDataType,SQLServerConnection,ANY-method}
 \alias{dbExistsTable,SQLServerConnection-method}
 \alias{dbGetInfo,SQLServerConnection-method}
 \alias{dbIsValid,SQLServerConnection-method}
@@ -23,7 +23,7 @@
 \S4method{dbSendQuery}{SQLServerConnection,character}(conn, statement, ...,
   list = NULL)
 
-\S4method{dbDataType}{SQLServerConnection}(dbObj, obj, ...)
+\S4method{dbDataType}{SQLServerConnection,ANY}(dbObj, obj, ...)
 
 \S4method{dbSendUpdate}{SQLServerConnection,character}(conn, statement, ...,
   list = NULL)
