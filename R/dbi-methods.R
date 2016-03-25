@@ -3,6 +3,12 @@ NULL
 
 # Drivers ----------------------------------------------------------------
 
+#' @export
+#' @rdname SQLServerDriver-class
+setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) {
+  TRUE
+})
+
 #' @rdname SQLServerDriver-class
 #' @export
 
