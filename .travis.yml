@@ -4,4 +4,4 @@ cache: packages
 sudo: false
 before_install:
 - openssl aes-256-cbc -K $encrypted_71b396cbdae4_key -iv $encrypted_71b396cbdae4_iv
-  -in inst/extdata/sql.yaml.enc -out ~\/sql.yaml -d
+  -in inst/extdata/sql.yaml.enc -out inst/extdata/sql.yaml -d
