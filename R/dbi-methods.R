@@ -144,12 +144,18 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R
     # Based on db_data_type.MySQLConnection from dplyr
     # https://msdn.microsoft.com/en-us/library/ms187752(v=sql.90).aspx
-    char_type <- function (x) {
+    char_type <- function (x, version = NULL) {
       n <- max(nchar(as.character(x)))
       if (n <= 8000) {
-        paste0("varchar(", n, ")")
+        return(paste0("varchar(", n, ")"))
       } else {
-        "text"
+        version <- version %||% dbGetInfo(dbObj)$db.version
+        # TEXT being deprecated, but VARCHAR(MAX) unsupported on MSSQL 2000
+        if (version > 8) {
+          return("varchar(max)")
+        } else {
+          return("text")
+        }
       }
     }
     switch(class(obj)[1],
