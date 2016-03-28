@@ -1,6 +1,5 @@
 # Version 0.2.099
 
-- Factors and character types only map to `varchar(max)` type rather than to `text` or `varchar(n)` depending on mapped object.
 - Bumped DBI requirement
 - Added Travis-CI support
 
