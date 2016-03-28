@@ -144,31 +144,33 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R
     # Based on db_data_type.MySQLConnection from dplyr
     # https://msdn.microsoft.com/en-us/library/ms187752(v=sql.90).aspx
+
+    # Helper functions
     char_type <- function (x, version = NULL) {
       n <- max(nchar(as.character(x)))
       if (n <= 8000) {
-        return(paste0("varchar(", n, ")"))
+        return(paste0("VARCHAR(", n, ")"))
       } else {
         version <- version %||% dbGetInfo(dbObj)$db.version
         # TEXT being deprecated, but VARCHAR(MAX) unsupported on MSSQL 2000
         if (version > 8) {
-          return("varchar(max)")
+          return("VARCHAR(MAX)")
         } else {
-          return("text")
+          return("TEXT")
         }
       }
     }
     switch(class(obj)[1],
-      logical = "bit",
-      integer = "int",
-      numeric = "float",
+      logical = "BIT",
+      integer = "INT",
+      numeric = "FLOAT",
       factor =  char_type(obj),
       character = char_type(obj),
       # SQL Server does not have a date data type without time corresponding
       # to R's Date class
-      Date = "datetime",
-      POSIXct = "datetime",
-      raw = "binary",
+      Date = "DATETIME",
+      POSIXct = "DATETIME",
+      raw = "BINARY",
       stop("Unknown class ", paste(class(obj), collapse = "/"), call. = FALSE)
     )
   }
