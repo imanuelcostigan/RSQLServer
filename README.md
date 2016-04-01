@@ -1,5 +1,7 @@
 # RSQLServer
 
+[![Join the chat at https://gitter.im/imanuelcostigan/RSQLServer](https://badges.gitter.im/imanuelcostigan/RSQLServer.svg)](https://gitter.im/imanuelcostigan/RSQLServer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 An R package that provides a SQL Server R Database Interface ([DBI](https://github.com/rstats-db/DBI)), based on the cross-platform [jTDS JDBC driver](http://jtds.sourceforge.net/index.html).
 
 ## Installation
