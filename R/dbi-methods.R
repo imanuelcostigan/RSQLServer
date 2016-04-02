@@ -160,18 +160,30 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
         }
       }
     }
-    switch(class(obj)[1],
+    # MSSQL 2000/5 do not have a date data type without time corresponding
+    # to R's Date class. Introduced in MSSQL 2008.
+    date_type <- function (x, version = NULL) {
+      version <- version %||% dbGetInfo(dbObj)$db.version
+      if (version > 9) {
+        return("DATE")
+      } else {
+        return("DATETIME")
+      }
+    }
+
+    # Deal with non-atomic types first, as typeof(obj) will map to an atomic
+    # type (e.g. typeof(obj) for Date maps to double)
+    if (is.factor(obj)) return(char_type(obj))
+    if (lubridate::is.Date(obj)) return(date_type(obj))
+    if (lubridate::is.POSIXct(obj)) return("DATETIME")
+
+    switch(typeof(obj),
       logical = "BIT",
       integer = "INT",
       numeric = "FLOAT",
-      factor =  char_type(obj),
       character = char_type(obj),
-      # SQL Server does not have a date data type without time corresponding
-      # to R's Date class
-      Date = "DATETIME",
-      POSIXct = "DATETIME",
       raw = "BINARY",
-      stop("Unknown class ", paste(class(obj), collapse = "/"), call. = FALSE)
+      stop("Object data type is unsupported", call. = FALSE)
     )
   }
 )
