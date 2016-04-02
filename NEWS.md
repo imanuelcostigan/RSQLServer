@@ -1,5 +1,6 @@
 # Version 0.2.099
 
+- `dbDateType` maps R character objects of sufficiently long length to `VARCHAR(MAX)` on newer version of MSSQL rather than `TEXT` as the latter is being deprecated.
 - Bumped DBI requirement
 - Added Travis-CI support
 
