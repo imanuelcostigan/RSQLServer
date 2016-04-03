@@ -6,15 +6,12 @@
 \alias{dbConnect,SQLServerDriver-method}
 \title{Create a SQLServer driver}
 \usage{
-SQLServer(identifier.quote = "\\"")
+SQLServer()
 
 \S4method{dbConnect}{SQLServerDriver}(drv, server, file = NULL,
   database = "", type = "sqlserver", port = "", properties = list())
 }
 \arguments{
-\item{identifier.quote}{quote character for a SQL Server identifier can be a
-double quotation mark (\code{\"}) which is the default.}
-
 \item{drv}{An objected of class \code{\linkS4class{SQLServerDriver}}, or an
 existing \code{\linkS4class{SQLServerConnection}}. If a connection,
 the connection will be cloned.}
