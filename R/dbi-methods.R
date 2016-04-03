@@ -138,12 +138,14 @@ setMethod("dbSendQuery", c("SQLServerConnection", "character"),
 
 #' @rdname SQLServerConnection-class
 #' @export
-setMethod("dbDataType", c("SQLServerConnection", "ANY"),
+setMethod("dbDataType", "SQLServerConnection",
   def = function (dbObj, obj, ...) {
     # RJDBC method is too crude. See:
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R
     # Based on db_data_type.MySQLConnection from dplyr
     # https://msdn.microsoft.com/en-us/library/ms187752(v=sql.90).aspx
+
+    mssql_version <- dbGetInfo(dbObj)$db.version
 
     # Helper functions
     char_type <- function (x, version = NULL) {
@@ -170,19 +172,29 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
         return("DATETIME")
       }
     }
+    # MSSQL 2000 does not have VARBINARY(MAX) type.
+    blob_type <- function (x, version = NULL) {
+      version <- version %||% dbGetInfo(dbObj)$db.version
+      if (version > 8) {
+        return("VARCHAR(MAX)")
+      } else {
+        return("VARCHAR(8000)")
+      }
+    }
 
     # Deal with non-atomic types first, as typeof(obj) will map to an atomic
     # type (e.g. typeof(obj) for Date maps to double)
-    if (is.factor(obj)) return(char_type(obj))
-    if (lubridate::is.Date(obj)) return(date_type(obj))
+    if (is.factor(obj)) return(char_type(obj, mssql_version))
+    if (lubridate::is.Date(obj)) return(date_type(obj, mssql_version))
     if (lubridate::is.POSIXct(obj)) return("DATETIME")
 
     switch(typeof(obj),
       logical = "BIT",
       integer = "INT",
       numeric = "FLOAT",
-      character = char_type(obj),
+      character = char_type(obj, mssql_version),
       raw = "BINARY",
+      list = blob_type(obj, mssql_version),
       stop("Object data type is unsupported", call. = FALSE)
     )
   }
