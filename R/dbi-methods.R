@@ -360,6 +360,22 @@ setMethod("dbExistsTable", "SQLServerConnection", function (conn, name, ...) {
   all(name %in% dbListTables(conn))
 })
 
+#' @rdname SQLServerConnection-class
+#' @export
+setMethod("dbDisconnect", "SQLServerConnection", function (conn, ...) {
+  # Modified from RJDBC.
+  # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L60
+  # Generates warning message if connection is already closed per DBItest
+  # requirement (but still returns TRUE as connection is closed).
+  if (rJava::.jcall(conn@jc, "Z", "isClosed")) {
+    warning("THe connection has already been closed.", call. = FALSE)
+    TRUE
+  } else {
+    rJava::.jcall(conn@jc, "V", "close")
+    TRUE
+  }
+})
+
 # DBI methods that inherit from RJDBC:
 # dbDisconnect()
 # dbGetException()
