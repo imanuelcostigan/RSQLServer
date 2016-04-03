@@ -91,7 +91,7 @@ setMethod('dbConnect', "SQLServerDriver",
 setMethod('dbGetInfo', 'SQLServerConnection',
   definition = function (dbObj, ...) {
     list(
-      user = rJava::.jfield(dbObj@jc, "S", "user"),
+      username = rJava::.jfield(dbObj@jc, "S", "user"),
       host = rJava::.jfield(dbObj@jc, "S", "serverName"),
       port = rJava::.jfield(dbObj@jc, "I", "portNumber"),
       dbname = rJava::.jfield(dbObj@jc, "S", "currentDatabase"),
