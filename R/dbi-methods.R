@@ -19,13 +19,6 @@ setMethod('dbGetInfo', 'SQLServerDriver', definition = function (dbObj, ...) {
     max.connections = NA)
 })
 
-#' @rdname SQLServerDriver-class
-#' @export
-
-setMethod("show", "SQLServerDriver", definition = function (object) {
-  cat("<SQLServerDriver>\n")
-})
-
 #' Connect to/disconnect from a SQL Server database.
 #'
 #' @param drv An objected of class \code{\linkS4class{SQLServerDriver}}, or an
@@ -104,18 +97,6 @@ setMethod('dbGetInfo', 'SQLServerConnection',
       user = rJava::.jcall(meta, "S","getUserName"))
   }
 )
-
-#' @rdname SQLServerConnection-class
-#' @export
-
-setMethod("show", "SQLServerConnection", definition = function (object) {
-  info <- dbGetInfo(object)
-  cat("<SQLServerConnection>\n")
-  cat(info$db.product.name, " ", info$db.version, "\n", sep = "")
-  if (!dbIsValid(object)) {
-    cat("  DISCONNECTED\n")
-  }
-})
 
 #' @rdname SQLServerConnection-class
 #' @export
