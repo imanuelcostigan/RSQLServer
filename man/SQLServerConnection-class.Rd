@@ -12,12 +12,9 @@
 \alias{dbSendQuery,SQLServerConnection,character-method}
 \alias{dbSendUpdate,SQLServerConnection,character-method}
 \alias{dbWriteTable,SQLServerConnection-method}
-\alias{show,SQLServerConnection-method}
 \title{An S4 class to represent a SQL Server connection}
 \usage{
 \S4method{dbGetInfo}{SQLServerConnection}(dbObj, ...)
-
-\S4method{show}{SQLServerConnection}(object)
 
 \S4method{dbIsValid}{SQLServerConnection}(dbObj, ...)
 

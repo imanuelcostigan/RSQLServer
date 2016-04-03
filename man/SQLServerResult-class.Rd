@@ -3,6 +3,7 @@
 \docType{class}
 \name{SQLServerResult-class}
 \alias{SQLServerResult-class}
+\alias{dbClearResult,SQLServerResult-method}
 \alias{dbColumnInfo,SQLServerResult-method}
 \alias{dbFetch,SQLServerResult,numeric-method}
 \alias{dbGetInfo,SQLServerResult-method}
@@ -22,6 +23,8 @@
 \S4method{dbColumnInfo}{SQLServerResult}(res, ...)
 
 \S4method{dbHasCompleted}{SQLServerResult}(res, ...)
+
+\S4method{dbClearResult}{SQLServerResult}(res, ...)
 }
 \description{
 Extends the \code{\link[RJDBC:JDBCResult-class]{JDBCResult}}
