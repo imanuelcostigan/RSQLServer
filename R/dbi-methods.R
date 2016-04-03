@@ -468,6 +468,23 @@ setMethod("dbHasCompleted", "SQLServerResult", def = function (res, ...) {
   dbGetInfo(res)$has.completed
 })
 
+#' @rdname SQLServerResult-class
+#' @export
+setMethod("dbClearResult", "SQLServerResult", function (res, ...) {
+  # Need to overwrite RJDBC supplied method to pass DBItest. Needs to throw
+  # warning if calling this method on cleared resultset
+  if (rJava::.jcall(res@jr, "Z", "isClosed")) {
+    warning("ResultSet has already been cleared", call. = FALSE)
+  } else {
+    rJava::.jcall(res@jr, "V", "close")
+  }
+  if (rJava::.jcall(res@stat, "Z", "isClosed")) {
+    warning("Statement has already been cleared", call. = FALSE)
+  } else {
+    rJava::.jcall(res@stat, "V", "close")
+  }
+  TRUE
+})
 
 # Inherited from DBI:
 # show()
