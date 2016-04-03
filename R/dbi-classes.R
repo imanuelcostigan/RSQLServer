@@ -17,8 +17,6 @@ setClass("SQLServerDriver", contains = "JDBCDriver")
 #' This creates a SQL Server driver used to access SQL Server databases and is
 #' based on the jTDS driver.
 #'
-#' @param identifier.quote  quote character for a SQL Server identifier can be a
-#' double quotation mark (\code{\"}) which is the default.
 #' @return An object of class \code{SQLServerDriver}.
 #' @references
 #' \href{http://jtds.sourceforge.net/}{jTDS project}
@@ -28,10 +26,10 @@ setClass("SQLServerDriver", contains = "JDBCDriver")
 #' }
 #' @export
 
-SQLServer <- function (identifier.quote="\"") {
+SQLServer <- function () {
   drv <- RJDBC::JDBC(driverClass = "net.sourceforge.jtds.jdbc.Driver",
     classPath = jdbc_class_path())
-  new("SQLServerDriver", identifier.quote = identifier.quote, jdrv= drv@jdrv)
+  new("SQLServerDriver", jdrv= drv@jdrv)
 }
 
 # Connection -------------------------------------------------------------
