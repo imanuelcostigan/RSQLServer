@@ -14,7 +14,9 @@ setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) {
 
 setMethod('dbGetInfo', 'SQLServerDriver', definition = function (dbObj, ...) {
   list(name = 'RSQLServer (jTDS)',
-    driver.version = rJava::.jcall(dbObj@jdrv, "S", "getVersion"))
+    driver.version = rJava::.jcall(dbObj@jdrv, "S", "getVersion"),
+    client.version = NA,
+    max.connections = NA)
 })
 
 #' @rdname SQLServerDriver-class
