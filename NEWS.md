@@ -1,7 +1,15 @@
 # Version 0.2.099
 
-- `dbDateType` maps R character objects of sufficiently long length to `VARCHAR(MAX)` on newer version of MSSQL rather than `TEXT` as the latter is being deprecated.
+## DBItest
+
+A number of changes have been made to ensure DBI compliance as specified by tests in the `DBItest` package:
+
+- `SQLServer()` no longer accepts arguments
 - Bumped DBI requirement
+
+## Other changes
+
+- `dbDataType` maps R character objects of sufficiently long length to `VARCHAR(MAX)` on newer version of MSSQL rather than `TEXT` as the latter is being deprecated.
 - Added Travis-CI support
 
 # Version 0.2.0
