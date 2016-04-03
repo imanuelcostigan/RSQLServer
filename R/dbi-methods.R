@@ -90,11 +90,13 @@ setMethod('dbConnect', "SQLServerDriver",
 
 setMethod('dbGetInfo', 'SQLServerConnection',
   definition = function (dbObj, ...) {
-    meta <- rJava::.jcall(dbObj@jc, "Ljava/sql/DatabaseMetaData;",
-      "getMetaData")
-    list(db.product.name = rJava::.jcall(meta, "S", "getDatabaseProductName"),
-      db.version = rJava::.jcall(meta, "I", "getDatabaseMajorVersion"),
-      user = rJava::.jcall(meta, "S","getUserName"))
+    list(
+      user = rJava::.jfield(dbObj@jc, "S", "user"),
+      host = rJava::.jfield(dbObj@jc, "S", "serverName"),
+      port = rJava::.jfield(dbObj@jc, "I", "portNumber"),
+      dbname = rJava::.jfield(dbObj@jc, "S", "currentDatabase"),
+      db.version = rJava::.jfield(dbObj@jc, "S", "databaseProductVersion")
+    )
   }
 )
 
