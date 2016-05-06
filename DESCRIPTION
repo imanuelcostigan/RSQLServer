@@ -28,7 +28,7 @@ License: GPL-2
 Depends:
     R (>= 3.2.0)
 Imports:
-    DBI (>= 0.3.1.9008),
+    DBI (>= 0.4),
     methods (>= 3.2.0),
     rJava (>= 0.9.6),
     RJDBC (>= 0.2-4),
