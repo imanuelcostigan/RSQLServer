@@ -3,12 +3,6 @@ NULL
 
 # Drivers ----------------------------------------------------------------
 
-#' @export
-#' @rdname SQLServerDriver-class
-setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) {
-  TRUE
-})
-
 #' @rdname SQLServerDriver-class
 #' @export
 
@@ -17,6 +11,13 @@ setMethod('dbGetInfo', 'SQLServerDriver', definition = function (dbObj, ...) {
     driver.version = rJava::.jcall(dbObj@jdrv, "S", "getVersion"),
     client.version = NA,
     max.connections = NA)
+})
+
+#' @rdname SQLServerDriver-class
+#' @export
+
+setMethod("show", "SQLServerDriver", definition = function (object) {
+  cat("<SQLServerDriver>\n")
 })
 
 #' Connect to/disconnect from a SQL Server database.
@@ -72,7 +73,7 @@ setMethod('dbConnect', "SQLServerDriver",
     url <- jtds_url(server, type, port, database, properties)
     jc <- rJava::.jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", url,
       rJava::.jnew('java/util/Properties'))
-    new("SQLServerConnection", jc = jc)
+    new("SQLServerConnection", jc = jc, identifier.quote = drv@identifier.quote)
   }
 )
 
@@ -103,6 +104,18 @@ setMethod('dbGetInfo', 'SQLServerConnection',
 #' @rdname SQLServerConnection-class
 #' @export
 
+setMethod("show", "SQLServerConnection", definition = function (object) {
+  info <- dbGetInfo(object)
+  cat("<SQLServerConnection>\n")
+  cat(info$db.product.name, " ", info$db.version, "\n", sep = "")
+  if (!dbIsValid(object)) {
+    cat("  DISCONNECTED\n")
+  }
+})
+
+#' @rdname SQLServerConnection-class
+#' @export
+
 setMethod('dbIsValid', 'SQLServerConnection', function (dbObj, ...) {
   !rJava::.jcall(dbObj@jc, "Z", "isClosed")
 })
@@ -123,64 +136,42 @@ setMethod("dbSendQuery", c("SQLServerConnection", "character"),
 
 #' @rdname SQLServerConnection-class
 #' @export
-setMethod("dbDataType", "SQLServerConnection",
+setMethod("dbDataType", c("SQLServerConnection", "ANY"),
   def = function (dbObj, obj, ...) {
     # RJDBC method is too crude. See:
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R
     # Based on db_data_type.MySQLConnection from dplyr
     # https://msdn.microsoft.com/en-us/library/ms187752(v=sql.90).aspx
-
-    mssql_version <- dbGetInfo(dbObj)$db.version
-
-    # Helper functions
-    char_type <- function (x, version = NULL) {
+    char_type <- function (x) {
       n <- max(nchar(as.character(x)))
       if (n <= 8000) {
-        return(paste0("VARCHAR(", n, ")"))
+        paste0("varchar(", n, ")")
       } else {
-        version <- version %||% dbGetInfo(dbObj)$db.version
-        # TEXT being deprecated, but VARCHAR(MAX) unsupported on MSSQL 2000
-        if (version > 8) {
-          return("VARCHAR(MAX)")
-        } else {
-          return("TEXT")
-        }
+        "text"
       }
     }
-    # MSSQL 2000/5 do not have a date data type without time corresponding
-    # to R's Date class. Introduced in MSSQL 2008.
-    date_type <- function (x, version = NULL) {
-      version <- version %||% dbGetInfo(dbObj)$db.version
-      if (version > 9) {
-        return("DATE")
+    binary_type <- function (x) {
+      # SQL Server 2000 does not support varbinary(max) type.
+      if (dbGetInfo(dbObj)$db.version < 9) {
+        # https://technet.microsoft.com/en-us/library/aa225972(v=sql.80).aspx
+        "varbinary(8000)"
       } else {
-        return("DATETIME")
+        "varbinary(max)"
       }
     }
-    # MSSQL 2000 does not have VARBINARY(MAX) type.
-    blob_type <- function (x, version = NULL) {
-      version <- version %||% dbGetInfo(dbObj)$db.version
-      if (version > 8) {
-        return("VARCHAR(MAX)")
-      } else {
-        return("VARCHAR(8000)")
-      }
-    }
-
-    # Deal with non-atomic types first, as typeof(obj) will map to an atomic
-    # type (e.g. typeof(obj) for Date maps to double)
-    if (is.factor(obj)) return(char_type(obj, mssql_version))
-    if (lubridate::is.Date(obj)) return(date_type(obj, mssql_version))
-    if (lubridate::is.POSIXct(obj)) return("DATETIME")
-
-    switch(typeof(obj),
-      logical = "BIT",
-      integer = "INT",
-      numeric = "FLOAT",
-      character = char_type(obj, mssql_version),
-      raw = "BINARY",
-      list = blob_type(obj, mssql_version),
-      stop("Object data type is unsupported", call. = FALSE)
+    switch(class(obj)[1],
+      logical = "bit",
+      integer = "int",
+      numeric = "float",
+      factor =  char_type(obj),
+      character = char_type(obj),
+      # SQL Server does not have a date data type without time corresponding
+      # to R's Date class
+      Date = "datetime",
+      POSIXct = "datetime",
+      raw = binary_type(obj),
+      list = binary_type(obj),
+      stop("Unknown class ", paste(class(obj), collapse = "/"), call. = FALSE)
     )
   }
 )
@@ -343,16 +334,10 @@ setMethod("dbExistsTable", "SQLServerConnection", function (conn, name, ...) {
   all(name %in% dbListTables(conn))
 })
 
-#' @rdname SQLServerConnection-class
-#' @export
 setMethod("dbDisconnect", "SQLServerConnection", function (conn, ...) {
-  # Modified from RJDBC.
-  # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L60
-  # Generates warning message if connection is already closed per DBItest
-  # requirement (but still returns TRUE as connection is closed).
-  if (rJava::.jcall(conn@jc, "Z", "isClosed")) {
-    warning("THe connection has already been closed.", call. = FALSE)
-    TRUE
+  if (rJava::.jcall(conn@jc, "Z", "isClosed"))  {
+    warning("The connection has already been closed")
+    FALSE
   } else {
     rJava::.jcall(conn@jc, "V", "close")
     TRUE
@@ -360,7 +345,6 @@ setMethod("dbDisconnect", "SQLServerConnection", function (conn, ...) {
 })
 
 # DBI methods that inherit from RJDBC:
-# dbDisconnect()
 # dbGetException()
 # dbListResults()
 # dbListFields()
@@ -494,7 +478,6 @@ setMethod("dbClearResult", "SQLServerResult", function (res, ...) {
 #
 # Inherited from RJDBC:
 # fetch()
-# dbClearResult()
 # dbGetInfo()
 
 # Other ----------------------------------------------------------------
