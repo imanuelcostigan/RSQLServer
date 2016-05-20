@@ -286,16 +286,20 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
 #' @export
 setMethod("dbWriteTable", "SQLServerConnection",
   function (conn, name, value, overwrite = TRUE, append = FALSE) {
+
     # Based on RJDBC method:
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L242
     # However require `value` to be a data frame. No coercion will take place
-    assertthat::assert_that(is.data.frame(value), ncol(value) > 0)
+    assertthat::assert_that(is.data.frame(value), ncol(value) > 0,
+      !(overwrite && append))
+
     # Capture whether auto-commit is enabled on connection
     # If it is, disable until this function exists, after which it should be
     # enabled again. Should be disabled to ensure all SQL statements are
     # committed together rather than separately.
     # http://docs.oracle.com/javase/tutorial/jdbc/basics/transactions.html
     ac <- rJava::.jcall(conn@jc, "Z", "getAutoCommit")
+
     # Check whether table already exists and needs to be dropped.
     overwrite <- isTRUE(as.logical(overwrite))
     append <- if (overwrite) FALSE else isTRUE(as.logical(append))
