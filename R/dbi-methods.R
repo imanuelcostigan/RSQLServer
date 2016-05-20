@@ -78,12 +78,12 @@ setMethod('dbConnect', "SQLServerDriver",
   }
 )
 
+#' @export
+#' @rdname SQLServer
+setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) TRUE)
+
 # DBI methods inherited from DBI
 # dbDriver()
-#
-# DBI methods inherited from RJDBC
-# dbUnloadDriver()
-
 
 # Connections ------------------------------------------------------------
 
