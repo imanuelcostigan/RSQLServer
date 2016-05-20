@@ -6,7 +6,8 @@
 #' @keywords internal
 #' @export
 
-setClass("SQLServerDriver", contains = "DBIDriver", slots = c(jdrv = "jobjRef"))
+setClass("SQLServerDriver", contains = "DBIDriver",
+  slots = c(jdrv = "jobjRef"))
 
 #' Create SQLServerDriver
 #'
@@ -32,28 +33,23 @@ SQLServer <- function () {
 
 # Connection -------------------------------------------------------------
 
-#' An S4 class to represent a SQL Server connection
-#'
-#' Extends the \code{\link[RJDBC:JDBCConnection-class]{JDBCConnection}}
-#' class.
+#' SQL Server Connection class
 #'
 #' @keywords internal
 #' @export
 
-setClass("SQLServerConnection", contains = 'DBIConnection')
+setClass("SQLServerConnection", contains = 'DBIConnection',
+  slots = c(jc = "jobjRef"))
 
 
 # Result -----------------------------------------------------------------
 
-#' An S4 class to represent a SQL Server result set
-#'
-#' Extends the \code{\link[RJDBC:JDBCResult-class]{JDBCResult}}
-#' class.
+#' SQL Server Result class
 #'
 #' @keywords internal
-#' @importClassesFrom RJDBC JDBCResult
 #' @export
 
-setClass ("SQLServerResult", contains = 'JDBCResult')
+setClass ("SQLServerResult", contains = 'DBIResult',
+  slots = c(jr = "jobjRef", md = "jobjRef", stat = "jobjRef", pull = "jobjRef"))
 
 

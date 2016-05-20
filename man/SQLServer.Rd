@@ -4,7 +4,7 @@
 \name{SQLServer}
 \alias{SQLServer}
 \alias{dbConnect,SQLServerDriver-method}
-\title{Create a SQLServer driver}
+\title{Create SQLServerDriver}
 \usage{
 SQLServer()
 
@@ -59,8 +59,8 @@ An object of class \code{SQLServerDriver}.
 a \code{\linkS4class{SQLServerConnection}}
 }
 \description{
-This creates a SQL Server driver used to access SQL Server databases and is
-based on the jTDS driver.
+This creates a SQLServerDriver object used to access SQL Server databases
+and is based on the jTDS driver.
 
 Connect to/disconnect from a SQL Server database.
 }
@@ -84,6 +84,6 @@ dbConnect(RSQLServer::SQLServer(), server="11.1.111.11", port=1434,
 }
 }
 \references{
-\href{http://jtds.sourceforge.net/}{jTDS project}
+\href{http://jtds.sourceforge.net/doc/net/sourceforge/jtds/jdbc/Driver.html}{jTDS API doc}
 }
 

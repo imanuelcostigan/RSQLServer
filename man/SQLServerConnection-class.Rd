@@ -12,7 +12,7 @@
 \alias{dbSendUpdate,SQLServerConnection,character-method}
 \alias{dbWriteTable,SQLServerConnection-method}
 \alias{show,SQLServerConnection-method}
-\title{An S4 class to represent a SQL Server connection}
+\title{SQL Server Connection class}
 \usage{
 \S4method{dbGetInfo}{SQLServerConnection}(dbObj, ...)
 
@@ -36,8 +36,7 @@
 \S4method{dbExistsTable}{SQLServerConnection}(conn, name, ...)
 }
 \description{
-Extends the \code{\link[RJDBC:JDBCConnection-class]{JDBCConnection}}
-class.
+SQL Server Connection class
 }
 \keyword{internal}
 
