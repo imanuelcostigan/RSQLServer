@@ -282,6 +282,35 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
   }
 )
 
+
+#' @rdname SQLServerConnection-class
+#' @export
+setMethod("dbListTables", "SQLServerConnection", function(conn, ...) {
+  # Modified from RJDBC:
+  # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L161
+  md <- rJava::.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData",
+    check = FALSE)
+  .verify.JDBC.result(md, "Unable to retrieve JDBC database metadata")
+  # Create arguments for call to getTables
+  jns <- rJava::.jnull("java/lang/String")
+  table_types <- rJava::.jarray(c("TABLE", "VIEW"))
+  rs <- rJava::.jcall(md, "Ljava/sql/ResultSet;", "getTables",
+    jns, jns, jns, table_types, check = FALSE)
+  .verify.JDBC.result(rs, "Unable to retrieve JDBC tables list")
+  on.exit(rJava::.jcall(rs, "V", "close"))
+  tbls <- character()
+  while (rJava::.jcall(rs, "Z", "next")) {
+    tbls <- c(tbls, rJava::.jcall(rs, "S", "getString", "TABLE_NAME"))
+  }
+  tbls
+})
+
+#' @rdname SQLServerConnection-class
+#' @export
+setMethod("dbExistsTable", "SQLServerConnection", function (conn, name, ...) {
+  all(name %in% dbListTables(conn))
+})
+
 #' @rdname SQLServerConnection-class
 #' @export
 setMethod("dbWriteTable", "SQLServerConnection",
@@ -331,35 +360,8 @@ setMethod("dbWriteTable", "SQLServerConnection",
       }
     }
     if (ac) dbCommit(conn)
-})
+  })
 
-#' @rdname SQLServerConnection-class
-#' @export
-setMethod("dbListTables", "SQLServerConnection", function(conn, ...) {
-  # Modified from RJDBC:
-  # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L161
-  md <- rJava::.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData",
-    check = FALSE)
-  .verify.JDBC.result(md, "Unable to retrieve JDBC database metadata")
-  # Create arguments for call to getTables
-  jns <- rJava::.jnull("java/lang/String")
-  table_types <- rJava::.jarray(c("TABLE", "VIEW"))
-  rs <- rJava::.jcall(md, "Ljava/sql/ResultSet;", "getTables",
-    jns, jns, jns, table_types, check = FALSE)
-  .verify.JDBC.result(rs, "Unable to retrieve JDBC tables list")
-  on.exit(rJava::.jcall(rs, "V", "close"))
-  tbls <- character()
-  while (rJava::.jcall(rs, "Z", "next")) {
-    tbls <- c(tbls, rJava::.jcall(rs, "S", "getString", "TABLE_NAME"))
-  }
-  tbls
-})
-
-#' @rdname SQLServerConnection-class
-#' @export
-setMethod("dbExistsTable", "SQLServerConnection", function (conn, name, ...) {
-  all(name %in% dbListTables(conn))
-})
 
 # Inherited from DBI:
 # show()
