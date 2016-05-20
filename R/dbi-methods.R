@@ -108,6 +108,7 @@ setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) TRUE)
 
 # DBI methods inherited from DBI
 # dbDriver()
+# show()
 
 # Connections ------------------------------------------------------------
 
@@ -129,23 +130,12 @@ setMethod('dbGetInfo', 'SQLServerConnection',
 #' @rdname SQLServerConnection-class
 #' @export
 
-setMethod("show", "SQLServerConnection", definition = function (object) {
-  info <- dbGetInfo(object)
-  cat("<SQLServerConnection>\n")
-  cat(info$db.product.name, " ", info$db.version, "\n", sep = "")
-  if (!dbIsValid(object)) {
-    cat("  DISCONNECTED\n")
-  }
-})
-
-#' @rdname SQLServerConnection-class
-#' @export
-
 setMethod('dbIsValid', 'SQLServerConnection', function (dbObj, ...) {
   !rJava::.jcall(dbObj@jc, "Z", "isClosed")
 })
 
 # Inherited from DBI:
+# show()
 # dbQuoteString()
 # dbQuoteIdentifier()
 
