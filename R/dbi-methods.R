@@ -39,7 +39,7 @@ setMethod('dbGetInfo', 'SQLServerDriver', definition = function (dbObj, ...) {
 #'    properties=list(useNTLMv2="true", domain="myco", user="me",
 #'      password="asecret"))
 #' }
-#' @rdname SQLServer
+#' @rdname SQLServerDriver-class
 #' @export
 
 setMethod('dbConnect', "SQLServerDriver",
@@ -79,7 +79,7 @@ setMethod('dbConnect', "SQLServerDriver",
 )
 
 #' @export
-#' @rdname SQLServer
+#' @rdname SQLServerDriver-class
 setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) TRUE)
 
 # DBI methods inherited from DBI

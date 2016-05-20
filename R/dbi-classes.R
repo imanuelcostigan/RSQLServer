@@ -21,6 +21,8 @@ setClass("SQLServerDriver", contains = "DBIDriver",
 #' \dontrun{
 #' SQLServer()
 #' }
+#' @rdname SQLServerDriver-class
+#' @aliases SQLServer
 #' @export
 
 SQLServer <- function () {
