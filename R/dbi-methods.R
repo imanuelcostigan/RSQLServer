@@ -232,37 +232,38 @@ dbSendUpdate <- function (conn, statement, ...) {
 #' @export
 setMethod("dbDataType", c("SQLServerConnection", "ANY"),
   def = function (dbObj, obj, ...) {
-    # RJDBC method is too crude. See:
+    # Based on RJDBC method which is too crude. See:
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R
     # Based on db_data_type.MySQLConnection from dplyr
     # https://msdn.microsoft.com/en-us/library/ms187752(v=sql.90).aspx
     char_type <- function (x) {
       n <- max(nchar(as.character(x)))
       if (n <= 8000) {
-        paste0("varchar(", n, ")")
+        paste0("VARCHAR(", n, ")")
       } else {
-        "text"
+        "TEXT"
       }
     }
     binary_type <- function (x) {
       # SQL Server 2000 does not support varbinary(max) type.
       if (dbGetInfo(dbObj)$db.version < 9) {
         # https://technet.microsoft.com/en-us/library/aa225972(v=sql.80).aspx
-        "varbinary(8000)"
+        "VARBINARY(8000)"
       } else {
-        "varbinary(max)"
+        "VARBINARY(MAX)"
       }
     }
+
     switch(class(obj)[1],
-      logical = "bit",
-      integer = "int",
-      numeric = "float",
+      logical = "BIT",
+      integer = "INT",
+      numeric = "FLOAT",
       factor =  char_type(obj),
       character = char_type(obj),
       # SQL Server does not have a date data type without time corresponding
       # to R's Date class
-      Date = "datetime",
-      POSIXct = "datetime",
+      Date = "DATETIME",
+      POSIXct = "DATETIME",
       raw = binary_type(obj),
       list = binary_type(obj),
       stop("Unknown class ", paste(class(obj), collapse = "/"), call. = FALSE)
