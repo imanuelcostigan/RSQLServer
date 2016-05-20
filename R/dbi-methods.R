@@ -174,11 +174,30 @@ setMethod("dbSendQuery", c("SQLServerConnection", "character"),
     new("JDBCResult", jr, md, stat, pull = rJava::.jnull())
 })
 
-if (is.null(getGeneric("dbExecute"))) {
-  setGeneric("dbExecute", function(conn, statement, ...) {
-    standardGeneric("dbExecute")
-  })
-}
+#' Execute non-query SQL commands
+#'
+#' Methods for this generic will execute non-query (i.e. non SELECT) SQL
+#' commands like \code{CREATE TABLE} or \code{UPDATE}. The \code{dbSendUpdate}
+#' method which was based on the same method in the \code{RJDBC} package will
+#' be deprecated.
+#'
+#' @param conn a connection inheriting from \code{DBIConnection}
+#' @param statement a string denoting the SQL command
+#' @return logical value representing whether or not the command has been
+#' executed successfully.
+#' @examples
+#' \dontrun{
+#' con <- dbConnect(RSQLServer::SQLServer(), "TEST")
+#' dbExecute(con, "CREATE TABLE test (a integer)")
+#' }
+#' @export
+
+setGeneric("dbExecute", function(conn, statement, ...) {
+  standardGeneric("dbExecute")
+})
+
+#' @rdname dbExecute
+#' @export
 
 setMethod("dbExecute", c("SQLServerConnection", "character"),
   def = function (conn, statement, ...) {
@@ -199,54 +218,15 @@ setMethod("dbExecute", c("SQLServerConnection", "character"),
       stop("execute JDBC update query failed in dbSendUpdate (",
         rJava::.jcall(x, "S", "getMessage"), ")")
     }
-})
-
-#' @rdname SQLServerConnection-class
-#' @importMethodsFrom RJDBC dbSendUpdate
-#' @export
-setMethod("dbSendUpdate", c("SQLServerConnection", "character"),
-  def = function (conn, statement, ..., list = NULL) {
-    # Modified from RJDBC
-    # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L108
-    statement <- as.character(statement)[1L]
-    ## if the statement starts with {call or {?= call then we use CallableStatement
-    if (isTRUE(as.logical(grepl("^\\{(call|\\?= *call)", statement)))) {
-      s <- rJava::.jcall(conn@jc, "Ljava/sql/CallableStatement;", "prepareCall",
-        statement, check=FALSE)
-      .verify.JDBC.result(s, "Unable to execute JDBC callable statement ",
-        statement)
-      on.exit(rJava::.jcall(s, "V", "close")) # same as ORA issue below and #4
-      if (length(list(...))) .fillStatementParameters(s, list(...))
-      if (!is.null(list)) .fillStatementParameters(s, list)
-      r <- rJava::.jcall(s, "Ljava/sql/ResultSet;", "executeQuery", check=FALSE)
-      .verify.JDBC.result(r, "Unable to retrieve JDBC result set for ", statement)
-    } else if (length(list(...)) || length(list)) {
-      ## use prepared statements if there are additional arguments
-      s <- rJava::.jcall(conn@jc, "Ljava/sql/PreparedStatement;",
-        "prepareStatement", statement, check=FALSE)
-      .verify.JDBC.result(s, "Unable to execute JDBC prepared statement ",
-        statement)
-      on.exit(rJava::.jcall(s, "V", "close"))
-      # this will fix issue #4 and http://stackoverflow.com/q/21603660/2161065
-      if (length(list(...))) .fillStatementParameters(s, list(...))
-      if (!is.null(list)) .fillStatementParameters(s, list)
-      rJava::.jcall(s, "I", "executeUpdate", check=FALSE)
-    } else {
-      s <- rJava::.jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
-      .verify.JDBC.result(s, "Unable to create JDBC statement ", statement)
-      on.exit(rJava::.jcall(s, "V", "close"))
-      # in theory this is not necesary since 's' will go away and be collected, but appearently it may be too late for Oracle (ORA-01000)
-      rJava::.jcall(s, "I", "executeUpdate", as.character(statement)[1],
-        check=FALSE)
-    }
-    x <- rJava::.jgetEx(TRUE)
-    if (!rJava::is.jnull(x)) {
-      stop("execute JDBC update query failed in dbSendUpdate (",
-        rJava::.jcall(x, "S", "getMessage"), ")")
-    }
   }
 )
 
+#' @rdname dbExecute
+#' @export
+dbSendUpdate <- function (conn, statement, ...) {
+  .Deprecated("dbExecute")
+  dbExecute(conn, statement)
+}
 
 #' @rdname SQLServerConnection-class
 #' @export

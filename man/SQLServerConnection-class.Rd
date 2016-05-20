@@ -10,7 +10,6 @@
 \alias{dbIsValid,SQLServerConnection-method}
 \alias{dbListTables,SQLServerConnection-method}
 \alias{dbSendQuery,SQLServerConnection,character-method}
-\alias{dbSendUpdate,SQLServerConnection,character-method}
 \alias{dbWriteTable,SQLServerConnection-method}
 \title{SQL Server Connection class}
 \usage{
@@ -20,13 +19,9 @@
 
 \S4method{dbDisconnect}{SQLServerConnection}(conn, ...)
 
-\S4method{dbSendQuery}{SQLServerConnection,character}(conn, statement, ...,
-  list = NULL)
+\S4method{dbSendQuery}{SQLServerConnection,character}(conn, statement, ...)
 
 \S4method{dbDataType}{SQLServerConnection,ANY}(dbObj, obj, ...)
-
-\S4method{dbSendUpdate}{SQLServerConnection,character}(conn, statement, ...,
-  list = NULL)
 
 \S4method{dbWriteTable}{SQLServerConnection}(conn, name, value,
   overwrite = TRUE, append = FALSE)
