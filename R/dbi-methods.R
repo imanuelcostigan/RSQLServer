@@ -152,8 +152,53 @@ setMethod("dbDisconnect", "SQLServerConnection", function (conn, ...) {
 #' @export
 
 setMethod("dbSendQuery", c("SQLServerConnection", "character"),
-  def = function (conn, statement, ..., list=NULL) {
-    new("SQLServerResult", callNextMethod())
+  def = function (conn, statement, ...) {
+    # Notes:
+    # 1. Unlike RJDBC, this method does **not** support executing stored procs
+    # or precompiled statements as these do not appear to be explicitly
+    # supported by any of the rstats-db backends.
+    # 2. This method is only responsible for sending SELECT statements which have
+    # to return ResultSet objects. To execute data definition or manipulation
+    # commands such as CREATE TABLE or UPDATE, use dbExecute instead.
+    assertthat::assert_that(assertthat::is.string(statement),
+      grepl("^SELECT", statement))
+    stat <- rJava::.jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
+    jdbc_exception(stat, "Unable to create simple JDBC statement ", statement)
+    jr <- rJava::.jcall(stat, "Ljava/sql/ResultSet;", "executeQuery",
+      statement, check = FALSE)
+    jdbc_exception(jr, "Unable to retrieve JDBC result set for ", statement)
+    md <- rJava::.jcall(jr, "Ljava/sql/ResultSetMetaData;", "getMetaData",
+      check = FALSE)
+    jdbc_exception(md, "Unable to retrieve JDBC result set meta data for ",
+      statement, " in dbSendQuery")
+    new("JDBCResult", jr, md, stat, pull = rJava::.jnull())
+})
+
+if (is.null(getGeneric("dbExecute"))) {
+  setGeneric("dbExecute", function(conn, statement, ...) {
+    standardGeneric("dbExecute")
+  })
+}
+
+setMethod("dbExecute", c("SQLServerConnection", "character"),
+  def = function (conn, statement, ...) {
+    # Modified from RJDBC
+    # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L108
+    # See comments to dbSendQuery. dbExecute doesn't support calling stored
+    # procedures that do not return results.
+    assertthat::assert_that(assertthat::is.string(statement),
+      !grepl("^SELECT", statement))
+    stat <- rJava::.jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
+    jdbc_exception(stat, "Unable to create JDBC statement ", statement)
+    # In theory following is not necesary since 's' will go away and be
+    # collected, but apparently it may be too late for Oracle (ORA-01000)
+    on.exit(rJava::.jcall(stat, "V", "close"))
+    rJava::.jcall(stat, "I", "executeUpdate", statement, check = FALSE)
+    x <- rJava::.jgetEx(TRUE)
+    if (!rJava::is.jnull(x)) {
+      stop("execute JDBC update query failed in dbSendUpdate (",
+        rJava::.jcall(x, "S", "getMessage"), ")")
+    }
 })
 
 #' @rdname SQLServerConnection-class
@@ -499,10 +544,10 @@ setMethod("dbClearResult", "SQLServerResult", function (res, ...) {
 
 # Other ----------------------------------------------------------------
 
-.verify.JDBC.result <- function (result, ...) {
-  # Copied from RJDBC:
+jdbc_exception <- function (object, ...) {
+  # Based on RJDBC .verify.JDBC.result()
   # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L18
-  if (rJava::is.jnull(result)) {
+  if (rJava::is.jnull(object)) {
     x <- rJava::.jgetEx(TRUE)
     if (rJava::is.jnull(x))
       stop(...)
