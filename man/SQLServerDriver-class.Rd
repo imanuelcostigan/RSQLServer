@@ -4,11 +4,8 @@
 \name{SQLServerDriver-class}
 \alias{SQLServerDriver-class}
 \alias{dbGetInfo,SQLServerDriver-method}
-\alias{dbUnloadDriver,SQLServerDriver-method}
 \title{An S4 class to represent a SQL Server driver}
 \usage{
-\S4method{dbUnloadDriver}{SQLServerDriver}(drv, ...)
-
 \S4method{dbGetInfo}{SQLServerDriver}(dbObj, ...)
 }
 \description{

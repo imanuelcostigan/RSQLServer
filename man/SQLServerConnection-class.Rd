@@ -4,7 +4,6 @@
 \name{SQLServerConnection-class}
 \alias{SQLServerConnection-class}
 \alias{dbDataType,SQLServerConnection,ANY-method}
-\alias{dbDisconnect,SQLServerConnection-method}
 \alias{dbExistsTable,SQLServerConnection-method}
 \alias{dbGetInfo,SQLServerConnection-method}
 \alias{dbIsValid,SQLServerConnection-method}
@@ -12,9 +11,12 @@
 \alias{dbSendQuery,SQLServerConnection,character-method}
 \alias{dbSendUpdate,SQLServerConnection,character-method}
 \alias{dbWriteTable,SQLServerConnection-method}
+\alias{show,SQLServerConnection-method}
 \title{An S4 class to represent a SQL Server connection}
 \usage{
 \S4method{dbGetInfo}{SQLServerConnection}(dbObj, ...)
+
+\S4method{show}{SQLServerConnection}(object)
 
 \S4method{dbIsValid}{SQLServerConnection}(dbObj, ...)
 
@@ -32,8 +34,6 @@
 \S4method{dbListTables}{SQLServerConnection}(conn, ...)
 
 \S4method{dbExistsTable}{SQLServerConnection}(conn, name, ...)
-
-\S4method{dbDisconnect}{SQLServerConnection}(conn, ...)
 }
 \description{
 Extends the \code{\link[RJDBC:JDBCConnection-class]{JDBCConnection}}
