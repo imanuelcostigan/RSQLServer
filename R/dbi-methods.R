@@ -43,12 +43,16 @@ setMethod('dbGetInfo', 'SQLServerDriver', definition = function (dbObj, ...) {
 #' @export
 
 setMethod('dbConnect', "SQLServerDriver",
-  definition = function (drv, server, file = NULL, database = "",
-    type = "sqlserver", port = "", properties = list()) {
-    # Set default value for file
-    if (is.null(file)) {
-      file <- file.path(Sys.getenv("HOME"), "sql.yaml")
-    }
+  definition = function (drv, server, file = NULL, database = NULL,
+    type = NULL, port = NULL, properties = NULL) {
+
+    # Set default values for arguments
+    file <- file %||% file.path(Sys.getenv("HOME"), "sql.yaml")
+    database <- database %||% ""
+    type <- type %||% "sqlserver"
+    port <- port %||% ""
+    properties <- properties %||% list()
+
     # Use sql.yaml file if file is not missing. If so, then the paramaters
     # type, port and connection properties will be ignored and the
     # information in sql.yaml will be used instead.
