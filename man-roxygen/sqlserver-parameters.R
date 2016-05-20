@@ -15,7 +15,7 @@
 #'   Defaults to \code{1433} if set to \code{NULL} or an empty string (jTDS
 #'   behaviour).
 #' @param database the name of the database hosted on the \code{server}. If an
-#'   empty string or \cpde{NULL} (default), a connection to the default
+#'   empty string or \code{NULL} (default), a connection to the default
 #'   database on \code{server} is assumed.
 #' @param properties One or more
 #'   \href{http://jtds.sourceforge.net/faq.html}{optional connection

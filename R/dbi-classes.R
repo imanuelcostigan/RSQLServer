@@ -9,20 +9,19 @@
 setClass("SQLServerDriver", contains = "DBIDriver",
   slots = c(jdrv = "jobjRef"))
 
-#' Create SQLServerDriver
+#' SQLServerDriver class and methods
 #'
-#' This creates a SQLServerDriver object used to access SQL Server databases
-#' and is based on the jTDS driver.
+#' \code{SQLServer()} creates a \code{SQLServerDriver} object and is based on
+#' the jTDS driver. Methods dispatching on \code{SQLServerDriver} are also
+#' documented herein.
 #'
-#' @return An object of class \code{SQLServerDriver}.
 #' @references
-#' \href{http://jtds.sourceforge.net/doc/net/sourceforge/jtds/jdbc/Driver.html}{jTDS API doc}
+#' \href{http://jtds.sourceforge.net/doc/net/sourceforge/jtds/jdbc/Driver.html}{jTDS API doc for Driver class}
 #' @examples
 #' \dontrun{
 #' SQLServer()
 #' }
-#' @rdname SQLServerDriver-class
-#' @aliases SQLServer
+#' @rdname SQLServer
 #' @export
 
 SQLServer <- function () {
