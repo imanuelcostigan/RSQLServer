@@ -232,10 +232,12 @@ dbSendUpdate <- function (conn, statement, ...) {
 #' @export
 setMethod("dbDataType", c("SQLServerConnection", "ANY"),
   def = function (dbObj, obj, ...) {
-    # Based on RJDBC method which is too crude. See:
-    # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R
-    # Based on db_data_type.MySQLConnection from dplyr
+    # GOING FROM R data type to SQL Server data type
+    # http://jtds.sourceforge.net/typemap.html
+    # https://msdn.microsoft.com/en-us/library/ms187752.a spx
     # https://msdn.microsoft.com/en-us/library/ms187752(v=sql.90).aspx
+
+    #### Helper functions
     char_type <- function (x) {
       n <- max(nchar(as.character(x)))
       if (n <= 8000) {
@@ -244,6 +246,7 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
         "TEXT"
       }
     }
+
     binary_type <- function (x) {
       # SQL Server 2000 does not support varbinary(max) type.
       if (dbGetInfo(dbObj)$db.version < 9) {
@@ -254,19 +257,27 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
       }
     }
 
-    switch(class(obj)[1],
+    date_type <- function (x) {
+      if (dbGetInfo(dbObj)$db.version < 10) {
+        # DATE available in >= SQL Server 2008 (>= v.10)
+        "DATETIME"
+      } else {
+        "DATE"
+      }
+    }
+    ####
+
+    if (is.factor(obj)) return(char_type(obj))
+    if (inherits(obj, "POSIXct")) return("DATETIME")
+    if (inherits(obj, "Date")) return(date_type(obj))
+
+    switch(typeof(obj),
       logical = "BIT",
       integer = "INT",
-      numeric = "FLOAT",
-      factor =  char_type(obj),
+      double = "FLOAT",
       character = char_type(obj),
-      # SQL Server does not have a date data type without time corresponding
-      # to R's Date class
-      Date = "DATETIME",
-      POSIXct = "DATETIME",
-      raw = binary_type(obj),
-      list = binary_type(obj),
-      stop("Unknown class ", paste(class(obj), collapse = "/"), call. = FALSE)
+      list = "BLOB",
+      stop("Unsupported type", call. = FALSE)
     )
   }
 )
