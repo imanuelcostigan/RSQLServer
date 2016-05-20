@@ -134,10 +134,18 @@ setMethod('dbIsValid', 'SQLServerConnection', function (dbObj, ...) {
   !rJava::.jcall(dbObj@jc, "Z", "isClosed")
 })
 
-# Inherited from DBI:
-# show()
-# dbQuoteString()
-# dbQuoteIdentifier()
+#' @rdname SQLServerConnection-class
+#' @export
+
+setMethod("dbDisconnect", "SQLServerConnection", function (conn, ...) {
+  if (rJava::.jcall(conn@jc, "Z", "isClosed"))  {
+    warning("The connection has already been closed")
+    FALSE
+  } else {
+    rJava::.jcall(conn@jc, "V", "close")
+    TRUE
+  }
+})
 
 
 #' @rdname SQLServerConnection-class
@@ -348,15 +356,10 @@ setMethod("dbExistsTable", "SQLServerConnection", function (conn, name, ...) {
   all(name %in% dbListTables(conn))
 })
 
-setMethod("dbDisconnect", "SQLServerConnection", function (conn, ...) {
-  if (rJava::.jcall(conn@jc, "Z", "isClosed"))  {
-    warning("The connection has already been closed")
-    FALSE
-  } else {
-    rJava::.jcall(conn@jc, "V", "close")
-    TRUE
-  }
-})
+# Inherited from DBI:
+# show()
+# dbQuoteString()
+# dbQuoteIdentifier()
 
 # DBI methods that inherit from RJDBC:
 # dbGetException()

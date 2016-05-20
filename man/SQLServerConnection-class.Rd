@@ -4,6 +4,7 @@
 \name{SQLServerConnection-class}
 \alias{SQLServerConnection-class}
 \alias{dbDataType,SQLServerConnection,ANY-method}
+\alias{dbDisconnect,SQLServerConnection-method}
 \alias{dbExistsTable,SQLServerConnection-method}
 \alias{dbGetInfo,SQLServerConnection-method}
 \alias{dbIsValid,SQLServerConnection-method}
@@ -16,6 +17,8 @@
 \S4method{dbGetInfo}{SQLServerConnection}(dbObj, ...)
 
 \S4method{dbIsValid}{SQLServerConnection}(dbObj, ...)
+
+\S4method{dbDisconnect}{SQLServerConnection}(conn, ...)
 
 \S4method{dbSendQuery}{SQLServerConnection,character}(conn, statement, ...,
   list = NULL)
