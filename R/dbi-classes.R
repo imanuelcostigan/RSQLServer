@@ -1,25 +1,21 @@
 # Driver -----------------------------------------------------------------
 
-#' An S4 class to represent a SQL Server driver
-#'
-#' Extends the \code{\link[RJDBC:JDBCDriver-class]{JDBCDriver}} class and
-#' uses jTDS driver.
+#' SQL Server Driver class
 #'
 #' @seealso \code{\link{SQLServer}}
 #' @keywords internal
-#' @importClassesFrom RJDBC JDBCDriver
 #' @export
 
-setClass("SQLServerDriver", contains = "JDBCDriver")
+setClass("SQLServerDriver", contains = "DBIDriver", slots = c(jdrv = "jobjRef"))
 
-#' Create a SQLServer driver
+#' Create SQLServerDriver
 #'
-#' This creates a SQL Server driver used to access SQL Server databases and is
-#' based on the jTDS driver.
+#' This creates a SQLServerDriver object used to access SQL Server databases
+#' and is based on the jTDS driver.
 #'
 #' @return An object of class \code{SQLServerDriver}.
 #' @references
-#' \href{http://jtds.sourceforge.net/}{jTDS project}
+#' \href{http://jtds.sourceforge.net/doc/net/sourceforge/jtds/jdbc/Driver.html}{jTDS API doc}
 #' @examples
 #' \dontrun{
 #' SQLServer()
@@ -27,9 +23,11 @@ setClass("SQLServerDriver", contains = "JDBCDriver")
 #' @export
 
 SQLServer <- function () {
-  drv <- RJDBC::JDBC(driverClass = "net.sourceforge.jtds.jdbc.Driver",
-    classPath = jdbc_class_path())
-  new("SQLServerDriver", jdrv= drv@jdrv)
+  rJava::.jinit(jdbc_class_path())
+  drv <- rJava::.jnew("net.sourceforge.jtds.jdbc.Driver", check = FALSE)
+  rJava::.jcheck(TRUE)
+  if (rJava::is.jnull(drv)) drv <- rJava::.jnull()
+  new("SQLServerDriver", jdrv = drv)
 }
 
 # Connection -------------------------------------------------------------
@@ -40,10 +38,9 @@ SQLServer <- function () {
 #' class.
 #'
 #' @keywords internal
-#' @importClassesFrom RJDBC JDBCConnection
 #' @export
 
-setClass("SQLServerConnection", contains = 'JDBCConnection')
+setClass("SQLServerConnection", contains = 'DBIConnection')
 
 
 # Result -----------------------------------------------------------------
