@@ -3,19 +3,29 @@ NULL
 
 # Drivers ----------------------------------------------------------------
 
-#' @rdname SQLServerDriver-class
+#' SQLServerDriver class and methods
+#'
+#' \code{SQLServer()} creates a \code{SQLServerDriver} object and is based on
+#' the jTDS driver while \code{dbConnect()} provides a convenient interface to
+#' connecting to a SQL Server database using this driver.
+#'
+#' @references
+#' \href{http://jtds.sourceforge.net/doc/net/sourceforge/jtds/jdbc/Driver.html}{jTDS API doc for Driver class}
+#' @examples
+#' \dontrun{
+#' SQLServer()
+#' }
+#' @rdname SQLServer
 #' @export
 
-setMethod('dbGetInfo', 'SQLServerDriver', definition = function (dbObj, ...) {
-  list(name = 'RSQLServer (jTDS)',
-    # jTDS is a JDBC 3.0 driver. This can be determined by calling the
-    # getDriverVersion() method of the JtdsDatabaseMetaData class. But
-    # this method isn't defined for Driver class - so hard coded.
-    driver.version = "3.0",
-    client.version = rJava::.jcall(dbObj@jdrv, "S", "getVersion"),
-    # Max connection defined server side rather than by driver.
-    max.connections = NA)
-})
+SQLServer <- function () {
+  rJava::.jinit(jdbc_class_path())
+  drv <- rJava::.jnew("net.sourceforge.jtds.jdbc.Driver", check = FALSE)
+  rJava::.jcheck(TRUE)
+  if (rJava::is.jnull(drv)) drv <- rJava::.jnull()
+  new("SQLServerDriver", jdrv = drv)
+}
+
 
 #' @param drv An objected of class \code{\linkS4class{SQLServerDriver}}, or an
 #'   existing \code{\linkS4class{SQLServerConnection}}. If a connection, the
@@ -77,6 +87,20 @@ setMethod('dbConnect', "SQLServerDriver",
     new("SQLServerConnection", jc = jc)
   }
 )
+
+#' @rdname SQLServerDriver-class
+#' @export
+
+setMethod('dbGetInfo', 'SQLServerDriver', definition = function (dbObj, ...) {
+  list(name = 'RSQLServer (jTDS)',
+    # jTDS is a JDBC 3.0 driver. This can be determined by calling the
+    # getDriverVersion() method of the JtdsDatabaseMetaData class. But
+    # this method isn't defined for Driver class - so hard coded.
+    driver.version = "3.0",
+    client.version = rJava::.jcall(dbObj@jdrv, "S", "getVersion"),
+    # Max connection defined server side rather than by driver.
+    max.connections = NA)
+})
 
 #' @export
 #' @rdname SQLServerDriver-class
