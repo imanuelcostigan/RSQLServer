@@ -276,7 +276,7 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
       integer = "INT",
       double = "FLOAT",
       character = char_type(obj),
-      list = "BLOB",
+      list = binary_type(obj),
       stop("Unsupported type", call. = FALSE)
     )
   }
