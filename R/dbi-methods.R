@@ -3,7 +3,7 @@ NULL
 
 # Drivers ----------------------------------------------------------------
 
-#' @rdname SQLServer
+#' @rdname SQLServerDriver-class
 #' @export
 
 setMethod('dbGetInfo', 'SQLServerDriver', definition = function (dbObj, ...) {
@@ -23,11 +23,7 @@ setMethod('dbGetInfo', 'SQLServerDriver', definition = function (dbObj, ...) {
 #' @template sqlserver-parameters
 #' @return \code{SQLServer()} returns an object of class
 #'   \code{SQLServerDriver}; \code{dbConnect()} returns a
-#'   \code{\linkS4class{SQLServerConnection}} object; \code{dbUnloadDriver()}
-#'   is a no-op but returns \code{TRUE}; \code{dbGetInfo()} returns a list with
-#'   four named elements: \code{name} (set to \code{"RSQLServer (jTDS)"}),
-#'   \code{driver.version} (set to \code{"3.0"}), \code{client.version} (set to
-#'   jTDS version) and \code{max.connections} (set to \code{NA}).
+#'   \code{\linkS4class{SQLServerConnection}} object.
 #' @examples
 #' # View sql.yaml file bundled in package
 #' file <- system.file("extdata", "sql.yaml", package = "RSQLServer")
@@ -83,7 +79,7 @@ setMethod('dbConnect', "SQLServerDriver",
 )
 
 #' @export
-#' @rdname SQLServer
+#' @rdname SQLServerDriver-class
 setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) TRUE)
 
 # DBI methods inherited from DBI

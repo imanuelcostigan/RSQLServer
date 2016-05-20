@@ -4,18 +4,12 @@
 \name{SQLServer}
 \alias{SQLServer}
 \alias{dbConnect,SQLServerDriver-method}
-\alias{dbGetInfo,SQLServerDriver-method}
-\alias{dbUnloadDriver,SQLServerDriver-method}
 \title{SQLServerDriver class and methods}
 \usage{
 SQLServer()
 
-\S4method{dbGetInfo}{SQLServerDriver}(dbObj, ...)
-
 \S4method{dbConnect}{SQLServerDriver}(drv, server, file = NULL,
   database = NULL, type = NULL, port = NULL, properties = NULL)
-
-\S4method{dbUnloadDriver}{SQLServerDriver}(drv, ...)
 }
 \arguments{
 \item{drv}{An objected of class \code{\linkS4class{SQLServerDriver}}, or an
@@ -62,11 +56,7 @@ server, I recommend you set the following optional parameters: set
 \value{
 \code{SQLServer()} returns an object of class
   \code{SQLServerDriver}; \code{dbConnect()} returns a
-  \code{\linkS4class{SQLServerConnection}} object; \code{dbUnloadDriver()}
-  is a no-op but returns \code{TRUE}; \code{dbGetInfo()} returns a list with
-  four named elements: \code{name} (set to \code{"RSQLServer (jTDS)"}),
-  \code{driver.version} (set to \code{"3.0"}), \code{client.version} (set to
-  jTDS version) and \code{max.connections} (set to \code{NA}).
+  \code{\linkS4class{SQLServerConnection}} object.
 }
 \description{
 \code{SQLServer()} creates a \code{SQLServerDriver} object and is based on
