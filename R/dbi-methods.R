@@ -457,12 +457,15 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
   function(res, n, block = 2048, ...) {
     # Based on:
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L287
-    ncols <- rJava::.jcall(res@md, "I", "getColumnCount")
     block <- as.integer(block)
-    if (length(block) != 1L) stop("invalid block size")
+    assertthat::assert_that(assertthat::is.count(block))
+    ncols <- rJava::.jcall(res@md, "I", "getColumnCount")
     if (ncols < 1L) return(NULL)
     res <- list()
+    # Default field type is set to 1L which is CHAR
+    # http://docs.oracle.com/javase/7/docs/api/constant-values.html#java.sql.Types.CHAR
     field_types <- rep(0L, ncols)
+    # Initialise `res` column types
     for (i in 1:ncols) {
       ct <- .jcall(res@md, "I", "getColumnType", i)
       if (ct == -5 | ct ==-6 | (ct >= 2 & ct <= 8)) {
