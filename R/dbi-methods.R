@@ -364,54 +364,59 @@ setMethod("dbRollback", "SQLServerConnection", function (conn, ...) {
   dbExecute(conn, "ROLLBACK TRANSACTION")
 })
 
+
+#' @rdname SQLServerConnection-class
+#' @export
 setMethod("dbWriteTable", "SQLServerConnection",
   function (conn, name, value, overwrite = TRUE, append = FALSE) {
 
-    # Based on RJDBC method:
-    # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L242
-    # However require `value` to be a data frame. No coercion will take place
     assertthat::assert_that(is.data.frame(value), ncol(value) > 0,
       !(overwrite && append))
 
-    # Capture whether auto-commit is enabled on connection
-    # If it is, disable until this function exists, after which it should be
-    # enabled again. Should be disabled to ensure all SQL statements are
-    # committed together rather than separately.
-    # http://docs.oracle.com/javase/tutorial/jdbc/basics/transactions.html
-    ac <- rJava::.jcall(conn@jc, "Z", "getAutoCommit")
+    dbBegin(conn)
+    on.exit(dbRollback(conn))
 
-    # Check whether table already exists and needs to be dropped.
-    overwrite <- isTRUE(as.logical(overwrite))
-    append <- if (overwrite) FALSE else isTRUE(as.logical(append))
-    if (dbExistsTable(conn, name)) {
-      msg <- paste0("Table '", name, "' already exists")
-      if (overwrite) dbRemoveTable(conn, name) else if (!append) stop(msg)
-    } else if (append) {
-      stop("Cannot append to a non-existing table '", name, "'")
+    name <- dbQuoteIdentifier(conn, name)
+    tbl_exists <- dbExistsTable(conn, name)
+
+    if (tbl_exists && !append && !overwrite) {
+      stop("The table ", name, " exists but you are not overwriting or ",
+        "appending to this table.", call. = FALSE)
     }
-    # Set auto-commit state on exit if necessary.
-    if (ac) {
-      rJava::.jcall(conn@jc, "V", "setAutoCommit", FALSE)
-      on.exit(rJava::.jcall(conn@jc, "V", "setAutoCommit", ac))
+
+    if (!tbl_exists && append) {
+      stop("The table ", name, " does not exist but you are trying to ",
+        "append data to it.")
     }
-    # Create / append new table
-    fts <- vapply(value, dbDataType, "character", dbObj=conn, USE.NAMES = FALSE)
-    fdef <- paste(ident(names(value)), fts, collapse = ', ')
-    qname <- ident(name)
-    if (!append) {
-      ct <- paste("CREATE TABLE ", qname, " (", fdef, ")", sep= '')
-      dbExecute(conn, ct)
+
+    # NB: if table "name" does not exist, having "overwrite" set to TRUE does
+    # not cause problems, so no need for error handling in this case.
+
+    if (tbl_exists && overwrite) {
+      dbRemoveTable(conn, name)
     }
-    if (length(value[[1]])) {
-      # Use Prepared Statement.
-      inss <- paste("INSERT INTO ", qname, " VALUES(",
-        paste(rep("?", length(value)), collapse = ','), ")", sep = '')
-      for (j in 1:length(value[[1]])) {
-        dbExecute(conn, inss, list = as.list(value[j, ]))
+
+    if (!tbl_exists || overwrite) {
+      dbExecute(conn, sqlCreateTable(conn, name, value))
+    }
+
+    if (nrow(value) > 0) {
+      fields <- dbQuoteIdentifier(conn, names(value))
+      params <- rep("?", length(fields))
+      sql <- paste0(
+        "INSERT INTO ", name, " (", paste0(fields, collapse = ", "), ")\n",
+        "VALUES (", paste0(params, collapse = ", "), ")")
+      for (j in seq_along(value[[1]])) {
+        dbExecute(conn, sql, list = as.list(value[j, ]))
       }
     }
-    if (ac) dbCommit(conn)
-  })
+
+    # Overwrite on.exist(dbRollback(conn)) call above as now guaranteed
+    # commit success
+    on.exit(NULL)
+    dbCommit(conn)
+    TRUE
+})
 
 
 # Inherited from DBI:
