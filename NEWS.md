@@ -9,6 +9,7 @@ changes have been made:
 - `dbSendUpdate()` which was based on RJDBC's method and which executes SQL commands that do not return a result will be deprecated in favour of the more descriptive `dbExecute()`. See [rstats-db/DBI#20](https://github.com/rstats-db/DBI/issues/20). It also no longer supports calling stored procedures (callable statements) or prepared statements as these do not seem to be explicitly supported by any other DBI backend.
 - Implemented `dbUnloadDriver()` which returns `TRUE` in all instances rather than `FALSE` as was the case in RJDBC.
 
+A number of previously imported RJDBC methods have now been reimplemented in this package with no user visible changes.
 
 ## DBItest
 
@@ -24,6 +25,8 @@ A number of changes have been made to ensure DBI compliance as specified by test
 
 - `dbDataType` maps R character objects of sufficiently long length to `VARCHAR(MAX)` on newer version of MSSQL rather than `TEXT` as the latter is being deprecated.
 - Arguments of `dbConnect()` are now `NULL` where other default values were assigned. This does not change the behaviour of the method.
+- Introduced `pattern` argument to `dbListTables()` which allows you to list all tables matching a pattern.
+- `dbExistsTable()` now passed table name to `dbListTables()` as a pattern to be matched which should improve its performance.
 - Now rely on DBI supplied `show()` methods
 - Added Travis-CI support
 
