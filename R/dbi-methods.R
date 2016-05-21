@@ -212,11 +212,13 @@ setMethod("dbExecute", c("SQLServerConnection", "character"),
     # In theory following is not necesary since 's' will go away and be
     # collected, but apparently it may be too late for Oracle (ORA-01000)
     on.exit(rJava::.jcall(stat, "V", "close"))
-    rJava::.jcall(stat, "I", "executeUpdate", statement, check = FALSE)
+    res <- rJava::.jcall(stat, "I", "executeUpdate", statement, check = FALSE)
     x <- rJava::.jgetEx(TRUE)
     if (!rJava::is.jnull(x)) {
       stop("execute JDBC update query failed in dbExecute (",
         rJava::.jcall(x, "S", "getMessage"), ")")
+    } else {
+      is.integer(res)
     }
   }
 )
