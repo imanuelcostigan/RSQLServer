@@ -337,6 +337,10 @@ setMethod("dbCommit", "SQLServerConnection", function (conn, ...) {
 
 #' @rdname SQLServerConnection-class
 #' @export
+setMethod("dbRollback", "SQLServerConnection", function (conn, ...) {
+  dbExecute(conn, "ROLLBACK TRANSACTION")
+})
+
 setMethod("dbWriteTable", "SQLServerConnection",
   function (conn, name, value, overwrite = TRUE, append = FALSE) {
 
