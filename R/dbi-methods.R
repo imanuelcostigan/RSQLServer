@@ -467,30 +467,42 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
     field_types <- rep(0L, ncols)
     # Initialise `res` column types
     for (i in 1:ncols) {
-      ct <- .jcall(res@md, "I", "getColumnType", i)
+      ct <- rJava::.jcall(res@md, "I", "getColumnType", i)
       if (ct == -5 | ct ==-6 | (ct >= 2 & ct <= 8)) {
         res[[i]] <- numeric()
         field_types[i] <- 1L
       } else
         res[[i]] <- character()
-      names(res)[i] <- .jcall(res@md, "S", "getColumnName", i)
+      names(res)[i] <- rJava::.jcall(res@md, "S", "getColumnName", i)
     }
     rp <- res@pull
     if (is.jnull(rp)) {
       rp <- .jnew("info/urbanek/Rpackage/RJDBC/JDBCResultPull", .jcast(res@jr, "java/sql/ResultSet"), .jarray(as.integer(field_types)))
-      .verify.JDBC.result(rp, "cannot instantiate JDBCResultPull hepler class")
+      jdbc_exception(rp, "cannot instantiate JDBCResultPull hepler class")
     }
     if (n < 0L) { ## infinite pull
       stride <- 32768L  ## start fairly small to support tiny queries and increase later
-      while ((nrec <- .jcall(rp, "I", "fetch", stride, block)) > 0L) {
-        for (i in seq.int(ncols))
-          res[[i]] <- c(res[[i]], if (field_types[i] == 1L) .jcall(rp, "[D", "getDoubles", i) else .jcall(rp, "[Ljava/lang/String;", "getStrings", i))
+      while ((nrec <- rJava::.jcall(rp, "I", "fetch", stride, block)) > 0L) {
+        for (i in seq.int(ncols)) {
+          if (field_types[i] == 1L) {
+            new_res <- rJava::.jcall(rp, "[D", "getDoubles", i)
+          } else {
+            new_res <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i)
+          }
+          res[[i]] <- c(res[[i]], new_res)
+        }
         if (nrec < stride) break
         stride <- 524288L # 512k
       }
     } else {
-      nrec <- .jcall(rp, "I", "fetch", as.integer(n), block)
-      for (i in seq.int(ncols)) res[[i]] <- if (field_types[i] == 1L) .jcall(rp, "[D", "getDoubles", i) else .jcall(rp, "[Ljava/lang/String;", "getStrings", i)
+      nrec <- rJava::.jcall(rp, "I", "fetch", as.integer(n), block)
+      for (i in seq.int(ncols)) {
+        if (field_types[i] == 1L) {
+          res[[i]] <- rJava::.jcall(rp, "[D", "getDoubles", i)
+        } else {
+          res[[i]] <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i)
+        }
+      }
     }
     # as.data.frame is expensive - create it on the fly from the list
     attr(res, "row.names") <- c(NA_integer_, length(res[[1]]))
