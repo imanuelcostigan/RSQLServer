@@ -454,45 +454,45 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
 #' @rdname SQLServerResult-class
 #' @export
 setMethod("dbFetch", c("SQLServerResult", "numeric"),
-  function(res, n, block = 2048L, ...) {
+  function(res, n, block = 2048, ...) {
     # Based on:
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L287
     ncols <- rJava::.jcall(res@md, "I", "getColumnCount")
     block <- as.integer(block)
     if (length(block) != 1L) stop("invalid block size")
     if (ncols < 1L) return(NULL)
-    l <- list()
-    cts <- rep(0L, ncols)
+    field_types <- jdbcColumnTypes(res@md)
+    res <- list()
     for (i in 1:ncols) {
       ct <- .jcall(res@md, "I", "getColumnType", i)
       if (ct == -5 | ct ==-6 | (ct >= 2 & ct <= 8)) {
-        l[[i]] <- numeric()
-        cts[i] <- 1L
+        res[[i]] <- numeric()
+        field_types[i] <- 1L
       } else
-        l[[i]] <- character()
-      names(l)[i] <- .jcall(res@md, "S", "getColumnName", i)
+        res[[i]] <- character()
+      names(res)[i] <- .jcall(res@md, "S", "getColumnName", i)
     }
     rp <- res@pull
     if (is.jnull(rp)) {
-      rp <- .jnew("info/urbanek/Rpackage/RJDBC/JDBCResultPull", .jcast(res@jr, "java/sql/ResultSet"), .jarray(as.integer(cts)))
+      rp <- .jnew("info/urbanek/Rpackage/RJDBC/JDBCResultPull", .jcast(res@jr, "java/sql/ResultSet"), .jarray(as.integer(field_types)))
       .verify.JDBC.result(rp, "cannot instantiate JDBCResultPull hepler class")
     }
     if (n < 0L) { ## infinite pull
       stride <- 32768L  ## start fairly small to support tiny queries and increase later
       while ((nrec <- .jcall(rp, "I", "fetch", stride, block)) > 0L) {
         for (i in seq.int(ncols))
-          l[[i]] <- c(l[[i]], if (cts[i] == 1L) .jcall(rp, "[D", "getDoubles", i) else .jcall(rp, "[Ljava/lang/String;", "getStrings", i))
+          res[[i]] <- c(res[[i]], if (field_types[i] == 1L) .jcall(rp, "[D", "getDoubles", i) else .jcall(rp, "[Ljava/lang/String;", "getStrings", i))
         if (nrec < stride) break
         stride <- 524288L # 512k
       }
     } else {
       nrec <- .jcall(rp, "I", "fetch", as.integer(n), block)
-      for (i in seq.int(ncols)) l[[i]] <- if (cts[i] == 1L) .jcall(rp, "[D", "getDoubles", i) else .jcall(rp, "[Ljava/lang/String;", "getStrings", i)
+      for (i in seq.int(ncols)) res[[i]] <- if (field_types[i] == 1L) .jcall(rp, "[D", "getDoubles", i) else .jcall(rp, "[Ljava/lang/String;", "getStrings", i)
     }
     # as.data.frame is expensive - create it on the fly from the list
-    attr(l, "row.names") <- c(NA_integer_, length(l[[1]]))
-    class(l) <- "data.frame"
-    l
+    attr(res, "row.names") <- c(NA_integer_, length(res[[1]]))
+    class(res) <- "data.frame"
+    res
 })
 
 #' @rdname SQLServerResult-class
