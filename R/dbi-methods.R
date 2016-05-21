@@ -200,19 +200,35 @@ setGeneric("dbExecute", function(conn, statement, ...) {
 #' @export
 
 setMethod("dbExecute", c("SQLServerConnection", "character"),
-  def = function (conn, statement, ...) {
+  def = function (conn, statement, ..., list = NULL) {
     # Modified from RJDBC
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L108
     # See comments to dbSendQuery. dbExecute doesn't support calling stored
     # procedures that do not return results.
     assertthat::assert_that(assertthat::is.string(statement),
       !grepl("^SELECT", statement))
-    stat <- rJava::.jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
-    jdbc_exception(stat, "Unable to create JDBC statement ", statement)
-    # In theory following is not necesary since 's' will go away and be
-    # collected, but apparently it may be too late for Oracle (ORA-01000)
-    on.exit(rJava::.jcall(stat, "V", "close"))
-    res <- rJava::.jcall(stat, "I", "executeUpdate", statement, check = FALSE)
+    if (length(list(...)) || length(list)) {
+      stat <- rJava::.jcall(conn@jc, "Ljava/sql/PreparedStatement;",
+        "prepareStatement", statement, check = FALSE)
+      jdbc_exception(stat, "Unable to execute JDBC prepared statement ",
+        statement)
+      # this will fix issue #4 and http://stackoverflow.com/q/21603660/2161065
+      on.exit(rJava::.jcall(s, "V", "close"))
+      if (length(list(...))) {
+        .fillStatementParameters(s, list(...))
+      }
+      if (!is.null(list)) {
+        .fillStatementParameters(s, list)
+      }
+      rJava::.jcall(s, "I", "executeUpdate", check = FALSE)
+    } else {
+      stat <- rJava::.jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
+      jdbc_exception(stat, "Unable to create JDBC statement ", statement)
+      # In theory following is not necesary since 's' will go away and be
+      # collected, but apparently it may be too late for Oracle (ORA-01000)
+      on.exit(rJava::.jcall(stat, "V", "close"))
+      res <- rJava::.jcall(stat, "I", "executeUpdate", statement, check = FALSE)
+    }
     x <- rJava::.jgetEx(TRUE)
     if (!rJava::is.jnull(x)) {
       stop("execute JDBC update query failed in dbExecute (",
@@ -533,6 +549,43 @@ setMethod("dbClearResult", "SQLServerResult", function (res, ...) {
 # dbGetInfo()
 
 # Other ----------------------------------------------------------------
+
+.fillStatementParameters <- function(s, l) {
+  # Modified from RJDBC
+  # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L63
+  for (i in 1:length(l)) {
+    v <- l[[i]]
+    if (is.na(v)) { # map NAs to NULLs (courtesy of Axel Klenk)
+      sqlType <- rToJdbcType(class(v))
+      rJava::.jcall(s, "V", "setNull", i, as.integer(sqlType))
+    } else if (is.integer(v)) {
+      rJava::.jcall(s, "V", "setInt", i, v[1])
+    } else if (is.numeric(v)) {
+      rJava::.jcall(s, "V", "setDouble", i, as.double(v)[1])
+    } else if (is.logical(v)) {
+      rJava::.jcall(s, "V", "setBoolean", i, as.logical(v)[1])
+    } else if (lubridate::is.Date(v)) {
+      # as.POSIXlt sets time to UTC whereas as.POSIXct sets time to local
+      # timezone. The tz argument is ignored when a Date is passed to either
+      # function
+      milliseconds <- as.numeric(as.POSIXlt(v)[1]) * 1000
+      vdate <- rJava::.jnew("java/sql/Date", rJava::.jlong(milliseconds))
+      rJava::.jcall(s, "V", "setDate", i, vdate)
+    } else if (lubridate::is.POSIXct(v)) {
+      # as.integer converts POSIXct to seconds since epoch. Timestamp
+      # constructor needs milliseconds so multiply by 1000
+      # http://docs.oracle.com/javase/7/docs/api/java/sql/Timestamp.html
+      milliseconds <- as.numeric(as.POSIXct(v)[1]) * 1000
+      vtimestamp <- rJava::.jnew("java/sql/Timestamp",
+        rJava::.jlong(milliseconds))
+      rJava::.jcall(s, "V", "setTimestamp", i, vtimestamp)
+    } else if (is.raw(v)) {
+      rJava::.jcall(s, "V", "setByte", i, rJava::.jbyte(as.raw(v)[1]))
+    } else {
+      rJava::.jcall(s, "V", "setString", i, as.character(v)[1])
+    }
+  }
+}
 
 jdbc_exception <- function (object, ...) {
   # Based on RJDBC .verify.JDBC.result()
