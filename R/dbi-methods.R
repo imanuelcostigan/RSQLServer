@@ -465,7 +465,8 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
     # Default field type is set to 1L which is CHAR
     # http://docs.oracle.com/javase/7/docs/api/constant-values.html#java.sql.Types.CHAR
     field_types <- rep(0L, ncols)
-    # Initialise `res` column types
+
+    # Initialise `res` list element types
     for (i in 1:ncols) {
       ct <- rJava::.jcall(res@md, "I", "getColumnType", i)
       if (ct == -5 | ct ==-6 | (ct >= 2 & ct <= 8)) {
@@ -475,11 +476,15 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
         res[[i]] <- character()
       names(res)[i] <- rJava::.jcall(res@md, "S", "getColumnName", i)
     }
+
+    # Initialise JVM side cache of results
     rp <- res@pull
     if (is.jnull(rp)) {
       rp <- .jnew("info/urbanek/Rpackage/RJDBC/JDBCResultPull", .jcast(res@jr, "java/sql/ResultSet"), .jarray(as.integer(field_types)))
       jdbc_exception(rp, "cannot instantiate JDBCResultPull hepler class")
     }
+
+    # Fetch
     if (n < 0L) { ## infinite pull
       stride <- 32768L  ## start fairly small to support tiny queries and increase later
       while ((nrec <- rJava::.jcall(rp, "I", "fetch", stride, block)) > 0L) {
@@ -504,6 +509,7 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
         }
       }
     }
+
     # as.data.frame is expensive - create it on the fly from the list
     attr(res, "row.names") <- c(NA_integer_, length(res[[1]]))
     class(res) <- "data.frame"
