@@ -456,13 +456,13 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
 setMethod("dbFetch", c("SQLServerResult", "numeric"), function(res, n, block = 2048L, ...) {
   # Based on:
   # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L287
-  cols <- .jcall(res@md, "I", "getColumnCount")
+  ncols <- rJava::.jcall(res@md, "I", "getColumnCount")
   block <- as.integer(block)
   if (length(block) != 1L) stop("invalid block size")
-  if (cols < 1L) return(NULL)
+  if (ncols < 1L) return(NULL)
   l <- list()
-  cts <- rep(0L, cols)
-  for (i in 1:cols) {
+  cts <- rep(0L, ncols)
+  for (i in 1:ncols) {
     ct <- .jcall(res@md, "I", "getColumnType", i)
     if (ct == -5 | ct ==-6 | (ct >= 2 & ct <= 8)) {
       l[[i]] <- numeric()
@@ -479,14 +479,14 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"), function(res, n, block = 2
   if (n < 0L) { ## infinite pull
     stride <- 32768L  ## start fairly small to support tiny queries and increase later
     while ((nrec <- .jcall(rp, "I", "fetch", stride, block)) > 0L) {
-      for (i in seq.int(cols))
+      for (i in seq.int(ncols))
         l[[i]] <- c(l[[i]], if (cts[i] == 1L) .jcall(rp, "[D", "getDoubles", i) else .jcall(rp, "[Ljava/lang/String;", "getStrings", i))
       if (nrec < stride) break
       stride <- 524288L # 512k
     }
   } else {
     nrec <- .jcall(rp, "I", "fetch", as.integer(n), block)
-    for (i in seq.int(cols)) l[[i]] <- if (cts[i] == 1L) .jcall(rp, "[D", "getDoubles", i) else .jcall(rp, "[Ljava/lang/String;", "getStrings", i)
+    for (i in seq.int(ncols)) l[[i]] <- if (cts[i] == 1L) .jcall(rp, "[D", "getDoubles", i) else .jcall(rp, "[Ljava/lang/String;", "getStrings", i)
   }
   # as.data.frame is expensive - create it on the fly from the list
   attr(l, "row.names") <- c(NA_integer_, length(l[[1]]))
