@@ -316,6 +316,16 @@ setMethod("dbListTables", "SQLServerConnection",
 setMethod("dbExistsTable", "SQLServerConnection", function (conn, name, ...) {
   length(dbListTables(conn, name)) > 0
 })
+#' @rdname SQLServerConnection-class
+#' @export
+setMethod("dbBegin", "SQLServerConnection", function (conn, ...) {
+  dbExecute(conn, "BEGIN TRANSACTION")
+})
+
+#' @rdname SQLServerConnection-class
+#' @export
+setMethod("dbCommit", "SQLServerConnection", function (conn, ...) {
+  dbExecute(conn, "COMMIT TRANSACTION")
 })
 
 #' @rdname SQLServerConnection-class
