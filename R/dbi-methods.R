@@ -316,6 +316,13 @@ setMethod("dbListTables", "SQLServerConnection",
 setMethod("dbExistsTable", "SQLServerConnection", function (conn, name, ...) {
   length(dbListTables(conn, name)) > 0
 })
+
+#' @rdname SQLServerConnection-class
+#' @export
+setMethod("dbRemoveTable", "SQLServerConnection", function (conn, name, ...) {
+  dbExecute(conn, paste0("DROP TABLE ", dbQuoteIdentifier(conn, name)))
+})
+
 #' @rdname SQLServerConnection-class
 #' @export
 setMethod("dbBegin", "SQLServerConnection", function (conn, ...) {
