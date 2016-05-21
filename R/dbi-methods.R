@@ -480,7 +480,9 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
     # Initialise JVM side cache of results
     rp <- res@pull
     if (is.jnull(rp)) {
-      rp <- .jnew("info/urbanek/Rpackage/RJDBC/JDBCResultPull", .jcast(res@jr, "java/sql/ResultSet"), .jarray(as.integer(field_types)))
+      rp <- rJava::.jnew("info/urbanek/Rpackage/RJDBC/JDBCResultPull",
+        rJava::.jcast(res@jr, "java/sql/ResultSet"),
+        rJava::.jarray(as.integer(field_types)))
       jdbc_exception(rp, "cannot instantiate JDBCResultPull hepler class")
     }
 
