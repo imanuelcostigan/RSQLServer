@@ -245,6 +245,14 @@ dbSendUpdate <- function (conn, statement, ...) {
   dbExecute(conn, statement)
 }
 
+#' @rdnamae SQLServerConnection-class
+#' @export
+setMethod("dbReadTable", c("SQLServerConnection", "character"),
+  function(conn, name, ...) {
+    sql <- paste("SELECT * FROM", dbQuoteIdentifier(conn, name))
+    dbGetQuery(conn, sql)
+})
+
 #' @rdname SQLServerConnection-class
 #' @export
 setMethod("dbDataType", c("SQLServerConnection", "ANY"),
