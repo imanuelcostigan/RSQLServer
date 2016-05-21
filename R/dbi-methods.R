@@ -147,7 +147,6 @@ setMethod("dbDisconnect", "SQLServerConnection", function (conn, ...) {
   }
 })
 
-
 #' @rdname SQLServerConnection-class
 #' @export
 
@@ -171,7 +170,7 @@ setMethod("dbSendQuery", c("SQLServerConnection", "character"),
       check = FALSE)
     jdbc_exception(md, "Unable to retrieve JDBC result set meta data for ",
       statement, " in dbSendQuery")
-    new("JDBCResult", jr, md, stat, pull = rJava::.jnull())
+    new("SQLServerResult", jr = jr, md = md, stat = stat, pull = rJava::.jnull())
 })
 
 #' Execute non-query SQL commands
