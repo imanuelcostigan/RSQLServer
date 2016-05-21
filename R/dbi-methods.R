@@ -447,49 +447,46 @@ setMethod ('dbIsValid', 'SQLServerResult', function (dbObj) {
 #' @export
 setMethod("fetch", c("SQLServerResult", "numeric"),
   def = function (res, n, ...) {
-    # Needed because dplyr's Query class calls the S4 fetch method when it calls
-    # its R6 fetch method. See:
-    # https://github.com/hadley/dplyr/blob/db2f59ce3a0732c81a4fde2b60b06c048eaf1291/R/query.r#L44
-    df <- callNextMethod()
-
-    ####
-    # RJDBC translates SQL Server fields to numeric and character vectors only.
-    # This means that for eg, date fields types are represented by character
-    # vectors. A bit of post-processing will be good. At some point should
-    # file a bug report to RJDBC about this.
-    ####
-    # Assume that RJDBC doesn't change column order in fetching result
-    # First find JDBC column types and turn them into R types
-    rcts <- jdbcToRType(jdbcColumnTypes(res@md))
-    # Check which columns need conversion
-    df_cts <- vapply(df, class, "character", USE.NAMES = FALSE)
-    to_convert <- rcts != df_cts
-    # Conversion time
-    if (any(to_convert)) {
-      cnames <- colnames(df)
-      names(rcts) <- cnames
-      for (cname in cnames[to_convert]) {
-        # special case for bit columns,
-        # which become character vectors of "0" and "1"
-        if (rcts[cname] == "logical") {
-          df[, cname] <- as.logical(as.numeric(df[, cname]))
-        } else {
-          f <- paste0("as.", unname(rcts[cname]))
-          df[, cname] <- eval(call(f, df[, cname]))
-        }
-      }
-    }
-    df
+    .Deprecated("dbFetch")
+    dbFetch(res, n, ...)
 })
 
 #' @rdname SQLServerResult-class
 #' @export
 setMethod("dbFetch", c("SQLServerResult", "numeric"), function(res, n, ...) {
-  # Per DBI documentation:
-  # "fetch is provided for compatibility with older DBI clients - for all new
-  # code you are strongly encouraged to use dbFetch."
-  # RJDBC does not currently have a dbFetch method.
-  fetch(res, n, ...)
+  # Needed because dplyr's Query class calls the S4 fetch method when it calls
+  # its R6 fetch method. See:
+  # https://github.com/hadley/dplyr/blob/db2f59ce3a0732c81a4fde2b60b06c048eaf1291/R/query.r#L44
+  df <- callNextMethod()
+
+  ####
+  # RJDBC translates SQL Server fields to numeric and character vectors only.
+  # This means that for eg, date fields types are represented by character
+  # vectors. A bit of post-processing will be good. At some point should
+  # file a bug report to RJDBC about this.
+  ####
+  # Assume that RJDBC doesn't change column order in fetching result
+  # First find JDBC column types and turn them into R types
+  rcts <- jdbcToRType(jdbcColumnTypes(res@md))
+  # Check which columns need conversion
+  df_cts <- vapply(df, class, "character", USE.NAMES = FALSE)
+  to_convert <- rcts != df_cts
+  # Conversion time
+  if (any(to_convert)) {
+    cnames <- colnames(df)
+    names(rcts) <- cnames
+    for (cname in cnames[to_convert]) {
+      # special case for bit columns,
+      # which become character vectors of "0" and "1"
+      if (rcts[cname] == "logical") {
+        df[, cname] <- as.logical(as.numeric(df[, cname]))
+      } else {
+        f <- paste0("as.", unname(rcts[cname]))
+        df[, cname] <- eval(call(f, df[, cname]))
+      }
+    }
+  }
+  df
 })
 
 #' @rdname SQLServerResult-class
