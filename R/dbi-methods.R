@@ -461,8 +461,8 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
     block <- as.integer(block)
     if (length(block) != 1L) stop("invalid block size")
     if (ncols < 1L) return(NULL)
-    field_types <- jdbcColumnTypes(res@md)
     res <- list()
+    field_types <- rep(0L, ncols)
     for (i in 1:ncols) {
       ct <- .jcall(res@md, "I", "getColumnType", i)
       if (ct == -5 | ct ==-6 | (ct >= 2 & ct <= 8)) {
