@@ -482,6 +482,7 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
 
     # Initialise JVM side cache of results
     rp <- res@pull
+    rJava::.jaddClassPath(pull_class_path())
     if (rJava::is.jnull(rp)) {
       rp <- rJava::.jnew("com/github/RSQLServer/MSSQLResultPull",
         rJava::.jcast(res@jr, "java/sql/ResultSet"),
@@ -514,7 +515,6 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
         }
       }
     }
-
     # as.data.frame is expensive - create it on the fly from the list
     attr(out, "row.names") <- c(NA_integer_, length(out[[1]]))
     class(out) <- "data.frame"
