@@ -19,7 +19,7 @@ NULL
 #' @export
 
 SQLServer <- function () {
-  rJava::.jinit(jdbc_class_path())
+  rJava::.jaddClassPath(jtds_class_path())
   drv <- rJava::.jnew("net.sourceforge.jtds.jdbc.Driver", check = FALSE)
   rJava::.jcheck(TRUE)
   if (rJava::is.jnull(drv)) drv <- rJava::.jnull()
@@ -482,7 +482,7 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
 
     # Initialise JVM side cache of results
     rp <- res@pull
-    if (is.jnull(rp)) {
+    if (rJava::is.jnull(rp)) {
       rp <- rJava::.jnew("com/github/RSQLServer/MSSQLResultPull",
         rJava::.jcast(res@jr, "java/sql/ResultSet"),
         rJava::.jarray(as.integer(cts)))
