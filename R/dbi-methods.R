@@ -459,11 +459,9 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L287
     assertthat::assert_that(assertthat::is.count(block))
     ncols <- rJava::.jcall(res@md, "I", "getColumnCount")
-    if (ncols < 1L) return(NULL)
-    res <- list()
-    # Default field type is set to 1L which is CHAR
-    # http://docs.oracle.com/javase/7/docs/api/constant-values.html#java.sql.Types.CHAR
-    field_types <- rep(0L, ncols)
+    if (ncols < 1L) {
+      return(NULL)
+    }
 
     # Initialise `res` list element types
     for (i in 1:ncols) {
