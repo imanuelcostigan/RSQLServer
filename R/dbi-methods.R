@@ -463,12 +463,18 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
       return(NULL)
     }
 
-    # Initialise `res` list element types
+    ###### Build scaffolding
+    res <- list()
+    # Field type integers are defined in MSSQLResultPull class
+    # constant ints CT_STRING and CT_NUMERIC where:
+    # 0L - string
+    # 1L - double
+    cts <- rep(0L, ncols)
     for (i in 1:ncols) {
       ct <- rJava::.jcall(res@md, "I", "getColumnType", i)
       if (ct == -5 | ct ==-6 | (ct >= 2 & ct <= 8)) {
         res[[i]] <- numeric()
-        field_types[i] <- 1L
+        cts[i] <- 1L
       } else
         res[[i]] <- character()
       names(res)[i] <- rJava::.jcall(res@md, "S", "getColumnName", i)
@@ -479,7 +485,7 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
     if (is.jnull(rp)) {
       rp <- rJava::.jnew("info/urbanek/Rpackage/RJDBC/JDBCResultPull",
         rJava::.jcast(res@jr, "java/sql/ResultSet"),
-        rJava::.jarray(as.integer(field_types)))
+        rJava::.jarray(as.integer(cts)))
       jdbc_exception(rp, "cannot instantiate JDBCResultPull hepler class")
     }
 
@@ -488,7 +494,7 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
       stride <- 32768L  ## start fairly small to support tiny queries and increase later
       while ((nrec <- rJava::.jcall(rp, "I", "fetch", stride, block)) > 0L) {
         for (i in seq.int(ncols)) {
-          if (field_types[i] == 1L) {
+          if (cts[i] == 1L) {
             new_res <- rJava::.jcall(rp, "[D", "getDoubles", i)
           } else {
             new_res <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i)
@@ -501,7 +507,7 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
     } else {
       nrec <- rJava::.jcall(rp, "I", "fetch", as.integer(n), block)
       for (i in seq.int(ncols)) {
-        if (field_types[i] == 1L) {
+        if (cts[i] == 1L) {
           res[[i]] <- rJava::.jcall(rp, "[D", "getDoubles", i)
         } else {
           res[[i]] <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i)
