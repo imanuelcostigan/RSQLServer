@@ -43,7 +43,7 @@ public class MSSQLResultPull {
 
     /** retrieve the number of columns */
     public int columns() { return cols; }
-    
+
     /** get the number of loaded rows */
     public int count() { return count; }
 
@@ -82,9 +82,9 @@ public class MSSQLResultPull {
                 if (cTypes[i] == CT_NUMERIC) {
                     double val = rs.getDouble(i + 1);
                     if (rs.wasNull()) val = NA_double;
-                    ((double[])data[i])[count] = val; 
+                    ((double[])data[i])[count] = val;
                 } else{
-                    ((String[])data[i])[count] = rs.getString(i + 1); 
+                    ((String[])data[i])[count] = rs.getString(i + 1);
                 }
             count++;
             if (count >= capacity)
