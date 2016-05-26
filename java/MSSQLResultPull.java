@@ -1,4 +1,4 @@
-package com.github.rsqlserver;;
+package com.github.RSQLServer;
 
 import java.sql.ResultSet;
 
