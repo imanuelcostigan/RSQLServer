@@ -464,7 +464,7 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
     }
 
     ###### Build scaffolding
-    res <- list()
+    out <- list()
     # Field type integers are defined in MSSQLResultPull class
     # constant ints CT_STRING and CT_NUMERIC where:
     # 0L - string
@@ -473,11 +473,11 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
     for (i in 1:ncols) {
       ct <- rJava::.jcall(res@md, "I", "getColumnType", i)
       if (ct == -5 | ct ==-6 | (ct >= 2 & ct <= 8)) {
-        res[[i]] <- numeric()
+        out[[i]] <- numeric()
         cts[i] <- 1L
       } else
-        res[[i]] <- character()
-      names(res)[i] <- rJava::.jcall(res@md, "S", "getColumnName", i)
+        out[[i]] <- character()
+      names(out)[i] <- rJava::.jcall(res@md, "S", "getColumnName", i)
     }
 
     # Initialise JVM side cache of results
@@ -499,7 +499,7 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
           } else {
             new_res <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i)
           }
-          res[[i]] <- c(res[[i]], new_res)
+          out[[i]] <- c(out[[i]], new_res)
         }
         if (nrec < stride) break
         stride <- 524288L # 512k
@@ -508,17 +508,17 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
       nrec <- rJava::.jcall(rp, "I", "fetch", as.integer(n), block)
       for (i in seq.int(ncols)) {
         if (cts[i] == 1L) {
-          res[[i]] <- rJava::.jcall(rp, "[D", "getDoubles", i)
+          out[[i]] <- rJava::.jcall(rp, "[D", "getDoubles", i)
         } else {
-          res[[i]] <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i)
+          out[[i]] <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i)
         }
       }
     }
 
     # as.data.frame is expensive - create it on the fly from the list
-    attr(res, "row.names") <- c(NA_integer_, length(res[[1]]))
-    class(res) <- "data.frame"
-    res
+    attr(out, "row.names") <- c(NA_integer_, length(out[[1]]))
+    class(out) <- "data.frame"
+    out
 })
 
 #' @rdname SQLServerResult-class
