@@ -486,7 +486,7 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
       rp <- rJava::.jnew("com/github/RSQLServer/MSSQLResultPull",
         rJava::.jcast(res@jr, "java/sql/ResultSet"),
         rJava::.jarray(as.integer(cts)))
-      jdbc_exception(rp, "cannot instantiate JDBCResultPull hepler class")
+      jdbc_exception(rp, "cannot instantiate MSSQLResultPull helper class")
     }
 
     # Fetch
