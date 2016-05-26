@@ -440,7 +440,7 @@ setMethod("dbWriteTable", "SQLServerConnection",
 #' @rdname SQLServerResult-class
 #' @export
 setMethod ('dbIsValid', 'SQLServerResult', function (dbObj) {
-  rJava::.jcall(dbObj@jr, "Z", "isClosed")
+  !rJava::.jcall(dbObj@jr, "Z", "isClosed")
 })
 
 #' @rdname SQLServerResult-class
