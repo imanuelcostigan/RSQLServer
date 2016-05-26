@@ -1,6 +1,7 @@
 package com.github.RSQLServer;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 
 // Based on:
 // https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/java/JDBCResultPull.java
@@ -124,17 +125,22 @@ public class MSSQLResultPull {
         return b;
     }
 
-    public int[] columnTypes(ResultSet res) {
-        ResultSetMetaData md = res.getMetaData();
-        int n = md.getColumnCount();
-        cts = new int[n];
-        for (int i = 0; i < n; i++) {
-            int ct = md.getColumnType(i + 1);
-            if (ct == -5 || ct ==-6 || (ct >= 2 & ct <= 8)) {
-                cts[i] = 1;
-            } else {
-                cts[i] = 0;
-            }
+    public int[] columnTypes(ResultSet res) throws java.sql.SQLException {
+        try {
+            ResultSetMetaData md = res.getMetaData();
+            int n = md.getColumnCount();
+            int[] cts = new int[n];
+            for (int i = 0; i < n; i++) {
+                int ct = md.getColumnType(i + 1);
+                if (ct == -5 || ct ==-6 || (ct >= 2 & ct <= 8)) {
+                    cts[i] = 1;
+                } else {
+                    cts[i] = 0;
+                }
+            }    
+            return cts;
+        } catch(java.sql.SQLException e) { 
+            throw e;
         }
     }
 }
