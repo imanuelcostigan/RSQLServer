@@ -1,8 +1,11 @@
-package info.urbanek.Rpackage.RJDBC;
+package com.github.rsqlserver;
 
 import java.sql.ResultSet;
 
-public class JDBCResultPull {
+// Based on:
+// https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/java/JDBCResultPull.java
+  
+public class MSSQLResultPull {
   /** column type: string */
   public static final int CT_STRING  = 0;
   /** column type: numeric (retrieved as doubles) */
@@ -23,13 +26,13 @@ public class JDBCResultPull {
   /** number of columns */
   int cols;
 
-    /** create a JDBCResultPull from teh current set with the
+    /** create a MSSQLResultPull from the current set with the
      * specified column types. The column type definition must match
      * the result set, no checks are performed.
      * @param rs active result set
      * @param cTypes column types (see <code>CT_xx</code> constants)
      */
-    public JDBCResultPull(ResultSet rs, int cTypes[]) {
+    public MSSQLResultPull(ResultSet rs, int cTypes[]) {
       this.rs = rs;
       this.cTypes = cTypes;
       cols = (cTypes == null) ? 0 : cTypes.length;
