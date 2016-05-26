@@ -464,7 +464,7 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
     }
 
     ###### Build scaffolding
-    out <- list()
+    out <- vector("list", ncols)
     # Field type integers are defined in MSSQLResultPull class
     # constant ints CT_STRING and CT_NUMERIC where:
     # 0L - string
