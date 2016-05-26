@@ -123,4 +123,18 @@ public class MSSQLResultPull {
         if (count > 0) System.arraycopy(a, 0, b, 0, count);
         return b;
     }
+
+    public int[] columnTypes(ResultSet res) {
+        ResultSetMetaData md = res.getMetaData();
+        int n = md.getColumnCount();
+        cts = new int[n];
+        for (int i = 0; i < n; i++) {
+            int ct = md.getColumnType(i + 1);
+            if (ct == -5 || ct ==-6 || (ct >= 2 & ct <= 8)) {
+                cts[i] = 1;
+            } else {
+                cts[i] = 0;
+            }
+        }
+    }
 }
