@@ -35,7 +35,7 @@ public class MSSQLResultPull {
      */
     public MSSQLResultPull(ResultSet rs) throws java.sql.SQLException {
     	this.rs = rs;
-    	cTypes = columnTypes(rs);
+    	cTypes = mapColumns(rs);
     	cols = (cTypes == null) ? 0 : cTypes.length;
     	data = new Object[cols];
     	capacity = -1;
@@ -125,7 +125,7 @@ public class MSSQLResultPull {
         return b;
     }
 
-    public int[] columnTypes(ResultSet res) throws java.sql.SQLException {
+    public int[] mapColumns(ResultSet res) throws java.sql.SQLException {
         ResultSetMetaData md = res.getMetaData();
         int n = md.getColumnCount();
         int[] cts = new int[n];
