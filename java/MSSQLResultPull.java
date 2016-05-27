@@ -33,9 +33,9 @@ public class MSSQLResultPull {
      * @param rs active result set
      * @param cTypes column types (see <code>CT_xx</code> constants)
      */
-    public MSSQLResultPull(ResultSet rs, int cTypes[]) {
+    public MSSQLResultPull(ResultSet rs) throws java.sql.SQLException {
     	this.rs = rs;
-    	this.cTypes = cTypes;
+    	cTypes = columnTypes(rs);
     	cols = (cTypes == null) ? 0 : cTypes.length;
     	data = new Object[cols];
     	capacity = -1;
@@ -126,21 +126,17 @@ public class MSSQLResultPull {
     }
 
     public int[] columnTypes(ResultSet res) throws java.sql.SQLException {
-        try {
-            ResultSetMetaData md = res.getMetaData();
-            int n = md.getColumnCount();
-            int[] cts = new int[n];
-            for (int i = 0; i < n; i++) {
-                int ct = md.getColumnType(i + 1);
-                if (ct == -5 || ct ==-6 || (ct >= 2 & ct <= 8)) {
-                    cts[i] = 1;
-                } else {
-                    cts[i] = 0;
-                }
-            }    
-            return cts;
-        } catch(java.sql.SQLException e) { 
-            throw e;
-        }
-    }
+        ResultSetMetaData md = res.getMetaData();
+        int n = md.getColumnCount();
+        int[] cts = new int[n];
+        for (int i = 0; i < n; i++) {
+            int ct = md.getColumnType(i + 1);
+            if (ct == -5 || ct ==-6 || (ct >= 2 & ct <= 8)) {
+                cts[i] = 1;
+            } else {
+                cts[i] = 0;
+            }
+        }    
+        return cts;
+}
 }
