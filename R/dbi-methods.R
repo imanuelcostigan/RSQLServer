@@ -485,10 +485,11 @@ setMethod("dbFetch", c("SQLServerResult", "numeric"),
     rJava::.jaddClassPath(pull_class_path())
     if (rJava::is.jnull(rp)) {
       rp <- rJava::.jnew("com/github/RSQLServer/MSSQLResultPull",
-        rJava::.jcast(res@jr, "java/sql/ResultSet"),
-        rJava::.jarray(as.integer(cts)))
+        rJava::.jcast(res@jr, "java/sql/ResultSet"))
       jdbc_exception(rp, "cannot instantiate MSSQLResultPull helper class")
     }
+
+    browser()
 
     # Fetch
     if (n < 0L) { ## infinite pull
