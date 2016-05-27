@@ -462,24 +462,7 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
       return(NULL)
     }
 
-    ###### Build scaffolding
-    out <- vector("list", ncols)
-    # Field type integers are defined in MSSQLResultPull class
-    # constant ints CT_STRING and CT_NUMERIC where:
-    # 0L - string
-    # 1L - double
-    cts <- rep(0L, ncols)
-    for (i in 1:ncols) {
-      ct <- rJava::.jcall(res@md, "I", "getColumnType", i)
-      if (ct == -5 | ct ==-6 | (ct >= 2 & ct <= 8)) {
-        out[[i]] <- numeric()
-        cts[i] <- 1L
-      } else
-        out[[i]] <- character()
-      names(out)[i] <- rJava::.jcall(res@md, "S", "getColumnName", i)
-    }
-
-    # Initialise JVM side cache of results
+    ###### Initialise JVM side cache of results
     rp <- res@pull
     rJava::.jaddClassPath(pull_class_path())
     if (rJava::is.jnull(rp)) {
@@ -489,8 +472,16 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
     }
 
     browser()
+    ###### Build list that will store data and be coerced into data frame
+    out <- vector("list", ncols)
+    # Field type integers are defined in MSSQLResultPull class
+    # constant ints CT_STRING and CT_NUMERIC where:
+    # 0L - string
+    # 1L - double
+    cts <- rJava::.jcall(rp, "[I", "mapColumns", res@jr)
+    names(out) <- rJava::.jcall(rp, "[S", "columnNames", res@jr)
 
-    # Fetch
+    ###### Fetch into cache and pull from cache into R
     if (n < 0L) { ## infinite pull
       stride <- 32768L  ## start fairly small to support tiny queries and increase later
       while ((nrec <- rJava::.jcall(rp, "I", "fetch", stride, block)) > 0L) {
@@ -515,6 +506,7 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
         }
       }
     }
+
     # as.data.frame is expensive - create it on the fly from the list
     attr(out, "row.names") <- c(NA_integer_, length(out[[1]]))
     class(out) <- "data.frame"
