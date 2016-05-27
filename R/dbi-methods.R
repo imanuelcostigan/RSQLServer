@@ -445,16 +445,15 @@ setMethod ('dbIsValid', 'SQLServerResult', function (dbObj) {
 
 #' @rdname SQLServerResult-class
 #' @export
-setMethod("fetch", c("SQLServerResult", "numeric"),
+setMethod("dbFetch", c("SQLServerResult", "numeric"),
   def = function (res, n, ...) {
-    .Deprecated("dbFetch")
-    dbFetch(res, n, ...)
+    fetch(res, n, ...)
 })
 
 #' @rdname SQLServerResult-class
 #' @export
-setMethod("dbFetch", c("SQLServerResult", "numeric"),
-  function(res, n, block = 2048L, ...) {
+setMethod("fetch", c("SQLServerResult", "numeric"),
+  function(res, n = -1, block = 2048L, ...) {
     # Based on:
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L287
     assertthat::assert_that(assertthat::is.count(block))
