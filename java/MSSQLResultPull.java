@@ -139,4 +139,24 @@ public class MSSQLResultPull {
         }    
         return cts;
     }
+
+    public int[] columnTypes(ResultSet res) throws java.sql.SQLException {
+        ResultSetMetaData md = res.getMetaData();
+        int n = md.getColumnCount();
+        int[] cts = new int[n];
+        for (int i = 0; i < n; i++) {
+            cts[i] = md.getColumnType(i + 1);
+        }
+        return cts;
+    }
+
+    public String[] columnNames(ResultSet res) throws java.sql.SQLException {
+        ResultSetMetaData md = res.getMetaData();
+        int n = md.getColumnCount();
+        String[] cnames = new String[n];
+        for (int i = 0; i < n; i++) {
+            cnames[i] = md.getColumnName(i + 1);
+        }    
+        return cnames;
+    }
 }
