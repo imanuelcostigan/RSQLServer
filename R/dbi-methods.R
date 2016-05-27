@@ -471,13 +471,13 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
       jdbc_exception(rp, "cannot instantiate MSSQLResultPull helper class")
     }
 
-    browser()
     ###### Build list that will store data and be coerced into data frame
     out <- vector("list", ncols)
     # Field type integers are defined in MSSQLResultPull class
-    # constant ints CT_STRING and CT_NUMERIC where:
+    # constant ints CT_STRING, CT_NUMERIC and CT_INT where:
     # 0L - string
     # 1L - double
+    # 2L - integer
     cts <- rJava::.jcall(rp, "[I", "mapColumns", res@jr)
     names(out) <- rJava::.jcall(rp, "[S", "columnNames", res@jr)
 
@@ -488,6 +488,8 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
         for (i in seq.int(ncols)) {
           if (cts[i] == 1L) {
             new_res <- rJava::.jcall(rp, "[D", "getDoubles", i)
+          } else if (cts[i] == 2L) {
+            new_res <- rJava::.jcall(rp, "[I", "getInts", i)
           } else {
             new_res <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i)
           }
@@ -501,6 +503,8 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
       for (i in seq.int(ncols)) {
         if (cts[i] == 1L) {
           out[[i]] <- rJava::.jcall(rp, "[D", "getDoubles", i)
+        } else if (cts[i] == 2L) {
+          out[[i]] <- rJava::.jcall(rp, "[I", "getInts", i)
         } else {
           out[[i]] <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i)
         }

@@ -2,6 +2,7 @@ package com.github.RSQLServer;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.Types;
 
 // Based on:
 // https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/java/JDBCResultPull.java
@@ -11,8 +12,14 @@ public class MSSQLResultPull {
     public static final int CT_STRING  = 0;
     /** column type: numeric (retrieved as doubles) */
     public static final int CT_NUMERIC = 1;
+    /** column type: integer */
+    public static final int CT_INT = 2;
     /** NA double value */
     public static final double NA_double = Double.longBitsToDouble(0x7ff00000000007a2L);
+    // NA int value (also used for booleans). 
+    //rJava::.jnew("java.lang.Integer", NA_integer_)
+    // [1] "Java-Object{-2147483648}"
+    public static final int NA_int = -2147483648;
 
     /** active result set */
     ResultSet rs;
@@ -56,8 +63,17 @@ public class MSSQLResultPull {
      */
     public void setCapacity(int atMost) {
         if (capacity != atMost) {
-            for (int i = 0; i < cols; i++)
-                data[i] = (cTypes[i] == CT_NUMERIC) ? (Object)new double[atMost] : (Object)new String[atMost];
+            for (int i = 0; i < cols; i++) {
+                switch (cTypes[i]) {
+                    case CT_NUMERIC:
+                        data[i] = (Object)new double[atMost];
+                    case CT_INT:
+                        data[i] = (Object)new int[atMost];
+                    default:
+                        data[i] = (Object)new String[atMost];
+
+                }
+            }
             capacity = atMost;
         }
     }
@@ -79,14 +95,20 @@ public class MSSQLResultPull {
         }
     	count = 0;
     	while (rs.next()) {
-            for (int i = 0; i < cols; i++)
-                if (cTypes[i] == CT_NUMERIC) {
-                    double val = rs.getDouble(i + 1);
-                    if (rs.wasNull()) val = NA_double;
-                    ((double[])data[i])[count] = val;
-                } else{
-                    ((String[])data[i])[count] = rs.getString(i + 1);
+            for (int i = 0; i < cols; i++) {
+                switch(cTypes[i]) {
+                    case CT_NUMERIC:
+                        double val = rs.getDouble(i + 1);
+                        if (rs.wasNull()) val = NA_double;
+                        ((double[])data[i])[count] = val;
+                    case CT_INT:
+                        int valint = rs.getInt(i + 1);
+                        if (rs.wasNull()) valint = NA_int;
+                        ((int[])data[i])[count] = valint;
+                    default:
+                        ((String[])data[i])[count] = rs.getString(i + 1);
                 }
+            }
             count++;
             if (count >= capacity)
                 return count;
@@ -125,16 +147,27 @@ public class MSSQLResultPull {
         return b;
     }
 
+    public int[] getInts(int column) {
+        int[] a = (int[]) data[column - 1];
+        if (count == a.length) return a;
+        int[] b = new int[count];
+        if (count > 0) System.arraycopy(a, 0, b, 0, count);
+        return b;
+    }
+
     public int[] mapColumns(ResultSet res) throws java.sql.SQLException {
         ResultSetMetaData md = res.getMetaData();
         int n = md.getColumnCount();
         int[] cts = new int[n];
         for (int i = 0; i < n; i++) {
             int ct = md.getColumnType(i + 1);
-            if (ct == -5 || ct ==-6 || (ct >= 2 & ct <= 8)) {
-                cts[i] = 1;
+            if (ct == Types.BIGINT || ct == Types.NUMERIC || ct == Types.DECIMAL || 
+                ct == Types.FLOAT || ct == Types.REAL || ct == Types.DOUBLE) {
+                cts[i] = CT_NUMERIC;
+            } else if (ct == Types.TINYINT || ct == Types.SMALLINT || ct == Types.INTEGER) {
+                cts[i] = CT_INT;
             } else {
-                cts[i] = 0;
+                cts[i] = CT_STRING;
             }
         }    
         return cts;
