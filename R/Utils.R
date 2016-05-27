@@ -119,3 +119,10 @@ jtds_class_path <- function () {
 pull_class_path <- function () {
   file.path(system.file('java', package = 'RSQLServer'), "MSSQLRequestPull.jar")
 }
+
+rebuild_pull_class_jar <- function () {
+  system("rm inst/java/MSSQLRequestPull.jar")
+  # Using Java 1.3 as this is what jTDS is built with
+  system("javac -d inst/java -source 1.3 -target 1.3 java/*.java")
+  system("(cd inst/java; jar fvc MSSQLRequestPull.jar com; rm -rf com)")
+}
