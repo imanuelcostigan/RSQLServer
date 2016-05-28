@@ -42,7 +42,7 @@ public class MSSQLResultPull {
      */
     public MSSQLResultPull(ResultSet rs) throws java.sql.SQLException {
     	this.rs = rs;
-    	cTypes = mapColumns(rs);
+    	cTypes = mapColumns();
     	cols = (cTypes == null) ? 0 : cTypes.length;
     	data = new Object[cols];
     	capacity = -1;
@@ -155,8 +155,8 @@ public class MSSQLResultPull {
         return b;
     }
 
-    public int[] mapColumns(ResultSet res) throws java.sql.SQLException {
-        ResultSetMetaData md = res.getMetaData();
+    public int[] mapColumns() throws java.sql.SQLException {
+        ResultSetMetaData md = rs.getMetaData();
         int n = md.getColumnCount();
         int[] cts = new int[n];
         for (int i = 0; i < n; i++) {
@@ -173,8 +173,8 @@ public class MSSQLResultPull {
         return cts;
     }
 
-    public int[] columnTypes(ResultSet res) throws java.sql.SQLException {
-        ResultSetMetaData md = res.getMetaData();
+    public int[] columnTypes() throws java.sql.SQLException {
+        ResultSetMetaData md = rs.getMetaData();
         int n = md.getColumnCount();
         int[] cts = new int[n];
         for (int i = 0; i < n; i++) {
@@ -183,8 +183,8 @@ public class MSSQLResultPull {
         return cts;
     }
 
-    public String[] columnTypeNames(ResultSet res) throws java.sql.SQLException {
-        ResultSetMetaData md = res.getMetaData();
+    public String[] columnTypeNames() throws java.sql.SQLException {
+        ResultSetMetaData md = rs.getMetaData();
         int n = md.getColumnCount();
         String[] cts = new String[n];
         for (int i = 0; i < n; i++) {
@@ -193,8 +193,8 @@ public class MSSQLResultPull {
         return cts;
     }    
 
-    public String[] columnNames(ResultSet res) throws java.sql.SQLException {
-        ResultSetMetaData md = res.getMetaData();
+    public String[] columnNames() throws java.sql.SQLException {
+        ResultSetMetaData md = rs.getMetaData();
         int n = md.getColumnCount();
         String[] cnames = new String[n];
         for (int i = 0; i < n; i++) {
