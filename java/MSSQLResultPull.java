@@ -96,20 +96,26 @@ public class MSSQLResultPull {
         }
     	count = 0;
     	while (rs.next()) {
+            System.out.println("Row " + (count + 1));
             for (int i = 0; i < cols; i++) {
+                System.out.println("  Column " + (i + 1) + ". Column type: " + cTypes[i]);
                 switch(cTypes[i]) {
                     case CT_NUMERIC:
                         double val = rs.getDouble(i + 1);
                         if (rs.wasNull()) val = NA_double;
+                        System.out.println("  Double type: " + val);
                         ((double[])data[i])[count] = val;
                         break;
                     case CT_INT:
                         int valint = rs.getInt(i + 1);
                         if (rs.wasNull()) valint = NA_int;
                         ((int[])data[i])[count] = valint;
+                        System.out.println("  Int type: " + valint);
                         break;
                     default:
-                        ((String[])data[i])[count] = rs.getString(i + 1);
+                        String valstr = rs.getString(i + 1);
+                        ((String[])data[i])[count] = valstr;
+                        System.out.println("  Str type: " + valstr);
                 }
             }
             count++;
