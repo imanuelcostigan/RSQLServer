@@ -601,14 +601,14 @@ setMethod("dbClearResult", "SQLServerResult", function (res, ...) {
       rJava::.jcall(s, "V", "setDouble", i, as.double(v)[1])
     } else if (is.logical(v)) {
       rJava::.jcall(s, "V", "setBoolean", i, as.logical(v)[1])
-    } else if (lubridate::is.Date(v)) {
+    } else if (inherits(v, "Date")) {
       # as.POSIXlt sets time to UTC whereas as.POSIXct sets time to local
       # timezone. The tz argument is ignored when a Date is passed to either
       # function
       milliseconds <- as.numeric(as.POSIXlt(v)[1]) * 1000
       vdate <- rJava::.jnew("java/sql/Date", rJava::.jlong(milliseconds))
       rJava::.jcall(s, "V", "setDate", i, vdate)
-    } else if (lubridate::is.POSIXct(v)) {
+    } else if (inherits(v, "POSIXct")) {
       # as.integer converts POSIXct to seconds since epoch. Timestamp
       # constructor needs milliseconds so multiply by 1000
       # http://docs.oracle.com/javase/7/docs/api/java/sql/Timestamp.html

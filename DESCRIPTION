@@ -34,8 +34,7 @@ Imports:
     RJDBC (>= 0.2-4),
     dplyr (>= 0.4),
     assertthat (>= 0.1),
-    yaml (>= 2.1.13),
-    lubridate (>= 1.3.3)
+    yaml (>= 2.1.13)
 Suggests:
     testthat,
     DBItest
