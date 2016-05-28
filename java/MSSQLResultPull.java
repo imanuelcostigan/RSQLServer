@@ -211,4 +211,12 @@ public class MSSQLResultPull {
         }    
         return cnames;
     }
+
+    // public String[] getClassOfData() throws java.sql.SQLException {
+    //     String[] out = new String[cols];
+    //     for (int i = 0; i < cols; i++) {
+    //         out[i] = data[i].getClass().toString();
+    //     }
+    //     return out;
+    // }
 }
