@@ -481,7 +481,6 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
     cts <- rJava::.jcall(rp, "[I", "mapColumns", res@jr)
     names(out) <- rJava::.jcall(rp, "[S", "columnNames", res@jr)
 
-    browser()
     ###### Fetch into cache and pull from cache into R
     if (n < 0L) { ## infinite pull
       stride <- 32768L  ## start fairly small to support tiny queries and increase later
