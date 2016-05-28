@@ -67,11 +67,12 @@ public class MSSQLResultPull {
                 switch (cTypes[i]) {
                     case CT_NUMERIC:
                         data[i] = (Object)new double[atMost];
+                        break;
                     case CT_INT:
                         data[i] = (Object)new int[atMost];
+                        break;
                     default:
                         data[i] = (Object)new String[atMost];
-
                 }
             }
             capacity = atMost;
@@ -101,10 +102,12 @@ public class MSSQLResultPull {
                         double val = rs.getDouble(i + 1);
                         if (rs.wasNull()) val = NA_double;
                         ((double[])data[i])[count] = val;
+                        break;
                     case CT_INT:
                         int valint = rs.getInt(i + 1);
                         if (rs.wasNull()) valint = NA_int;
                         ((int[])data[i])[count] = valint;
+                        break;
                     default:
                         ((String[])data[i])[count] = rs.getString(i + 1);
                 }
