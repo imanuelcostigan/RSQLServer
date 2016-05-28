@@ -612,7 +612,7 @@ setMethod("dbClearResult", "SQLServerResult", function (res, ...) {
       # as.integer converts POSIXct to seconds since epoch. Timestamp
       # constructor needs milliseconds so multiply by 1000
       # http://docs.oracle.com/javase/7/docs/api/java/sql/Timestamp.html
-      milliseconds <- as.numeric(as.POSIXct(v)[1]) * 1000
+      milliseconds <- as.numeric(v)[1] * 1000
       vtimestamp <- rJava::.jnew("java/sql/Timestamp",
         rJava::.jlong(milliseconds))
       rJava::.jcall(s, "V", "setTimestamp", i, vtimestamp)
