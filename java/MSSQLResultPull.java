@@ -183,6 +183,16 @@ public class MSSQLResultPull {
         return cts;
     }
 
+    public int[] columnTypeNames(ResultSet res) throws java.sql.SQLException {
+        ResultSetMetaData md = res.getMetaData();
+        int n = md.getColumnCount();
+        String[] cts = new String[n];
+        for (int i = 0; i < n; i++) {
+            cts[i] = md.getColumnTypeName(i + 1);
+        }
+        return cts;
+    }    
+
     public String[] columnNames(ResultSet res) throws java.sql.SQLException {
         ResultSetMetaData md = res.getMetaData();
         int n = md.getColumnCount();
