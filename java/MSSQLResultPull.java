@@ -8,6 +8,7 @@ import java.sql.Types;
 // https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/java/JDBCResultPull.java
 
 public class MSSQLResultPull {
+    public static final boolean RP_DEBUG = true;
     /** column type: string */
     public static final int CT_STRING  = 0;
     /** column type: numeric (retrieved as doubles) */
@@ -96,26 +97,26 @@ public class MSSQLResultPull {
         }
     	count = 0;
     	while (rs.next()) {
-            System.out.println("Row " + (count + 1));
+            if (RP_DEBUG) System.out.println("Row " + (count + 1));
             for (int i = 0; i < cols; i++) {
-                System.out.println("  Column " + (i + 1) + ". Column type: " + cTypes[i]);
+                if (RP_DEBUG) System.out.println("  Column " + (i + 1) + ". Column type: " + cTypes[i]);
                 switch(cTypes[i]) {
                     case CT_NUMERIC:
                         double val = rs.getDouble(i + 1);
                         if (rs.wasNull()) val = NA_double;
-                        System.out.println("  Double type: " + val);
+                        if (RP_DEBUG) System.out.println("  Double type: " + val);
                         ((double[])data[i])[count] = val;
                         break;
                     case CT_INT:
                         int valint = rs.getInt(i + 1);
                         if (rs.wasNull()) valint = NA_int;
                         ((int[])data[i])[count] = valint;
-                        System.out.println("  Int type: " + valint);
+                        if (RP_DEBUG) System.out.println("  Int type: " + valint);
                         break;
                     default:
                         String valstr = rs.getString(i + 1);
                         ((String[])data[i])[count] = valstr;
-                        System.out.println("  Str type: " + valstr);
+                        if (RP_DEBUG) System.out.println("  Str type: " + valstr);
                 }
             }
             count++;
