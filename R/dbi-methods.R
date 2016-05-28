@@ -478,8 +478,8 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
     # 0L - string
     # 1L - double
     # 2L - integer
-    cts <- rJava::.jcall(rp, "[I", "mapColumns", res@jr)
-    names(out) <- rJava::.jcall(rp, "[S", "columnNames", res@jr)
+    cts <- rJava::.jcall(rp, "[I", "mapColumns")
+    names(out) <- rJava::.jcall(rp, "[S", "columnNames")
 
     ###### Fetch into cache and pull from cache into R
     if (n < 0L) { ## infinite pull
