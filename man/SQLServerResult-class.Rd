@@ -14,9 +14,9 @@
 \usage{
 \S4method{dbIsValid}{SQLServerResult}(dbObj)
 
-\S4method{fetch}{SQLServerResult,numeric}(res, n = -1, ...)
-
 \S4method{dbFetch}{SQLServerResult,numeric}(res, n = -1, ...)
+
+\S4method{fetch}{SQLServerResult,numeric}(res, n = -1, block = 2048L, ...)
 
 \S4method{dbGetInfo}{SQLServerResult}(dbObj, ...)
 

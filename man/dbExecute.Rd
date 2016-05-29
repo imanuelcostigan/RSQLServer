@@ -9,7 +9,8 @@
 \usage{
 dbExecute(conn, statement, ...)
 
-\S4method{dbExecute}{SQLServerConnection,character}(conn, statement, ...)
+\S4method{dbExecute}{SQLServerConnection,character}(conn, statement, ...,
+  list = NULL)
 
 dbSendUpdate(conn, statement, ...)
 }

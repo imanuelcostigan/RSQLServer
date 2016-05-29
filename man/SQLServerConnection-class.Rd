@@ -3,12 +3,17 @@
 \docType{class}
 \name{SQLServerConnection-class}
 \alias{SQLServerConnection-class}
-\alias{dbDataType,SQLServerConnection,ANY-method}
+\alias{dbBegin,SQLServerConnection-method}
+\alias{dbCommit,SQLServerConnection-method}
+\alias{dbDataType,SQLServerConnection-method}
 \alias{dbDisconnect,SQLServerConnection-method}
 \alias{dbExistsTable,SQLServerConnection-method}
 \alias{dbGetInfo,SQLServerConnection-method}
 \alias{dbIsValid,SQLServerConnection-method}
 \alias{dbListTables,SQLServerConnection-method}
+\alias{dbReadTable,SQLServerConnection,character-method}
+\alias{dbRemoveTable,SQLServerConnection-method}
+\alias{dbRollback,SQLServerConnection-method}
 \alias{dbSendQuery,SQLServerConnection,character-method}
 \alias{dbWriteTable,SQLServerConnection-method}
 \title{SQL Server Connection class}
@@ -21,14 +26,24 @@
 
 \S4method{dbSendQuery}{SQLServerConnection,character}(conn, statement, ...)
 
-\S4method{dbDataType}{SQLServerConnection,ANY}(dbObj, obj, ...)
+\S4method{dbReadTable}{SQLServerConnection,character}(conn, name, ...)
+
+\S4method{dbDataType}{SQLServerConnection}(dbObj, obj, ...)
+
+\S4method{dbListTables}{SQLServerConnection}(conn, pattern = "\%", ...)
+
+\S4method{dbExistsTable}{SQLServerConnection}(conn, name, ...)
+
+\S4method{dbRemoveTable}{SQLServerConnection}(conn, name, ...)
+
+\S4method{dbBegin}{SQLServerConnection}(conn, ...)
+
+\S4method{dbCommit}{SQLServerConnection}(conn, ...)
+
+\S4method{dbRollback}{SQLServerConnection}(conn, ...)
 
 \S4method{dbWriteTable}{SQLServerConnection}(conn, name, value,
   overwrite = TRUE, append = FALSE)
-
-\S4method{dbListTables}{SQLServerConnection}(conn, ...)
-
-\S4method{dbExistsTable}{SQLServerConnection}(conn, name, ...)
 }
 \description{
 SQL Server Connection class
