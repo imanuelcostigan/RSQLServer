@@ -3,6 +3,9 @@ package com.github.RSQLServer;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Types;
+import java.sql.Date; 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 
 // Based on:
 // https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/java/JDBCResultPull.java
@@ -15,6 +18,10 @@ public class MSSQLResultPull {
     public static final int CT_NUMERIC = 1;
     /** column type: integer */
     public static final int CT_INT = 2;
+    /** column type: Date */
+    public static final int CT_DATE = 3;
+    /** column type: Timestamp */
+    public static final int CT_TIME = 4;
     /** NA double value */
     public static final double NA_double = Double.longBitsToDouble(0x7ff00000000007a2L);
     // NA int value (also used for booleans). 
@@ -72,6 +79,12 @@ public class MSSQLResultPull {
                     case CT_INT:
                         data[i] = (Object)new int[atMost];
                         break;
+                    case CT_DATE:
+                        data[i] = (Object)new String[atMost];
+                        break;
+                    case CT_TIME:
+                        data[i] = (Object)new String[atMost];
+                        break;
                     default:
                         data[i] = (Object)new String[atMost];
                 }
@@ -96,6 +109,12 @@ public class MSSQLResultPull {
             } catch (java.sql.SQLException e) { } // we can't use SQLFeatureNotSupportedException because that's 1.6+ only
         }
     	count = 0;
+        // formatters that may be useful. Declare here to avoid creating over and over 
+        // again in loop
+        SimpleDateFormat tsFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSSSSS");
+        SimpleDateFormat dtFmt = new SimpleDateFormat("yyyy-MM-dd");
+
+        // Fetch into `data`
     	while (rs.next()) {
             if (RP_DEBUG) System.out.println("Row " + (count + 1));
             for (int i = 0; i < cols; i++) {
@@ -112,6 +131,16 @@ public class MSSQLResultPull {
                         if (rs.wasNull()) valint = NA_int;
                         ((int[])data[i])[count] = valint;
                         if (RP_DEBUG) System.out.println("  Int type: " + valint);
+                        break;
+                    case CT_TIME:
+                        Timestamp valts = rs.getTimestamp(i + 1);
+                        ((String[])data[i])[count] = tsFmt.format(valts);
+                        if (RP_DEBUG) System.out.println("  Timestamp/String type: " + valts);
+                        break;
+                    case CT_DATE:
+                        Date valdt = rs.getDate(i + 1);
+                        ((String[])data[i])[count] = dtFmt.format(valdt);
+                        if (RP_DEBUG) System.out.println("  Date/String type: " + valdt;
                         break;
                     default:
                         String valstr = rs.getString(i + 1);
@@ -165,6 +194,22 @@ public class MSSQLResultPull {
         return b;
     }
 
+   //  public Date[] getDates(int column) {
+   //      Date[] a = (Date[]) data[column - 1];
+   //      if (count == a.length) return a;
+   //      Date[] b = new Date[count];
+   //      if (count > 0) System.arraycopy(a, 0, b, 0, count);
+   //      return b;
+   //  }
+
+   // public Timestamp[] getTimestamps(int column) {
+   //      Timestamp[] a = (Timestamp[]) data[column - 1];
+   //      if (count == a.length) return a;
+   //      Timestamp[] b = new Timestamp[count];
+   //      if (count > 0) System.arraycopy(a, 0, b, 0, count);
+   //      return b;
+   //  }
+
     public int[] mapColumns() throws java.sql.SQLException {
         ResultSetMetaData md = rs.getMetaData();
         int n = md.getColumnCount();
@@ -176,6 +221,10 @@ public class MSSQLResultPull {
                 cts[i] = CT_NUMERIC;
             } else if (ct == Types.TINYINT || ct == Types.SMALLINT || ct == Types.INTEGER) {
                 cts[i] = CT_INT;
+            } else if (ct == Types.DATE) {
+                cts[i] = CT_DATE;
+            } else if (ct == Types.TIMESTAMP) {
+                cts[i] = CT_TIME;
             } else {
                 cts[i] = CT_STRING;
             }
