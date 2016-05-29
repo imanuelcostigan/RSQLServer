@@ -8,7 +8,7 @@ import java.sql.Types;
 // https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/java/JDBCResultPull.java
 
 public class MSSQLResultPull {
-    public static final boolean RP_DEBUG = true;
+    public static final boolean RP_DEBUG = false;
     /** column type: string */
     public static final int CT_STRING  = 0;
     /** column type: numeric (retrieved as doubles) */
