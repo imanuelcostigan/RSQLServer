@@ -20,4 +20,5 @@ NULL
 #'
 #' @docType package
 #' @name RSQLServer
+#' @importFrom purrr %||%
 NULL

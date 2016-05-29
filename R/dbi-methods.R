@@ -245,7 +245,7 @@ dbSendUpdate <- function (conn, statement, ...) {
   dbExecute(conn, statement)
 }
 
-#' @rdnamae SQLServerConnection-class
+#' @rdname SQLServerConnection-class
 #' @export
 setMethod("dbReadTable", c("SQLServerConnection", "character"),
   function(conn, name, ...) {
@@ -457,10 +457,6 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
     # Based on:
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L287
     assertthat::assert_that(assertthat::is.count(block))
-    ncols <- rJava::.jcall(res@md, "I", "getColumnCount")
-    if (ncols < 1L) {
-      return(NULL)
-    }
 
     ###### Initialise JVM side cache of results
     rp <- res@pull
@@ -472,45 +468,31 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
     }
 
     ###### Build list that will store data and be coerced into data frame
-    out <- vector("list", ncols)
     # Field type integers are defined in MSSQLResultPull class
     # constant ints CT_STRING, CT_NUMERIC and CT_INT where:
     # 0L - string
     # 1L - double
     # 2L - integer
+    # 3L - date
+    # 4L - datetime/timestamp
     cts <- rJava::.jcall(rp, "[I", "mapColumns")
-    names(out) <- rJava::.jcall(rp, "[S", "columnNames")
+    out <- vector("list", length(cts))
 
     ###### Fetch into cache and pull from cache into R
     if (n < 0L) { ## infinite pull
       stride <- 32768L  ## start fairly small to support tiny queries and increase later
       while ((nrec <- rJava::.jcall(rp, "I", "fetch", stride, block)) > 0L) {
-        for (i in seq.int(ncols)) {
-          if (cts[i] == 1L) {
-            new_res <- rJava::.jcall(rp, "[D", "getDoubles", i)
-          } else if (cts[i] == 2L) {
-            new_res <- rJava::.jcall(rp, "[I", "getInts", i)
-          } else {
-            new_res <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i)
-          }
-          out[[i]] <- c(out[[i]], new_res)
-        }
+        out <- fetch_rp(rp, out, cts)
         if (nrec < stride) break
         stride <- 524288L # 512k
       }
     } else {
-      nrec <- rJava::.jcall(rp, "I", "fetch", as.integer(n), block)
-      for (i in seq.int(ncols)) {
-        if (cts[i] == 1L) {
-          out[[i]] <- rJava::.jcall(rp, "[D", "getDoubles", i)
-        } else if (cts[i] == 2L) {
-          out[[i]] <- rJava::.jcall(rp, "[I", "getInts", i)
-        } else {
-          out[[i]] <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i)
-        }
-      }
+      fetch_rp(rp, out, cts)
     }
-
+    # POSIXct fields are converted to # of secs since origin. So need to convert
+    # them back
+    out <- purrr::map_if(out, cts == 4L, as.POSIXct, origin = "1970-01-01")
+    names(out) <- rJava::.jcall(rp, "[S", "columnNames")
     # as.data.frame is expensive - create it on the fly from the list
     attr(out, "row.names") <- c(NA_integer_, length(out[[1]]))
     class(out) <- "data.frame"
