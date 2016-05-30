@@ -137,7 +137,8 @@ rp_getInts <- function (rp, i) {
   rJava::.jcall(rp, "[I", "getInts", i)
 }
 rp_getDates <- function (rp, i) {
-  as.Date(rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i))
+  as.Date(rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i),
+    format = "%Y-%m-%d")
 }
 rp_getTimestamps <- function (rp, i) {
   # To nanosec precision, as this is what Timestamp has (even though
