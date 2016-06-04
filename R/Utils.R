@@ -130,29 +130,38 @@ rebuild_pull_class_jar <- function () {
 
 # Fetch helpers ----------------------------------------------------------
 
-rp_getDoubles <- function (rp, i) {
-  rJava::.jcall(rp, "[D", "getDoubles", i)
+ff <- function (res, empty_vector) {
+  # Where rp_* return null because for example, you have requested to fetch
+  # n = 0 records, DBItest expects an empty data frame will all the right
+  # column names and types. This function ensures this is the case, and
+  if (rJava::is.jnull(res)) {
+    rJava::.jclear()
+    empty_vector
+  } else {
+    res
+  }
 }
+
+rp_getDoubles <- function (rp, i) {
+  res <- rJava::.jcall(rp, "[D", "getDoubles", i, check = FALSE)
+  ff(res, double())
+}
+
 rp_getInts <- function (rp, i) {
-  rJava::.jcall(rp, "[I", "getInts", i)
+  res <- rJava::.jcall(rp, "[I", "getInts", i, check = FALSE)
+  ff(res, integer())
 }
 rp_getDates <- function (rp, i) {
-  as.Date(rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i),
-    format = "%Y-%m-%d")
+  res <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i, check = FALSE)
+  ff(res, character())
 }
 rp_getTimestamps <- function (rp, i) {
-  # To nanosec precision, as this is what Timestamp has (even though
-  # R cannot currently represent this). However, appears as though
-  # SimpleDateFormatter only prints to millisecond precision in any
-  # case. MSSQL type datetime is not timezone aware and stored as UTC
-  as.POSIXct(rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i),
-    "UTC", format = "%Y-%m-%d %H:%M:%OS")
-  # Requires post processing after fetch is completed: call to
-  # c(out[[i]], new_res) below will coerce vector to double in first
-  # loop as while statement will have out[[i]] set at NULL
+  res <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i, check = FALSE)
+  ff(res, character())
 }
 rp_getStrings <- function (rp, i) {
-  rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i)
+  res <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i, check = FALSE)
+  ff(res, character())
 }
 
 fetch_rp <- function (rp, out, cts = NULL) {

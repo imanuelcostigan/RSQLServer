@@ -507,13 +507,21 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
         if (nrec < stride) break
         stride <- 524288L # 512k
       }
-    } else {
-      fetch_rp(rp, out, cts)
+    } else if (n > 0L) {
+      nrec <- rJava::.jcall(rp, "I", "fetch", as.integer(n), block)
+      out <- fetch_rp(rp, out, cts)
+    } else { # n == 0L
+      out <- fetch_rp(rp, out, cts)
     }
     # POSIXct fields are converted to # of secs since origin. So need to convert
     # them back
-    out <- purrr::map_if(out, cts == 4L, as.POSIXct, origin = "1970-01-01")
     names(out) <- rJava::.jcall(rp, "[S", "columnNames")
+    if (length(out[[1]]) > 0) {
+      out <- purrr::map_if(out, cts == 4L, as.POSIXct,
+        tz = "UTC", format = "%Y-%m-%d %H:%M:%OS")
+      our <- purrr::map_if(out, cts == 3L, as.Date,
+        format = "%Y-%m-%d")
+    }
     # as.data.frame is expensive - create it on the fly from the list
     attr(out, "row.names") <- c(NA_integer_, length(out[[1]]))
     class(out) <- "data.frame"
