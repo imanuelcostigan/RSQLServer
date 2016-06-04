@@ -438,6 +438,11 @@ setMethod("dbListFields", "SQLServerConnection",
     cns
 })
 
+setMethod("dbListResults", "SQLServerConnection", function(conn, ...) {
+  # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L150
+  warning("JDBC does not maintain a list of active results.")
+  NULL
+})
 # Inherited from DBI:
 # show()
 # dbQuoteString()
@@ -445,7 +450,6 @@ setMethod("dbListFields", "SQLServerConnection",
 
 # DBI methods that inherit from RJDBC:
 # dbGetException()
-# dbListResults()
 
 # Results ----------------------------------------------------------------
 
