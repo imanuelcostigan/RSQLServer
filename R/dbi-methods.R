@@ -203,8 +203,7 @@ setMethod("dbExecute", c("SQLServerConnection", "character"),
     # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L108
     # See comments to dbSendQuery. dbExecute doesn't support calling stored
     # procedures that do not return results.
-    assertthat::assert_that(assertthat::is.string(statement),
-      !grepl("^SELECT", statement))
+    assertthat::assert_that(assertthat::is.string(statement))
     if (length(list(...)) || length(list)) {
       stat <- rJava::.jcall(conn@jc, "Ljava/sql/PreparedStatement;",
         "prepareStatement", statement, check = FALSE)
