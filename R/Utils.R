@@ -112,6 +112,59 @@ have_test_server <- function (type = 'sqlserver') {
   }
 }
 
-jdbc_class_path <- function () {
+jtds_class_path <- function () {
   file.path(system.file('java', package = 'RSQLServer'), 'jtds-1.2.8.jar')
+}
+
+pull_class_path <- function () {
+  file.path(system.file('java', package = 'RSQLServer'), "MSSQLRequestPull.jar")
+}
+
+rebuild_pull_class_jar <- function () {
+  system("rm inst/java/MSSQLRequestPull.jar")
+  # Using Java 1.3 as this is what jTDS is built with
+  system("javac -d inst/java -source 1.3 -target 1.3 java/*.java")
+  system("(cd inst/java; jar fvc MSSQLRequestPull.jar com; rm -rf com)")
+}
+
+
+# Fetch helpers ----------------------------------------------------------
+
+rp_getDoubles <- function (rp, i) {
+  rJava::.jcall(rp, "[D", "getDoubles", i)
+}
+rp_getInts <- function (rp, i) {
+  rJava::.jcall(rp, "[I", "getInts", i)
+}
+rp_getDates <- function (rp, i) {
+  as.Date(rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i),
+    format = "%Y-%m-%d")
+}
+rp_getTimestamps <- function (rp, i) {
+  # To nanosec precision, as this is what Timestamp has (even though
+  # R cannot currently represent this). However, appears as though
+  # SimpleDateFormatter only prints to millisecond precision in any
+  # case. MSSQL type datetime is not timezone aware and stored as UTC
+  as.POSIXct(rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i),
+    "UTC", format = "%Y-%m-%d %H:%M:%OS")
+  # Requires post processing after fetch is completed: call to
+  # c(out[[i]], new_res) below will coerce vector to double in first
+  # loop as while statement will have out[[i]] set at NULL
+}
+rp_getStrings <- function (rp, i) {
+  rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i)
+}
+
+fetch_rp <- function (rp, out, cts = NULL) {
+  cts <- cts %||% rJava::.jcall(rp, "[I", "mapColumns")
+  for (i in seq_along(cts)) {
+    new_res <- switch(as.character(cts[i]),
+      "1" = rp_getDoubles(rp, i),
+      "2" = rp_getInts(rp, i),
+      "3" = rp_getDates(rp, i),
+      "4" = rp_getTimestamps(rp, i),
+      rp_getStrings(rp, i))
+    out[[i]] <- c(out[[i]], new_res)
+  }
+  out
 }

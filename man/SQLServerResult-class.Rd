@@ -10,13 +10,13 @@
 \alias{dbHasCompleted,SQLServerResult-method}
 \alias{dbIsValid,SQLServerResult-method}
 \alias{fetch,SQLServerResult,numeric-method}
-\title{An S4 class to represent a SQL Server result set}
+\title{SQL Server Result class}
 \usage{
 \S4method{dbIsValid}{SQLServerResult}(dbObj)
 
-\S4method{fetch}{SQLServerResult,numeric}(res, n = -1, ...)
-
 \S4method{dbFetch}{SQLServerResult,numeric}(res, n = -1, ...)
+
+\S4method{fetch}{SQLServerResult,numeric}(res, n = -1, block = 2048L, ...)
 
 \S4method{dbGetInfo}{SQLServerResult}(dbObj, ...)
 
@@ -27,8 +27,7 @@
 \S4method{dbClearResult}{SQLServerResult}(res, ...)
 }
 \description{
-Extends the \code{\link[RJDBC:JDBCResult-class]{JDBCResult}}
-class.
+SQL Server Result class
 }
 \keyword{internal}
 

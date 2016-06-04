@@ -52,11 +52,7 @@ db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
 #' @export
 db_drop_table.SQLServerConnection <- function (con, table, force = FALSE, ...) {
   message("The 'force' argument is ignored.")
-  # Work around RJDBC bug #20
-  # https://github.com/s-u/RJDBC/issues/20
-  # https://github.com/imanuelcostigan/RSQLServer/issues/30
-  res <- dbRemoveTable(con, table)
-  identical(res, logical(0)) || isTRUE(res)
+  dbRemoveTable(con, table)
 }
 
 #' @importFrom dplyr db_analyze ident build_sql
