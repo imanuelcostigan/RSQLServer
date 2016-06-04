@@ -443,13 +443,18 @@ setMethod("dbListResults", "SQLServerConnection", function(conn, ...) {
   warning("JDBC does not maintain a list of active results.")
   NULL
 })
+
+setMethod("dbGetException", "SQLServerConnection", def = function(conn, ...) {
+  # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L143
+  # Function to be deprecated from DBI: https://github.com/rstats-db/DBI/issues/51
+  list()
+})
+
 # Inherited from DBI:
 # show()
 # dbQuoteString()
 # dbQuoteIdentifier()
 
-# DBI methods that inherit from RJDBC:
-# dbGetException()
 
 # Results ----------------------------------------------------------------
 
