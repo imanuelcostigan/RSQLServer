@@ -16,14 +16,8 @@ Authors@R: c(person("Imanuel", "Costigan", role = c("aut", "cre"),
              person("RStudio", role = "cph"),
              person("The Legion Of The Bouncy Castle", role = c("cph", "ctb")))
 Description: Utilises The jTDS Project's JDBC 3.0 SQL Server
-    driver to extend the RJDBC classes and DBI methods. It defines a
-    SQLServerDriver, SQLServerConnection & SQLServerRsult S4 classes as
-    extensions of the RJDBC equivalent classes with most DBI
-    methods being thin extensions of the methods defined by RJDBC classes.
-    However, the dbConnect interface is more convenient, and the data reading
-    and writing capabilities found in RJDBC's fetch and dbWriteTable methods
-    have been refined. The package also implements a SQL backend to the dplyr
-    package.
+    driver to extend DBI classes and methods. The package also
+    implements a SQL backend to the dplyr package.
 License: GPL-2
 Depends:
     R (>= 3.2.0)
