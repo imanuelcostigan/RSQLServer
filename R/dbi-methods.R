@@ -513,8 +513,6 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
     } else { # n == 0L
       out <- fetch_rp(rp, out, cts)
     }
-    # POSIXct fields are converted to # of secs since origin. So need to convert
-    # them back
     names(out) <- rJava::.jcall(rp, "[S", "columnNames")
     if (length(out[[1]]) > 0) {
       out <- purrr::map_if(out, cts == 4L, as.POSIXct,
