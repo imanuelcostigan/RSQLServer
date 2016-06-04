@@ -418,6 +418,25 @@ setMethod("dbWriteTable", "SQLServerConnection",
     TRUE
 })
 
+setMethod("dbListFields", "SQLServerConnection",
+  function(conn, name, pattern = "%", ...) {
+    # Based on RJDBC
+    # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L190
+    md <- rJava::.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData",
+      check = FALSE)
+    jdbc_exception(md, "Unable to retrieve database metadata")
+    # Create arguments for call to getTables
+    jns <- rJava::.jnull("java/lang/String")
+    rs <- rJava::.jcall(md, "Ljava/sql/ResultSet;", "getColumns",
+      jns, jns, name, pattern, check = FALSE)
+    jdbc_exception(rs, "Unable to retrieve column names")
+    on.exit(rJava::.jcall(rs, "V", "close"))
+    cns <- character()
+    while (rJava::.jcall(rs, "Z", "next")) {
+      cns <- c(cns, rJava::.jcall(rs, "S", "getString", "COLUMN_NAME"))
+    }
+    cns
+})
 
 # Inherited from DBI:
 # show()
@@ -427,13 +446,6 @@ setMethod("dbWriteTable", "SQLServerConnection",
 # DBI methods that inherit from RJDBC:
 # dbGetException()
 # dbListResults()
-# dbListFields()
-# dbListTables()
-# dbReadTable()
-# dbExistsTable()
-# dbRemoveTable()
-# dbCommit()
-# dbRollback()
 
 # Results ----------------------------------------------------------------
 
