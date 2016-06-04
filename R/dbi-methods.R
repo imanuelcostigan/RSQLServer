@@ -450,6 +450,7 @@ setMethod("dbGetException", "SQLServerConnection", def = function(conn, ...) {
   list()
 })
 
+
 # Inherited from DBI:
 # show()
 # dbQuoteString()
@@ -523,14 +524,13 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
 #' @rdname SQLServerResult-class
 #' @export
 setMethod("dbGetInfo", "SQLServerResult", def = function (dbObj, ...) {
-  list(statement = dbObj@stat,
+  list(
+    statement = dbObj@stat,
     row.count = rJava::.jcall(dbObj@jr, "I", "getRow"),
     rows.affected = rJava::.jcall(dbObj@jr, "I", "getFetchSize"),
     # http://docs.oracle.com/javase/7/docs/api/java/sql/ResultSet.html#isAfterLast()
-    has.completed = rJava::.jcall(dbObj@jr, "Z", "isAfterLast"),
-    # No JDBC method is available that determines whether statement is a
-    # SELECT
-    is.select = NA)
+    has.completed = rJava::.jcall(dbObj@jr, "Z", "isAfterLast")
+  )
 })
 
 #' @rdname SQLServerResult-class
@@ -583,10 +583,7 @@ setMethod("dbClearResult", "SQLServerResult", function (res, ...) {
 # dbGetStatement()
 # dbGetRowsAffected()
 # dbGetRowCount()
-#
-# Inherited from RJDBC:
-# fetch()
-# dbGetInfo()
+
 
 # Other ----------------------------------------------------------------
 
