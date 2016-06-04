@@ -159,8 +159,7 @@ setMethod("dbSendQuery", c("SQLServerConnection", "character"),
     # 2. This method is only responsible for sending SELECT statements which have
     # to return ResultSet objects. To execute data definition or manipulation
     # commands such as CREATE TABLE or UPDATE, use dbExecute instead.
-    assertthat::assert_that(assertthat::is.string(statement),
-      grepl("^SELECT", statement))
+    assertthat::assert_that(assertthat::is.string(statement))
     stat <- rJava::.jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
     jdbc_exception(stat, "Unable to create simple JDBC statement ", statement)
     jr <- rJava::.jcall(stat, "Ljava/sql/ResultSet;", "executeQuery",
