@@ -23,6 +23,7 @@ A number of changes have been made to ensure DBI compliance as specified by test
 
 ## Other changes
 
+- Implemented `dbBegin()`, `dbCommit()`, `dbRollback()` methods and use these in `dbWriteTable()`
 - `dbDataType` maps R character objects of sufficiently long length to `VARCHAR(MAX)` on newer version of MSSQL rather than `TEXT` as the latter is being deprecated.
 - Arguments of `dbConnect()` are now `NULL` where other default values were assigned. This does not change the behaviour of the method.
 - Introduced `pattern` argument to `dbListTables()` which allows you to list all tables matching a pattern.
