@@ -515,10 +515,11 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
     }
     names(out) <- rJava::.jcall(rp, "[S", "columnNames")
     if (length(out[[1]]) > 0) {
+      out <- purrr::map_if(out, cts == 3L, as.Date,
+        format = "%Y-%m-%d")
       out <- purrr::map_if(out, cts == 4L, as.POSIXct,
         tz = "UTC", format = "%Y-%m-%d %H:%M:%OS")
-      our <- purrr::map_if(out, cts == 3L, as.Date,
-        format = "%Y-%m-%d")
+      out <- purrr::map_if(out, cts == 5L, as.logical)
     }
     # as.data.frame is expensive - create it on the fly from the list
     attr(out, "row.names") <- c(NA_integer_, length(out[[1]]))

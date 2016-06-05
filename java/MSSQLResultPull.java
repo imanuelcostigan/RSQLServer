@@ -22,6 +22,8 @@ public class MSSQLResultPull {
     public static final int CT_DATE = 3;
     /** column type: Timestamp */
     public static final int CT_TIME = 4;
+    /** column type: bit/boolean */
+    public static final int CT_BOOLEAN = 5;
     /** NA double value */
     public static final double NA_double = Double.longBitsToDouble(0x7ff00000000007a2L);
     // NA int value (also used for booleans). 
@@ -85,6 +87,9 @@ public class MSSQLResultPull {
                     case CT_TIME:
                         data[i] = (Object)new String[atMost];
                         break;
+                    case CT_BOOLEAN:
+                        data[i] = (Object)new String[atMost];
+                        break;
                     default:
                         data[i] = (Object)new String[atMost];
                 }
@@ -140,7 +145,13 @@ public class MSSQLResultPull {
                     case CT_DATE:
                         Date valdt = rs.getDate(i + 1);
                         ((String[])data[i])[count] = dtFmt.format(valdt);
-                        if (RP_DEBUG) System.out.println("  Date/String type: " + valdt;
+                        if (RP_DEBUG) System.out.println("  Date/String type: " + valdt);
+                        break;
+                    case CT_BOOLEAN:
+                        String valbit = String.valueOf(rs.getBoolean(i + 1));
+                        if (rs.wasNull()) valbit = null; 
+                        ((String[])data[i])[count] = valbit;
+                        if (RP_DEBUG) System.out.println("  Boolean/String type: " + valbit);
                         break;
                     default:
                         String valstr = rs.getString(i + 1);
@@ -225,6 +236,9 @@ public class MSSQLResultPull {
                 cts[i] = CT_DATE;
             } else if (ct == Types.TIMESTAMP) {
                 cts[i] = CT_TIME;
+            } else if (ct == Types.BIT || ct == 16) {
+                // BOOLEAN = 16 type introduced sometime after 1.3. 
+                cts[i] = CT_BOOLEAN;
             } else {
                 cts[i] = CT_STRING;
             }
