@@ -257,16 +257,19 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
   def = function (dbObj, obj, ...) {
     # GOING FROM R data type to SQL Server data type
     # http://jtds.sourceforge.net/typemap.html
-    # https://msdn.microsoft.com/en-us/library/ms187752.a spx
+    # https://msdn.microsoft.com/en-us/library/ms187752.aspx
     # https://msdn.microsoft.com/en-us/library/ms187752(v=sql.90).aspx
 
     #### Helper functions
     char_type <- function (x) {
-      n <- max(nchar(as.character(x)))
-      if (n <= 8000) {
-        paste0("VARCHAR(", n, ")")
+      # SQL Server 2000 does not support nvarchar(max) type.
+      # TEXT is being deprecated. Make sure SQL types are UNICODE variants
+      # (prefixed by N).
+      # https://technet.microsoft.com/en-us/library/aa258271(v=sql.80).aspx
+      if (dbGetInfo(dbObj)$db.version < 9) {
+        "NVARCHAR(4000)"
       } else {
-        "TEXT"
+        "NVARCHAR(MAX)"
       }
     }
 
