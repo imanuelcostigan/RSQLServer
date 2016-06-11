@@ -578,7 +578,7 @@ setMethod("dbClearResult", "SQLServerResult", function (res, ...) {
 .fillStatementParameters <- function(s, l) {
   # Modified from RJDBC
   # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L63
-  for (i in 1:length(l)) {
+  for (i in seq_along(l)) {
     v <- l[[i]]
     if (is.na(v)) { # map NAs to NULLs (courtesy of Axel Klenk)
       sqlType <- rToJdbcType(class(v))
