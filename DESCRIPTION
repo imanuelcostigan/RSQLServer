@@ -29,7 +29,7 @@ Imports:
     dplyr (>= 0.4),
     assertthat (>= 0.1),
     yaml (>= 2.1.13),
-    purrr
+    purrr (>= 0.2.1)
 Suggests:
     testthat,
     DBItest
