@@ -172,28 +172,6 @@ setMethod("dbSendQuery", c("SQLServerConnection", "character"),
     new("SQLServerResult", jr = jr, md = md, stat = stat, pull = rJava::.jnull())
 })
 
-#' Execute non-query SQL commands
-#'
-#' Methods for this generic will execute non-query (i.e. non SELECT) SQL
-#' commands like \code{CREATE TABLE} or \code{UPDATE}. The \code{dbSendUpdate}
-#' method which was based on the same method in the \code{RJDBC} package will
-#' be deprecated.
-#'
-#' @param conn a connection inheriting from \code{DBIConnection}
-#' @param statement a string denoting the SQL command
-#' @return logical value representing whether or not the command has been
-#' executed successfully.
-#' @examples
-#' \dontrun{
-#' con <- dbConnect(RSQLServer::SQLServer(), "TEST")
-#' dbExecute(con, "CREATE TABLE test (a integer)")
-#' }
-#' @export
-
-setGeneric("dbExecute", function(conn, statement, ...) {
-  standardGeneric("dbExecute")
-})
-
 #' @rdname dbExecute
 #' @export
 
