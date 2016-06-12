@@ -3,41 +3,50 @@
 \docType{class}
 \name{SQLServerConnection-class}
 \alias{SQLServerConnection-class}
+\alias{dbBegin,SQLServerConnection-method}
+\alias{dbCommit,SQLServerConnection-method}
 \alias{dbDataType,SQLServerConnection-method}
+\alias{dbDisconnect,SQLServerConnection-method}
 \alias{dbExistsTable,SQLServerConnection-method}
 \alias{dbGetInfo,SQLServerConnection-method}
 \alias{dbIsValid,SQLServerConnection-method}
 \alias{dbListTables,SQLServerConnection-method}
+\alias{dbReadTable,SQLServerConnection,character-method}
+\alias{dbRemoveTable,SQLServerConnection-method}
+\alias{dbRollback,SQLServerConnection-method}
 \alias{dbSendQuery,SQLServerConnection,character-method}
-\alias{dbSendUpdate,SQLServerConnection,character-method}
 \alias{dbWriteTable,SQLServerConnection-method}
-\alias{show,SQLServerConnection-method}
-\title{An S4 class to represent a SQL Server connection}
+\title{SQL Server Connection class}
 \usage{
 \S4method{dbGetInfo}{SQLServerConnection}(dbObj, ...)
 
-\S4method{show}{SQLServerConnection}(object)
-
 \S4method{dbIsValid}{SQLServerConnection}(dbObj, ...)
 
-\S4method{dbSendQuery}{SQLServerConnection,character}(conn, statement, ...,
-  list = NULL)
+\S4method{dbDisconnect}{SQLServerConnection}(conn, ...)
+
+\S4method{dbSendQuery}{SQLServerConnection,character}(conn, statement, ...)
+
+\S4method{dbReadTable}{SQLServerConnection,character}(conn, name, ...)
 
 \S4method{dbDataType}{SQLServerConnection}(dbObj, obj, ...)
 
-\S4method{dbSendUpdate}{SQLServerConnection,character}(conn, statement, ...,
-  list = NULL)
+\S4method{dbListTables}{SQLServerConnection}(conn, pattern = "\%", ...)
+
+\S4method{dbExistsTable}{SQLServerConnection}(conn, name, ...)
+
+\S4method{dbRemoveTable}{SQLServerConnection}(conn, name, ...)
+
+\S4method{dbBegin}{SQLServerConnection}(conn, ...)
+
+\S4method{dbCommit}{SQLServerConnection}(conn, ...)
+
+\S4method{dbRollback}{SQLServerConnection}(conn, ...)
 
 \S4method{dbWriteTable}{SQLServerConnection}(conn, name, value,
   overwrite = TRUE, append = FALSE)
-
-\S4method{dbListTables}{SQLServerConnection}(conn, ...)
-
-\S4method{dbExistsTable}{SQLServerConnection}(conn, name, ...)
 }
 \description{
-Extends the \code{\link[RJDBC:JDBCConnection-class]{JDBCConnection}}
-class.
+SQL Server Connection class
 }
 \keyword{internal}
 

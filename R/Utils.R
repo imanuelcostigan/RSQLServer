@@ -112,6 +112,68 @@ have_test_server <- function (type = 'sqlserver') {
   }
 }
 
-jdbc_class_path <- function () {
+jtds_class_path <- function () {
   file.path(system.file('java', package = 'RSQLServer'), 'jtds-1.2.8.jar')
+}
+
+pull_class_path <- function () {
+  file.path(system.file('java', package = 'RSQLServer'), "MSSQLRequestPull.jar")
+}
+
+rebuild_pull_class_jar <- function () {
+  system("rm inst/java/MSSQLRequestPull.jar")
+  # Using Java 1.3 as this is what jTDS is built with
+  system("javac -d inst/java -source 1.3 -target 1.3 java/*.java")
+  system("(cd inst/java; jar fvc MSSQLRequestPull.jar com; rm -rf com)")
+}
+
+
+# Fetch helpers ----------------------------------------------------------
+
+ff <- function (res, empty_vector) {
+  # Where rp_* return null because for example, you have requested to fetch
+  # n = 0 records, DBItest expects an empty data frame will all the right
+  # column names and types. This function ensures this is the case, and
+  if (rJava::is.jnull(res)) {
+    rJava::.jclear()
+    empty_vector
+  } else {
+    res
+  }
+}
+
+rp_getDoubles <- function (rp, i) {
+  res <- rJava::.jcall(rp, "[D", "getDoubles", i, check = FALSE)
+  ff(res, double())
+}
+
+rp_getInts <- function (rp, i) {
+  res <- rJava::.jcall(rp, "[I", "getInts", i, check = FALSE)
+  ff(res, integer())
+}
+rp_getDates <- function (rp, i) {
+  res <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i, check = FALSE)
+  ff(res, character())
+}
+rp_getTimestamps <- function (rp, i) {
+  res <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i, check = FALSE)
+  ff(res, character())
+}
+rp_getStrings <- function (rp, i) {
+  res <- rJava::.jcall(rp, "[Ljava/lang/String;", "getStrings", i, check = FALSE)
+  ff(res, character())
+}
+
+fetch_rp <- function (rp, out, cts = NULL) {
+  cts <- cts %||% rJava::.jcall(rp, "[I", "mapColumns")
+  for (i in seq_along(cts)) {
+    new_res <- switch(as.character(cts[i]),
+      "1" = rp_getDoubles(rp, i),
+      "2" = rp_getInts(rp, i),
+      "3" = rp_getDates(rp, i),
+      "4" = rp_getTimestamps(rp, i),
+      rp_getStrings(rp, i))
+    out[[i]] <- c(out[[i]], new_res)
+  }
+  out
 }
