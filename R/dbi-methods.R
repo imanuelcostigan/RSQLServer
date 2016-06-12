@@ -590,9 +590,9 @@ setMethod("dbClearResult", "SQLServerResult", function (res, ...) {
     } else if (is.logical(v)) {
       rJava::.jcall(s, "V", "setBoolean", i, as.logical(v)[1])
     } else if (inherits(v, "Date")) {
-      # as.POSIXlt sets time to UTC whereas as.POSIXct sets time to local
-      # timezone. The tz argument is ignored when a Date is passed to either
-      # function
+      # as.POSIXlt sets time to midnight UTC whereas as.POSIXct sets time to
+      # local timezone. The tz argument is ignored when a Date is passed to
+      # either function
       milliseconds <- as.numeric(as.POSIXlt(v)[1]) * 1000
       vdate <- rJava::.jnew("java/sql/Date", rJava::.jlong(milliseconds))
       rJava::.jcall(s, "V", "setDate", i, vdate)
