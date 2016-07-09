@@ -4,6 +4,7 @@
 #'
 #' @seealso \code{\link{SQLServer}}
 #' @keywords internal
+#' @importClassesFrom rJava jobjRef
 #' @export
 
 setClass("SQLServerDriver", contains = "DBIDriver",

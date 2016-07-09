@@ -6,7 +6,9 @@
 \alias{dbClearResult,SQLServerResult-method}
 \alias{dbColumnInfo,SQLServerResult-method}
 \alias{dbFetch,SQLServerResult,numeric-method}
-\alias{dbGetInfo,SQLServerResult-method}
+\alias{dbGetRowCount,SQLServerResult-method}
+\alias{dbGetRowsAffected,SQLServerResult-method}
+\alias{dbGetStatement,SQLServerResult-method}
 \alias{dbHasCompleted,SQLServerResult-method}
 \alias{dbIsValid,SQLServerResult-method}
 \alias{fetch,SQLServerResult,numeric-method}
@@ -18,13 +20,19 @@
 
 \S4method{fetch}{SQLServerResult,numeric}(res, n = -1, block = 2048L, ...)
 
-\S4method{dbGetInfo}{SQLServerResult}(dbObj, ...)
-
 \S4method{dbColumnInfo}{SQLServerResult}(res, ...)
 
 \S4method{dbHasCompleted}{SQLServerResult}(res, ...)
 
 \S4method{dbClearResult}{SQLServerResult}(res, ...)
+
+\S4method{dbGetStatement}{SQLServerResult}(res, ...)
+
+\S4method{dbGetRowCount}{SQLServerResult}(res, ...)
+
+\S4method{dbGetRowsAffected}{SQLServerResult}(res, ...)
+
+\S4method{dbHasCompleted}{SQLServerResult}(res, ...)
 }
 \description{
 SQL Server Result class

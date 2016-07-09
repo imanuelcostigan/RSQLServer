@@ -43,7 +43,8 @@ src_sqlserver <- function (server, file = NULL, database = "",
 #' @export
 src_desc.src_sqlserver <- function (x) {
   info <- x$info
-  paste0(info$db.product.name, ' version ', info$db.version, " [", info$user, "]")
+  paste0("SQLServer ", info$db.version, " [", info$username, "@",
+    info$host, ":", info$port, "/", info$dbname, "]")
 }
 
 #' @importFrom dplyr tbl tbl_sql
@@ -52,130 +53,64 @@ tbl.src_sqlserver <- function (src, from, ...) {
   tbl_sql("sqlserver", src = src, from = from, ...)
 }
 
-## Math (scalar) functions - no change across versions based on eyeballing:
-# MSSQL 2000: https://technet.microsoft.com/en-us/library/aa258862(v=sql.80).aspx
-# MSSQL 2005: https://technet.microsoft.com/en-us/library/ms177516(v=sql.90).aspx
-# MSSQL 2008: https://technet.microsoft.com/en-us/library/ms177516(v=sql.100).aspx
-# MSSQL 2008(r2): https://technet.microsoft.com/en-us/library/ms177516(v=sql.105).aspx
-# MSSQL 2012: https://technet.microsoft.com/en-us/library/ms177516(v=sql.110).aspx
-
-## Aggregate functions
-# MSSQL 2005: https://technet.microsoft.com/en-US/library/ms173454(v=sql.90).aspx
-# MSSQL 2008: https://technet.microsoft.com/en-US/library/ms173454(v=sql.100).aspx
-# MSSQL 2008r2*: https://technet.microsoft.com/en-US/library/ms173454(v=sql.100).aspx
-# MSSQL 2012*: https://technet.microsoft.com/en-US/library/ms173454(v=sql.110).aspx
-# MSSQL 2014: https://technet.microsoft.com/en-US/library/ms173454(v=sql.120).aspx
-#' @importFrom dplyr src_translate_env sql_variant sql_translator base_scalar
-#' @importFrom dplyr base_agg sql_prefix base_win
-#' @export
-src_translate_env.src_sqlserver <- function (x) {
-  sql_variant(
-    scalar = sql_translator(.parent = base_scalar,
-      # http://sqlserverplanet.com/tsql/format-string-to-date
-      as.POSIXct = function(x) build_sql("CAST(", x, " AS DATETIME)"),
-      # DATE data type only available since SQL Server 2008
-      as.Date = function (x) build_sql("CAST(", x, " AS DATE)")
-    ),
-    aggregate = sql_translator(.parent = base_agg,
-      n = function() sql("COUNT(*)"),
-      mean = sql_prefix('AVG'),
-      sd = sql_prefix("STDEV"),
-      sdp = sql_prefix("STDEVP"),
-      varp = sql_prefix("VARP")
-    ),
-    window = base_win
-  )
-}
-
-
-#' @importFrom dplyr copy_to
+#' @importFrom dplyr copy_to db_data_type
 #' @export
 
 copy_to.src_sqlserver <- function (dest, df, name = deparse(substitute(df)),
-  types = NULL, temporary = TRUE, indexes = NULL, analyze = TRUE, ...) {
+  types = NULL, temporary = TRUE, unique_indexes = NULL, indexes = NULL, ...) {
+  # Modified version of dplyr method:
+  # https://github.com/hadley/dplyr/blob/7a4780b083341108a78dcef83e874b5bfa785566/R/tbl-sql.r#L327
+  # Modification necessary because temporary tables in SQL Server are
+  # prefixed by `#` and so db_insert_into() needs to pick up this name from
+  # db_create_table() whereas this isn't necessary in dplyr method.
   assertthat::assert_that(is.data.frame(df), assertthat::is.string(name),
     assertthat::is.flag(temporary))
+  class(df) <- "data.frame" # avoid S4 dispatch problem in dbSendPreparedQuery
+  if (isTRUE(db_has_table(dest$con, name))) {
+    stop("Table ", name, " already exists.", call. = FALSE)
+  }
+  types <- types %||% db_data_type(dest$con, df)
+  names(types) <- names(df)
   con <- dest$con
-  if (temporary) name <- paste0("#", name)
-  # DB to throw error if table `name` already exists
-  dbWriteTable(con, name, df, overwrite = FALSE, append = FALSE)
-  db_create_indexes(con, name, indexes)
-  if (analyze) db_analyze(con, name)
+  db_begin(con)
+  on.exit(db_rollback(con))
+  name <- db_create_table(con, name, types, temporary = temporary)
+  db_insert_into(con, name, df)
+  db_create_indexes(con, name, unique_indexes, unique = TRUE)
+  db_create_indexes(con, name, indexes, unique = FALSE)
+  # SQL Server doesn't have ANALYZE TABLE support so this part of
+  # copy_to.src_sql has been dropped
+  db_commit(con)
   on.exit(NULL)
   tbl(dest, name)
 }
 
 
-#' @importFrom dplyr compute groups
+#' @importFrom dplyr compute op_vars select_ sql_render tbl group_by_ groups
+#' @importFrom dplyr db_create_indexes %>% db_begin db_rollback db_commit
 #' @export
-compute.tbl_sqlserver <- function (x, name = random_ident_name(),
-  temporary = TRUE, ...) {
-  name <- db_save_query(x$src$con, x$query$sql, name = name,
-    temporary = temporary)
-  update(tbl(x$src, name), group_by = groups(x))
-}
+compute.tbl_sqlserver <- function(x, name = random_table_name(), temporary = TRUE,
+  unique_indexes = list(), indexes = list(), ...) {
 
-#' Intersect and setdiff methods
-#'
-#' Customised intersect and setdiff methods for the dplyr generics (which
-#' override base package function definitions). These methods
-#' only support SQL Server 2005 and greater.
-#'
-#' @param x,y objects to compare (ignoring order)
-#' @param copy If \code{x} and \code{y} are not from the same data source,
-#'   and \code{copy} is \code{TRUE}, then \code{y} will be copied into the
-#'   same src as \code{x}.  This allows you to join tables across srcs, but
-#'   it is a potentially expensive operation so you must opt into it.
-#' @param ... other arguments passed on to methods
-#' @importFrom dplyr intersect sql_set_op
-#' @export intersect
-#' @export
-#' @seealso \code{\link[dplyr]{setdiff}} \code{\link[dplyr]{intersect}}
-#' @aliases setdiff intersect
-#' @name setops
-intersect.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
-  # SQL Server 2000 does not support INTERSECT or EXCEPT
-  assertthat::assert_that(x$src$info$db.version > 8, y$src$info$db.version > 8)
-  y <- auto_copy(x, y, copy)
-  sql <- sql_set_op(x$src$con, x, y, "INTERSECT")
-  update(tbl(x$src, sql), group_by = groups(x))
-}
+  # Based on dplyr:
+  # https://github.com/hadley/dplyr/blob/284b91d7357cd3c184843bf9206d19cc8c0cd0e3/R/tbl-sql.r#L364
+  # Modified because db_save_query returns a temp table name which must be used
+  # by subsequent method calls.
 
-#' @importFrom dplyr setdiff
-#' @export setdiff
-#' @export
-#' @rdname setops
-setdiff.tbl_sqlserver <- function(x, y, copy = FALSE, ...) {
-  # SQL Server 2000 does not support INTERSECT or EXCEPT
-  assertthat::assert_that(x$src$info$db.version > 8, y$src$info$db.version > 8)
-  y <- auto_copy(x, y, copy)
-  sql <- sql_set_op(x$src$con, x, y, "EXCEPT")
-  update(tbl(x$src, sql), group_by = groups(x))
-}
-
-#' @importFrom stats update
-#' @export
-update.tbl_sqlserver <- function(object, ...) {
-  # Exact copy of dplyr method and in particular, not simply call NextMethod()
-  # because I need update to call the RSQLServer specific copy of build_query.
-  # See #40 and #49.
-  args <- list(...)
-  assertthat::assert_that(only_has_names(args,
-    c("select", "where", "group_by", "order_by", "summarise")))
-
-  for (nm in names(args)) {
-    object[[nm]] <- args[[nm]]
+  if (!is.list(indexes)) {
+    indexes <- as.list(indexes)
+  }
+  if (!is.list(unique_indexes)) {
+    unique_indexes <- as.list(unique_indexes)
   }
 
-  # Figure out variables
-  if (is.null(object$select)) {
-    var_names <- db_query_fields(object$src$con, object$from)
-    vars <- lapply(var_names, as.name)
-    object$select <- vars
-  }
+  vars <- op_vars(x)
+  assertthat::assert_that(all(unlist(indexes) %in% vars))
+  assertthat::assert_that(all(unlist(unique_indexes) %in% vars))
+  x_aliased <- select_(x, .dots = vars) # avoids problems with SQLite quoting (#1754)
+  name <- db_save_query(x$src$con, sql_render(x_aliased), name = name, temporary = temporary)
+  db_create_indexes(x$src$con, name, unique_indexes, unique = TRUE)
+  db_create_indexes(x$src$con, name, indexes, unique = FALSE)
 
-  object$query <- build_query(object)
-  object
+  tbl(x$src, name) %>% group_by_(.dots = groups(x))
 }
-
-

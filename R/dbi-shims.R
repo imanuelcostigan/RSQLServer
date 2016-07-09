@@ -14,60 +14,76 @@ db_has_table.SQLServerConnection <- function (con, table) {
   NA
 }
 
-#' @importFrom dplyr db_query_rows sql_subquery
-#' @export
-db_query_rows.SQLServerConnection <- function(con, sql, ...) {
-  # This is needed because DBI method doesn't name the resulting count and
-  # the RSQLServer dbGetQuery->dbFetch query expects a name for each column.
-  from <- sql_subquery(con, sql, "master")
-  rows <- build_sql("SELECT count(*) AS COUNT FROM ", from, con = con)
-  as.integer(dbGetQuery(con, rows)[[1]])
-}
-
-
-#' @importFrom dplyr db_query_fields
-#' @export
-db_query_fields.SQLServerConnection <- function (con, sql, ...) {
-  # Using MSFT recommendation linked here:
-  # https://github.com/imanuelcostigan/RSQLServer/issues/23
-  fields <- build_sql("SELECT TOP 0 * FROM ", sql, con = con)
-  qry <- dbSendQuery(con, fields)
-  on.exit(dbClearResult(qry))
-  jdbcColumnNames(qry@md)
-}
-
-#' @importFrom dplyr db_save_query
+#' @importFrom dplyr db_save_query sql_subquery
 #' @export
 db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
   ...) {
   # http://smallbusiness.chron.com/create-table-query-results-microsoft-sql-50836.html
   if (temporary) name <- paste0("#", name)
-  tt_sql <- build_sql("SELECT * INTO ", ident(name), " FROM ",
+  qry <- build_sql("SELECT * INTO ", ident(name), " FROM ",
     sql_subquery(con, sql), con = con)
-  dbSendUpdate(con, tt_sql)
+  dbExecute(con, qry)
   name
+}
+
+#' @importFrom dplyr db_create_table escape ident sql_vector build_sql
+#' @export
+
+db_create_table.SQLServerConnection <- function(con, table, types,
+  temporary = FALSE, ...) {
+  assertthat::assert_that(assertthat::is.string(table), is.character(types))
+  field_names <- escape(ident(names(types)), collapse = NULL, con = con)
+  fields <- sql_vector(paste0(field_names, " ", types), parens = TRUE,
+    collapse = ", ", con = con)
+  if (temporary) table <- paste0("#", table)
+  sql <- build_sql("CREATE TABLE ", ident(table), " ", fields, con = con)
+  dbExecute(con, sql)
+  # Needs to return table name as temp tables are prefixed by `#` in SQL Server
+  table
+}
+
+#' @importFrom dplyr db_insert_into
+#' @export
+
+db_insert_into.SQLServerConnection <- function(con, table, values, ...) {
+  # Only used in dplyr's copy_to which creates a table just before inserting
+  # data into it. Therefore, overwrite = FALSE, append = TRUE is safest
+  # option
+  dbWriteTable(con, table, values, overwrite = FALSE, append = TRUE)
 }
 
 #' @importFrom dplyr db_drop_table
 #' @export
-db_drop_table.SQLServerConnection <- function (con, table, force = FALSE, ...) {
-  message("The 'force' argument is ignored.")
-  dbRemoveTable(con, table)
+
+db_drop_table.SQLServerConnection <- function(con, table, force = FALSE, ...) {
+  # IF EXISTS only supported by SQL Server 2016 (v. 13) and above.
+  qry <- paste0("DROP TABLE ", if (force && con$db.version > 12) "IF EXISTS ",
+    dbQuoteIdentifier(con, table))
+  assertthat::is.number(dbExecute(con, qry))
+}
+
+#' @importFrom dplyr db_create_index
+#' @export
+db_create_index.SQLServerConnection <- function(con, table, columns,
+  name = NULL, unique = FALSE, ...) {
+  # Modified from:
+  # https://github.com/hadley/dplyr/blob/053a996cb12aeb8c0ac305cbe268c5590a4ea3e5/R/dbi-s3.r#L151
+  # Work around: https://github.com/hadley/dplyr/issues/1912
+  # SQL Server index creation does not return result set so dbGetQuery fails.
+  assertthat::assert_that(assertthat::is.string(table), is.character(columns))
+  name <- name %||% paste0(c(table, columns), collapse = "_")
+  fields <- escape(ident(columns), parens = TRUE, con = con)
+  sql <- build_sql(
+    "CREATE ", if (unique) sql("UNIQUE "), "INDEX ", ident(name),
+    " ON ", ident(table), " ", fields,
+    con = con)
+  assertthat::is.number(dbExecute(con, sql))
 }
 
 #' @importFrom dplyr db_analyze ident build_sql
 #' @export
 db_analyze.SQLServerConnection <- function (con, table, ...) {
-  # https://msdn.microsoft.com/en-us/library/ms188038(v=sql.90).aspx
-  # "Only the table owner can create statistics on that table....
-  # Requires ALTER permission on the table or view."
-  # http://ss64.com/sql/stats_c.html
-  name <- paste0("STAT_", random_ident_name())
-  cols <- db_query_fields(con, ident(table))
-  cols <- sql_vector(cols, collapse = ', ', con = con)
-  sql <- build_sql("CREATE STATISTICS ", ident(name),
-    " ON ", ident(table), " ", cols, con = con)
-  dbSendUpdate(con, sql)
+  TRUE
 }
 
 # Inherited db_create_index.DBIConnection method from dplyr
@@ -75,11 +91,14 @@ db_analyze.SQLServerConnection <- function (con, table, ...) {
 #' @importFrom dplyr db_explain
 #' @export
 db_explain.SQLServerConnection <- function (con, sql, ...) {
+  # SET SHOWPLAN_ALL available from SQL Server 2000 on.
+  # https://technet.microsoft.com/en-us/library/aa259203(v=sql.80).aspx
   # http://msdn.microsoft.com/en-us/library/ms187735.aspx
   # http://stackoverflow.com/a/7359705/1193481
-  # dbSendUpdate(con, "SET SHOWPLAN_TEXT ON")
-  # on.exit(dbSendUpdate(con, "SET SHOWPLAN_TEXT OFF"))
-  # dbGetQuery(con, sql)
-  message("SHOWPLAN will be supported in a future release of RSQLServer.")
+  dbExecute(con, "SET SHOWPLAN_ALL ON")
+  on.exit(dbExecute(con, "SET SHOWPLAN_ALL OFF"))
+  res <- dbGetQuery(con, sql) %>%
+    dplyr::select_("StmtId", "NodeId", "Parent", "PhysicalOp", "LogicalOp",
+      "Argument", "TotalSubtreeCost")
+  paste(utils::capture.output(print(res)), collapse = "\n")
 }
-

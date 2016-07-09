@@ -96,7 +96,7 @@ setMethod('dbGetInfo', 'SQLServerDriver', definition = function (dbObj, ...) {
     # jTDS is a JDBC 3.0 driver. This can be determined by calling the
     # getDriverVersion() method of the JtdsDatabaseMetaData class. But
     # this method isn't defined for Driver class - so hard coded.
-    driver.version = "3.0",
+    driver.version = numeric_version("3.0"),
     client.version = rJava::.jcall(dbObj@jdrv, "S", "getVersion"),
     # Max connection defined server side rather than by driver.
     max.connections = NA)
@@ -122,7 +122,8 @@ setMethod('dbGetInfo', 'SQLServerConnection',
       host = rJava::.jfield(dbObj@jc, "S", "serverName"),
       port = rJava::.jfield(dbObj@jc, "I", "portNumber"),
       dbname = rJava::.jfield(dbObj@jc, "S", "currentDatabase"),
-      db.version = rJava::.jfield(dbObj@jc, "S", "databaseProductVersion")
+      db.version = numeric_version(
+        rJava::.jfield(dbObj@jc, "S", "databaseProductVersion"))
     )
   }
 )
@@ -172,7 +173,7 @@ setMethod("dbSendQuery", c("SQLServerConnection", "character"),
     new("SQLServerResult", jr = jr, md = md, stat = stat, pull = rJava::.jnull())
 })
 
-#' @rdname dbExecute
+#' @rdname SQLServerConnection-class
 #' @export
 
 setMethod("dbExecute", c("SQLServerConnection", "character"),
@@ -206,16 +207,17 @@ setMethod("dbExecute", c("SQLServerConnection", "character"),
     }
     x <- rJava::.jgetEx(TRUE)
     if (!rJava::is.jnull(x)) {
-      stop("execute JDBC update query failed in dbExecute (",
-        rJava::.jcall(x, "S", "getMessage"), ")")
+      stop("execute JDBC update query failed in dbExecute: ",
+        rJava::.jcall(x, "S", "getMessage"), call. = FALSE)
     } else {
-      is.integer(res)
+      res
     }
   }
 )
 
-#' @rdname dbExecute
+#' @rdname SQLServerConnection-class
 #' @export
+
 dbSendUpdate <- function (conn, statement, ...) {
   .Deprecated("dbExecute")
   dbExecute(conn, statement)
@@ -244,21 +246,29 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
       # TEXT is being deprecated. Make sure SQL types are UNICODE variants
       # (prefixed by N).
       # https://technet.microsoft.com/en-us/library/aa258271(v=sql.80).aspx
-      if (dbGetInfo(dbObj)$db.version < 9) {
-        "NVARCHAR(4000)"
-      } else {
-        "NVARCHAR(MAX)"
+      n <- max(nchar(as.character(x), keepNA = FALSE))
+      if (n > 4000) {
+        if (dbGetInfo(dbObj)$db.version < 9) {
+          n <- "4000"
+        } else {
+          n <- "MAX"
+        }
       }
+      paste0("NVARCHAR(", n, ")")
     }
 
     binary_type <- function (x) {
       # SQL Server 2000 does not support varbinary(max) type.
-      if (dbGetInfo(dbObj)$db.version < 9) {
-        # https://technet.microsoft.com/en-us/library/aa225972(v=sql.80).aspx
-        "VARBINARY(8000)"
-      } else {
-        "VARBINARY(MAX)"
+      n <- max(nchar(x, keepNA = FALSE))
+      if (n > 8000) {
+        if (dbGetInfo(dbObj)$db.version < 9) {
+          # https://technet.microsoft.com/en-us/library/aa225972(v=sql.80).aspx
+          n <- "8000"
+        } else {
+          n <- "MAX"
+        }
       }
+      paste0("VARBINARY(", n, ")")
     }
 
     date_type <- function (x) {
@@ -323,26 +333,29 @@ setMethod("dbExistsTable", "SQLServerConnection", function (conn, name, ...) {
 #' @rdname SQLServerConnection-class
 #' @export
 setMethod("dbRemoveTable", "SQLServerConnection", function (conn, name, ...) {
-  res <- dbExecute(conn, paste0("DROP TABLE ", dbQuoteIdentifier(conn, name)))
-  assertthat::is.count(res)
+  assertthat::is.number(dbExecute(conn,
+    paste0("DROP TABLE ", dbQuoteIdentifier(conn, name))))
 })
 
 #' @rdname SQLServerConnection-class
 #' @export
 setMethod("dbBegin", "SQLServerConnection", function (conn, ...) {
-  dbExecute(conn, "BEGIN TRANSACTION")
+  rJava::.jcall(conn@jc, "V", "setAutoCommit", FALSE)
+  TRUE
 })
 
 #' @rdname SQLServerConnection-class
 #' @export
 setMethod("dbCommit", "SQLServerConnection", function (conn, ...) {
-  dbExecute(conn, "COMMIT TRANSACTION")
+  rJava::.jcall(conn@jc, "V", "commit")
+  TRUE
 })
 
 #' @rdname SQLServerConnection-class
 #' @export
 setMethod("dbRollback", "SQLServerConnection", function (conn, ...) {
-  dbExecute(conn, "ROLLBACK TRANSACTION")
+  rJava::.jcall(conn@jc, "V", "rollback")
+  TRUE
 })
 
 
@@ -357,7 +370,6 @@ setMethod("dbWriteTable", "SQLServerConnection",
     dbBegin(conn)
     on.exit(dbRollback(conn))
 
-    name <- dbQuoteIdentifier(conn, name)
     tbl_exists <- dbExistsTable(conn, name)
 
     if (tbl_exists && !append && !overwrite) {
@@ -369,6 +381,8 @@ setMethod("dbWriteTable", "SQLServerConnection",
       stop("The table ", name, " does not exist but you are trying to ",
         "append data to it.")
     }
+
+    name <- dbQuoteIdentifier(conn, name)
 
     # NB: if table "name" does not exist, having "overwrite" set to TRUE does
     # not cause problems, so no need for error handling in this case.
@@ -399,24 +413,13 @@ setMethod("dbWriteTable", "SQLServerConnection",
     TRUE
 })
 
-setMethod("dbListFields", "SQLServerConnection",
-  function(conn, name, pattern = "%", ...) {
-    # Based on RJDBC
-    # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L190
-    md <- rJava::.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData",
-      check = FALSE)
-    jdbc_exception(md, "Unable to retrieve database metadata")
-    # Create arguments for call to getTables
-    jns <- rJava::.jnull("java/lang/String")
-    rs <- rJava::.jcall(md, "Ljava/sql/ResultSet;", "getColumns",
-      jns, jns, name, pattern, check = FALSE)
-    jdbc_exception(rs, "Unable to retrieve column names")
-    on.exit(rJava::.jcall(rs, "V", "close"))
-    cns <- character()
-    while (rJava::.jcall(rs, "Z", "next")) {
-      cns <- c(cns, rJava::.jcall(rs, "S", "getString", "COLUMN_NAME"))
-    }
-    cns
+setMethod("dbListFields", "SQLServerConnection", function(conn, name, ...) {
+  # Using MSFT recommendation linked here:
+  # https://github.com/imanuelcostigan/RSQLServer/issues/23
+  qry <- paste0("SELECT TOP 0 * FROM ", dbQuoteIdentifier(conn, name))
+  rs <- dbSendQuery(conn, qry)
+  on.exit(dbClearResult(rs))
+  jdbcColumnNames(rs@md)
 })
 
 setMethod("dbListResults", "SQLServerConnection", function(conn, ...) {
@@ -510,18 +513,6 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
 })
 
 #' @rdname SQLServerResult-class
-#' @export
-setMethod("dbGetInfo", "SQLServerResult", def = function (dbObj, ...) {
-  list(
-    statement = dbObj@stat,
-    row.count = rJava::.jcall(dbObj@jr, "I", "getRow"),
-    rows.affected = rJava::.jcall(dbObj@jr, "I", "getFetchSize"),
-    # http://docs.oracle.com/javase/7/docs/api/java/sql/ResultSet.html#isAfterLast()
-    has.completed = rJava::.jcall(dbObj@jr, "Z", "isAfterLast")
-  )
-})
-
-#' @rdname SQLServerResult-class
 #' @importFrom dplyr data_frame
 #' @export
 setMethod("dbColumnInfo", "SQLServerResult", def = function (res, ...) {
@@ -545,7 +536,7 @@ setMethod("dbColumnInfo", "SQLServerResult", def = function (res, ...) {
 #' @export
 setMethod("dbHasCompleted", "SQLServerResult", def = function (res, ...) {
   # Need to override RJDBC method as it always returns TRUE
-  dbGetInfo(res)$has.completed
+  rJava::.jcall(res@jr, "Z", "isAfterLast")
 })
 
 #' @rdname SQLServerResult-class
@@ -566,12 +557,36 @@ setMethod("dbClearResult", "SQLServerResult", function (res, ...) {
   TRUE
 })
 
+#' @rdname SQLServerResult-class
+#' @export
+setMethod("dbGetStatement", "SQLServerResult", function(res, ...) {
+  res@stat
+})
+
+#' @rdname SQLServerResult-class
+#' @export
+setMethod("dbGetRowCount", "SQLServerResult", function(res, ...) {
+  rJava::.jcall(res@jr, "I", "getRow")
+})
+
+#' @rdname SQLServerResult-class
+#' @export
+setMethod("dbGetRowsAffected", "SQLServerResult", function(res, ...) {
+  rJava::.jcall(res@jr, "I", "getFetchSize")
+})
+
+#' @rdname SQLServerResult-class
+#' @export
+setMethod("dbHasCompleted", "SQLServerResult", function(res, ...) {
+  # http://docs.oracle.com/javase/7/docs/api/java/sql/ResultSet.html#isAfterLast()
+  # If res is empty (row = 0), isAfterLast() will return FALSE, but
+  # dbGetRowCount will return 0L.
+  rJava::.jcall(res@jr, "Z", "isAfterLast") || dbGetRowCount(res) == 0L
+})
+
 # Inherited from DBI:
 # show()
-# dbGetStatement()
-# dbGetRowsAffected()
-# dbGetRowCount()
-
+# dbGetInfo()
 
 # Other ----------------------------------------------------------------
 
@@ -618,8 +633,8 @@ jdbc_exception <- function (object, ...) {
   if (rJava::is.jnull(object)) {
     x <- rJava::.jgetEx(TRUE)
     if (rJava::is.jnull(x))
-      stop(...)
+      stop(..., call. = FALSE)
     else
-      stop(..., " (", rJava::.jcall(x, "S", "getMessage"), ")")
+      stop(..., ": ", rJava::.jcall(x, "S", "getMessage"), call. = FALSE)
   }
 }

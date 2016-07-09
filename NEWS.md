@@ -21,6 +21,21 @@ A number of changes have been made to improve DBI compliance as specified by tes
 - Bumped DBI requirement
 - NB: that more changes should be expected as the DBItest package matures.
 
+## dplyr
+
+A number of changes were made to dplyr backend. As a result, dplyr >= 0.5 is required. Most changes are not visible to users. However, the following are of note:
+
+- Implemented `db_create_table()`, `db_insert_into()` and `db_create_index()` for SQLServerConnection
+- Updated `db_drop_table()` to support `IF EXISTS` SQL clause if supported by 
+SQL Server
+- `db_query_fields()` method for SQLServerConnection removed in favour of default dplyr method. The latter better handles sub-queries.
+- `sql_select()` method supports the `DISTINCT` keyword and includes `TOP` keyword when query results are ordered.
+- `compute()` is now modified version of dplyr default method
+- `db_explain()` is more informative (e.g. prints relative cost of operations)
+- `db_analyze()` unsupported and simply returns `TRUE`.
+- `src_sqlserver` has a nicer print
+- `intersect()` and `setdiff()` methods are deprecated and default `tbl_sql` methods from `dplyr` are called instead.
+
 ## Other changes
 
 - Implemented `dbBegin()`, `dbCommit()`, `dbRollback()` methods and use these in `dbWriteTable()`
@@ -28,7 +43,7 @@ A number of changes have been made to improve DBI compliance as specified by tes
 - Arguments of `dbConnect()` are now `NULL` where other default values were assigned. This does not change the behaviour of the method.
 - Introduced `pattern` argument to `dbListTables()` which allows you to list all tables matching a pattern.
 - `dbExistsTable()` now passed table name to `dbListTables()` as a pattern to be matched which should improve its performance.
-- `dbGetInfo()` for `SQLServerResult` no longer returns the `is.select` element of the output list
+- `dbGetInfo()` for `SQLServerResult` has been deprecated and calls the DBI default method which calls `dbHasCompleted()`, `dbGetRowCount()` etc. The latter methods have been implemented for `SQLServerResult` and are exported.
 - Now rely on DBI supplied `show()` methods
 - Added Travis-CI support
 
