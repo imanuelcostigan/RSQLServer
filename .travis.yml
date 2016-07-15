@@ -3,6 +3,9 @@ r:
   - oldrel
   - release
   - devel
+os:
+  - linux
+  - osx
 cache: packages
 sudo: false
 before_install:
