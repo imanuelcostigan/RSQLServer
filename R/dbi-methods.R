@@ -397,7 +397,6 @@ setMethod("dbWriteTable", "SQLServerConnection",
 
     if (nrow(value) > 0) {
       sql <- sqlAppendTableTemplate(conn, name, value)
-      browser()
       for (j in seq_along(value[[1]])) {
         dbExecute(conn, sql, list = as.list(value[j, ]))
       }
