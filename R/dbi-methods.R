@@ -396,11 +396,8 @@ setMethod("dbWriteTable", "SQLServerConnection",
     }
 
     if (nrow(value) > 0) {
-      fields <- dbQuoteIdentifier(conn, names(value))
-      params <- rep("?", length(fields))
-      sql <- paste0(
-        "INSERT INTO ", name, " (", paste0(fields, collapse = ", "), ")\n",
-        "VALUES (", paste0(params, collapse = ", "), ")")
+      sql <- sqlAppendTableTemplate(conn, name, value)
+      browser()
       for (j in seq_along(value[[1]])) {
         dbExecute(conn, sql, list = as.list(value[j, ]))
       }

@@ -32,11 +32,7 @@ db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
 db_create_table.SQLServerConnection <- function(con, table, types,
   temporary = FALSE, ...) {
   assertthat::assert_that(assertthat::is.string(table), is.character(types))
-  field_names <- escape(ident(names(types)), collapse = NULL, con = con)
-  fields <- sql_vector(paste0(field_names, " ", types), parens = TRUE,
-    collapse = ", ", con = con)
-  if (temporary) table <- paste0("#", table)
-  sql <- build_sql("CREATE TABLE ", ident(table), " ", fields, con = con)
+  sql <- sqlCreateTable(con, table, types, temporary = temporary)
   dbExecute(con, sql)
   # Needs to return table name as temp tables are prefixed by `#` in SQL Server
   table
