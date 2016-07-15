@@ -56,15 +56,17 @@ tbl.src_sqlserver <- function (src, from, ...) {
 #' @importFrom dplyr copy_to db_data_type
 #' @export
 
-copy_to.src_sqlserver <- function (dest, df, name = deparse(substitute(df)),
-  types = NULL, temporary = TRUE, unique_indexes = NULL, indexes = NULL, ...) {
+copy_to.src_sqlserver <- function (dest, df, name = NULL, types = NULL,
+  temporary = TRUE, unique_indexes = NULL, indexes = NULL, ...) {
   # Modified version of dplyr method:
   # https://github.com/hadley/dplyr/blob/7a4780b083341108a78dcef83e874b5bfa785566/R/tbl-sql.r#L327
   # Modification necessary because temporary tables in SQL Server are
   # prefixed by `#` and so db_insert_into() needs to pick up this name from
   # db_create_table() whereas this isn't necessary in dplyr method.
-  assertthat::assert_that(is.data.frame(df), assertthat::is.string(name),
+  assertthat::assert_that(is.data.frame(df),
+    is.null(name) || assertthat::is.string(name),
     assertthat::is.flag(temporary))
+  name <- name %||% deparse(substitute(df))
   class(df) <- "data.frame" # avoid S4 dispatch problem in dbSendPreparedQuery
   if (isTRUE(db_has_table(dest$con, name))) {
     stop("Table ", name, " already exists.", call. = FALSE)
@@ -75,7 +77,7 @@ copy_to.src_sqlserver <- function (dest, df, name = deparse(substitute(df)),
   db_begin(con)
   on.exit(db_rollback(con))
   name <- db_create_table(con, name, types, temporary = temporary)
-  db_insert_into(con, name, df)
+  db_insert_into(con, name, df, temporary = temporary)
   db_create_indexes(con, name, unique_indexes, unique = TRUE)
   db_create_indexes(con, name, indexes, unique = FALSE)
   # SQL Server doesn't have ANALYZE TABLE support so this part of

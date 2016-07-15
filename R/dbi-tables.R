@@ -2,6 +2,7 @@
 #' @rdname SQLServerConnection-class
 setMethod("sqlCreateTable", "SQLServerConnection",
   function(con, table, fields, row.names = NA, temporary = FALSE, ...) {
+    if (temporary) table <- paste0("#", table)
     table <- dbQuoteIdentifier(con, table)
     if (is.data.frame(fields)) {
       fields <- sqlRownamesToColumn(fields, row.names)
@@ -10,10 +11,8 @@ setMethod("sqlCreateTable", "SQLServerConnection",
     field_names <- dbQuoteIdentifier(con, names(fields))
     field_types <- unname(fields)
     fields <- paste0(field_names, " ", field_types)
-    SQL(paste0(
-      "CREATE TABLE ", if (temporary) "# ", table, " (\n",
-      "  ", paste(fields, collapse = ",\n  "), "\n)\n"
-    ))
+    SQL(paste0("CREATE TABLE ", table, " (\n",
+      "  ", paste(fields, collapse = ",\n  "), "\n)\n"))
 })
 
 # Modified from DBI v0.4.2

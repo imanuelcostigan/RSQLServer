@@ -370,28 +370,34 @@ setMethod("dbWriteTable", "SQLServerConnection",
     dbBegin(conn)
     on.exit(dbRollback(conn))
 
-    tbl_exists <- dbExistsTable(conn, name)
+    found <- dbExistsTable(conn, name)
+    temp <- grepl("^#", name)
 
-    if (tbl_exists && !append && !overwrite) {
+    if (found && !append && !overwrite) {
       stop("The table ", name, " exists but you are not overwriting or ",
         "appending to this table.", call. = FALSE)
     }
 
-    if (!tbl_exists && append) {
+    if (!found && append) {
       stop("The table ", name, " does not exist but you are trying to ",
         "append data to it.")
+    }
+
+    if (temp && append) {
+      stop("Appending to a temporary table is unsupported.")
     }
 
     name <- dbQuoteIdentifier(conn, name)
 
     # NB: if table "name" does not exist, having "overwrite" set to TRUE does
     # not cause problems, so no need for error handling in this case.
+    # Let server backend handle case when temp table exists but overwriting it
 
-    if (tbl_exists && overwrite) {
+    if ((found || temp) && overwrite) {
       dbRemoveTable(conn, name)
     }
 
-    if (!tbl_exists || overwrite) {
+    if (!found || temp || overwrite) {
       dbExecute(conn, sqlCreateTable(conn, name, value))
     }
 

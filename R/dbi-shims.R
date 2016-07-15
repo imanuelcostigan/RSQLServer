@@ -41,11 +41,17 @@ db_create_table.SQLServerConnection <- function(con, table, types,
 #' @importFrom dplyr db_insert_into
 #' @export
 
-db_insert_into.SQLServerConnection <- function(con, table, values, ...) {
-  # Only used in dplyr's copy_to which creates a table just before inserting
-  # data into it. Therefore, overwrite = FALSE, append = TRUE is safest
-  # option
-  dbWriteTable(con, table, values, overwrite = FALSE, append = TRUE)
+db_insert_into.SQLServerConnection <- function(con, table, values, temporary, ...) {
+  # Temp tables cannot be appended to in SQL Server as their existence cannot
+  # be checked by the API.
+  if (temporary) {
+    append <- FALSE
+    overwrite <- TRUE
+  } else {
+    append <- TRUE
+    overwrite <- FALSE
+  }
+  dbWriteTable(con, table, values, overwrite = overwrite, append = append)
 }
 
 #' @importFrom dplyr db_drop_table
@@ -53,7 +59,8 @@ db_insert_into.SQLServerConnection <- function(con, table, values, ...) {
 
 db_drop_table.SQLServerConnection <- function(con, table, force = FALSE, ...) {
   # IF EXISTS only supported by SQL Server 2016 (v. 13) and above.
-  qry <- paste0("DROP TABLE ", if (force && con$db.version > 12) "IF EXISTS ",
+  qry <- paste0("DROP TABLE ",
+    if (force && dbGetInfo(con)$db.version > 12) "IF EXISTS ",
     dbQuoteIdentifier(con, table))
   assertthat::is.number(dbExecute(con, qry))
 }

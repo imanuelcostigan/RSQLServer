@@ -27,7 +27,8 @@ A number of changes were made to dplyr backend. As a result, dplyr >= 0.5 is req
 
 - Implemented `db_create_table()`, `db_insert_into()` and `db_create_index()` for SQLServerConnection
 - Updated `db_drop_table()` to support `IF EXISTS` SQL clause if supported by 
-SQL Server
+SQL Server (#75)
+- New `temporary` argument to `db_insert_into()` which overwrites existing table if set to `TRUE` and if necessary. 
 - `db_query_fields()` method for SQLServerConnection removed in favour of default dplyr method. The latter better handles sub-queries.
 - `sql_select()` method supports the `DISTINCT` keyword and includes `TOP` keyword when query results are ordered.
 - `compute()` is now modified version of dplyr default method
@@ -39,6 +40,7 @@ SQL Server
 ## Other changes
 
 - Implemented `dbBegin()`, `dbCommit()`, `dbRollback()` methods and use these in `dbWriteTable()`
+- `dbWriteTable()` now fails when attempting to append to a temporary table (#75)
 - Implemented `sqlCreateTable()` for `SQLServerConnection` which is called by `db_create_table()`. (#76)
 - `dbDataType` maps R character objects of sufficiently long length to `VARCHAR(MAX)` on newer version of MSSQL rather than `TEXT` as the latter is being deprecated.
 - Arguments of `dbConnect()` are now `NULL` where other default values were assigned. This does not change the behaviour of the method.
