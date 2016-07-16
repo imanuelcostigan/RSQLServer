@@ -35,7 +35,8 @@ db_create_table.SQLServerConnection <- function(con, table, types,
   sql <- sqlCreateTable(con, table, types, temporary = temporary)
   dbExecute(con, sql)
   # Needs to return table name as temp tables are prefixed by `#` in SQL Server
-  table
+  if (temporary) prefix <- "#" else prefix <- ""
+  paste0(prefix, table)
 }
 
 #' @importFrom dplyr db_insert_into
