@@ -26,8 +26,10 @@
 # https://stat.ethz.ch/pipermail/r-devel/2013-August/thread.html#67180
 
 
-random_table_name <- function (n = 10) {
-  paste0(sample(letters, n, replace = TRUE), collapse = "")
+random_table_name <- function (n = 10, temp = FALSE) {
+  name <- paste0(sample(letters, n, replace = TRUE), collapse = "")
+  if (temp) prefix <- "#" else prefix <- ""
+  paste0(prefix, name)
 }
 
 compact <- function(x) Filter(Negate(is.null), x)

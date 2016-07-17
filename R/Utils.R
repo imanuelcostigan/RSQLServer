@@ -177,3 +177,45 @@ fetch_rp <- function (rp, out, cts = NULL) {
   }
   out
 }
+
+
+# SQL types --------------------------------------------------------------
+
+char_type <- function (x, con) {
+  # SQL Server 2000 does not support nvarchar(max) type.
+  # TEXT is being deprecated. Make sure SQL types are UNICODE variants
+  # (prefixed by N).
+  # https://technet.microsoft.com/en-us/library/aa258271(v=sql.80).aspx
+  n <- max(nchar(as.character(x), keepNA = FALSE))
+  if (n > 4000) {
+    if (dbGetInfo(con)$db.version < 9) {
+      n <- "4000"
+    } else {
+      n <- "MAX"
+    }
+  }
+  paste0("NVARCHAR(", n, ")")
+}
+
+binary_type <- function (x, con) {
+  # SQL Server 2000 does not support varbinary(max) type.
+  n <- max(nchar(x, keepNA = FALSE))
+  if (n > 8000) {
+    if (dbGetInfo(con)$db.version < 9) {
+      # https://technet.microsoft.com/en-us/library/aa225972(v=sql.80).aspx
+      n <- "8000"
+    } else {
+      n <- "MAX"
+    }
+  }
+  paste0("VARBINARY(", n, ")")
+}
+
+date_type <- function (x, con) {
+  if (dbGetInfo(con)$db.version < 10) {
+    # DATE available in >= SQL Server 2008 (>= v.10)
+    "DATETIME"
+  } else {
+    "DATE"
+  }
+}

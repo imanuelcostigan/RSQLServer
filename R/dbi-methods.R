@@ -240,58 +240,17 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
     # https://msdn.microsoft.com/en-us/library/ms187752.aspx
     # https://msdn.microsoft.com/en-us/library/ms187752(v=sql.90).aspx
 
-    #### Helper functions
-    char_type <- function (x) {
-      # SQL Server 2000 does not support nvarchar(max) type.
-      # TEXT is being deprecated. Make sure SQL types are UNICODE variants
-      # (prefixed by N).
-      # https://technet.microsoft.com/en-us/library/aa258271(v=sql.80).aspx
-      n <- max(nchar(as.character(x), keepNA = FALSE))
-      if (n > 4000) {
-        if (dbGetInfo(dbObj)$db.version < 9) {
-          n <- "4000"
-        } else {
-          n <- "MAX"
-        }
-      }
-      paste0("NVARCHAR(", n, ")")
-    }
-
-    binary_type <- function (x) {
-      # SQL Server 2000 does not support varbinary(max) type.
-      n <- max(nchar(x, keepNA = FALSE))
-      if (n > 8000) {
-        if (dbGetInfo(dbObj)$db.version < 9) {
-          # https://technet.microsoft.com/en-us/library/aa225972(v=sql.80).aspx
-          n <- "8000"
-        } else {
-          n <- "MAX"
-        }
-      }
-      paste0("VARBINARY(", n, ")")
-    }
-
-    date_type <- function (x) {
-      if (dbGetInfo(dbObj)$db.version < 10) {
-        # DATE available in >= SQL Server 2008 (>= v.10)
-        "DATETIME"
-      } else {
-        "DATE"
-      }
-    }
-    ####
-
-    if (is.factor(obj)) return(char_type(obj))
+    if (is.factor(obj)) return(char_type(obj, dbObj))
     if (inherits(obj, "POSIXct")) return("DATETIME")
-    if (inherits(obj, "Date")) return(date_type(obj))
+    if (inherits(obj, "Date")) return(date_type(obj, dbObj))
 
     switch(typeof(obj),
       logical = "BIT",
       integer = "INT",
       double = "FLOAT",
-      raw = binary_type(obj),
-      character = char_type(obj),
-      list = binary_type(obj),
+      raw = binary_type(obj, dbObj),
+      character = char_type(obj, dbObj),
+      list = binary_type(obj, dbObj),
       stop("Unsupported type", call. = FALSE)
     )
   }

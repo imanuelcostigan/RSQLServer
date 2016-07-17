@@ -141,7 +141,9 @@ sql_translate_env.SQLServerConnection <- function (con) {
       # http://sqlserverplanet.com/tsql/format-string-to-date
       as.POSIXct = function(x) build_sql("CAST(", x, " AS DATETIME)"),
       # DATE data type only available since SQL Server 2008
-      as.Date = function (x) build_sql("CAST(", x, " AS DATE)")
+      as.Date = function (x) build_sql("CAST(", x, " AS DATE)"),
+      as.numeric = function(x) build_sql("CAST(", x, " AS FLOAT)"),
+      as.character = function(x) build_sql("CAST(", x, " AS NVARCHAR(4000))")
     ),
     aggregate = sql_translator(.parent = base_agg,
       n = function() sql("COUNT(*)"),
