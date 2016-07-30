@@ -186,10 +186,10 @@ setMethod("dbExecute", c("SQLServerConnection", "character"),
     if (length(list(...)) || length(list)) {
       stat <- rJava::.jcall(conn@jc, "Ljava/sql/PreparedStatement;",
         "prepareStatement", statement, check = FALSE)
+      on.exit(rJava::.jcall(stat, "V", "close"))
       jdbc_exception(stat, "Unable to execute JDBC prepared statement ",
         statement)
       # this will fix issue #4 and http://stackoverflow.com/q/21603660/2161065
-      on.exit(rJava::.jcall(stat, "V", "close"))
       if (length(list(...))) {
         .fillStatementParameters(stat, list(...))
       }
@@ -199,10 +199,10 @@ setMethod("dbExecute", c("SQLServerConnection", "character"),
       res <- rJava::.jcall(stat, "I", "executeUpdate", check = FALSE)
     } else {
       stat <- rJava::.jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
+      on.exit(rJava::.jcall(stat, "V", "close"))
       jdbc_exception(stat, "Unable to create JDBC statement ", statement)
       # In theory following is not necesary since 'stat' will go away and be
       # collected, but apparently it may be too late for Oracle (ORA-01000)
-      on.exit(rJava::.jcall(stat, "V", "close"))
       res <- rJava::.jcall(stat, "I", "executeUpdate", statement, check = FALSE)
     }
     x <- rJava::.jgetEx(TRUE)
