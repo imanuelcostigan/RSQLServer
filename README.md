@@ -1,5 +1,6 @@
 # RSQLServer
 
+[![CRAN](http://www.r-pkg.org/badges/version/RSQLServer)](http://cran.r-project.org/package=RSQLServer)
 [![Travis-CI Build Status](https://travis-ci.org/imanuelcostigan/RSQLServer.svg?branch=master)](https://travis-ci.org/imanuelcostigan/RSQLServer)
 
 An R package that provides a SQL Server R Database Interface ([DBI](https://github.com/rstats-db/DBI)), based on the cross-platform [jTDS JDBC driver](http://jtds.sourceforge.net/index.html).
