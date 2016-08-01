@@ -19,8 +19,6 @@ Or try the development version from GitHub:
 devtools::install_github('imanuelcostigan/RSQLServer')
 ```
 
-NB: This package has been tested on Windows 7 x64 (>= 6.1) and OSX. 
-
 ## Config file
 
 We recommend that you store server details and credentials in `~/sql.yaml`. This is partly so that you do not need to specify a username and password in calls to `dbConnect()`. But it is also because in testing, we've found that the jTDS single sign-on (SSO) library is a bit flaky. The contents of this file should look something like this:
