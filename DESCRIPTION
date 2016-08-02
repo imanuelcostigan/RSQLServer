@@ -31,7 +31,8 @@ Imports:
     purrr (>= 0.2.1)
 Suggests:
     testthat,
-    DBItest (>= 1.3)
+    DBItest (>= 1.3),
+    covr
 Remotes:
     rstats-db/DBI@v0.4-2,
     hadley/dplyr#1997
