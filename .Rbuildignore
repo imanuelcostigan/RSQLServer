@@ -8,3 +8,4 @@
 ^CONTRIBUTING\.md$
 ^\.travis\.yml$
 ^codecov\.yml$
+^buildMSSQLResultPull\.sh$
