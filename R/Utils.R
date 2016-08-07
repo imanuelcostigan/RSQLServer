@@ -170,6 +170,12 @@ fetch_rp <- function (rp, out, cts = NULL) {
   out
 }
 
+rp_to_r_type_map <- function (ctypes) {
+  rp_to_r <- purrr::set_names(0:5,
+    c("character", "numeric", "integer", "character", "character", "logical"))
+  assertthat::assert_that(all(ctypes %in% rp_to_r))
+  names(rp_to_r)[match(ctypes, rp_to_r)]
+}
 
 # SQL types --------------------------------------------------------------
 

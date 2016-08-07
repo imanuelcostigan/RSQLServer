@@ -442,36 +442,47 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
     # 2L - integer
     # 3L - date
     # 4L - datetime/timestamp
-    cts <- rJava::.jcall(rp, "[I", "mapColumns")
-    out <- vector("list", length(cts))
+    ctypes <- rJava::.jcall(rp, "[I", "mapColumns")
+    cnames <- rJava::.jcall(rp, "[S", "columnNames")
+    ctypes_r <- rp_to_r_type_map(ctypes)
+    out <- create_empty_lst(ctypes_r, cnames)
 
     ###### Fetch into cache and pull from cache into R
     if (n < 0L) { ## infinite pull
+      # stride - set capacity of cache
+      # block - set fetch size which gives driver hint as to # rows to be fetched
       stride <- 32768L  ## start fairly small to support tiny queries and increase later
       while ((nrec <- rJava::.jcall(rp, "I", "fetch", stride, block)) > 0L) {
-        out <- fetch_rp(rp, out, cts)
+        out <- fetch_rp(rp, out, ctypes)
         if (nrec < stride) break
         stride <- 524288L # 512k
       }
-    } else if (n > 0L) {
-      nrec <- rJava::.jcall(rp, "I", "fetch", as.integer(n), block)
-      out <- fetch_rp(rp, out, cts)
-    } else { # n == 0L
-      out <- fetch_rp(rp, out, cts)
     }
-    names(out) <- rJava::.jcall(rp, "[S", "columnNames")
+    if (n > 0L) {
+      nrec <- rJava::.jcall(rp, "I", "fetch", as.integer(n), block)
+      out <- fetch_rp(rp, out, ctypes)
+    }
+    # n = 0 is taken care of by creation of `out` list variable above.
     if (length(out[[1]]) > 0) {
-      out <- purrr::map_if(out, cts == 3L, as.Date,
+      out <- purrr::map_if(out, ctypes == 3L, as.Date,
         format = "%Y-%m-%d")
-      out <- purrr::map_if(out, cts == 4L, as.POSIXct,
+      out <- purrr::map_if(out, ctypes == 4L, as.POSIXct,
         tz = "UTC", format = "%Y-%m-%d %H:%M:%OS")
-      out <- purrr::map_if(out, cts == 5L, as.logical)
+      out <- purrr::map_if(out, ctypes == 5L, as.logical)
     }
     # as.data.frame is expensive - create it on the fly from the list
     attr(out, "row.names") <- c(NA_integer_, length(out[[1]]))
     class(out) <- "data.frame"
     out
 })
+
+create_empty_lst <- function (types, names, n = 0L) {
+  assertthat::assert_that(length(types) == length(names),
+    n == 0L || assertthat::is.count(n))
+  purrr::map(types, vector, length = n) %>%
+    purrr::set_names(names)
+}
+
 
 #' @rdname SQLServerResult-class
 #' @importFrom dplyr data_frame
