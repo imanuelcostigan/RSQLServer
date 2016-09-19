@@ -146,6 +146,9 @@ setMethod("dbDisconnect", "SQLServerConnection", function (conn, ...) {
   }
 })
 
+#' @param batch logical, indicates whether uploads (e.g., 'INSERT' or
+#'   'UPDATE') should be uploaded in batches, potentially much faster
+#'   than by individual rows (the default).
 #' @rdname SQLServerConnection-class
 #' @export
 
@@ -444,6 +447,12 @@ setMethod("fetch", c("SQLServerPreResult", "numeric"),
     fetch(new("SQLServerResult", res, jr = jr, md = md), n)
 })
 
+#' @param batch logical, indicates whether uploads (e.g., 'INSERT' or
+#'   'UPDATE') should be uploaded in batches, potentially much faster
+#'   than by individual rows (the default). (Setting it here enabled
+#'   binding the variables in batches, the actual batched upload is
+#'   done in \code{\link{dbSendStatement}} or
+#'   \code{\link{dbExecute}}.)
 #' @rdname SQLServerResult-class
 #' @export
 setMethod("dbBind", "SQLServerPreResult", function(res, params, ..., batch = FALSE) {

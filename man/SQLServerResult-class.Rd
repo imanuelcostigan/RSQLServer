@@ -26,7 +26,7 @@
 
 \S4method{fetch}{SQLServerPreResult,numeric}(res, n = -1, ...)
 
-\S4method{dbBind}{SQLServerPreResult}(res, params, ...)
+\S4method{dbBind}{SQLServerPreResult}(res, params, ..., batch = FALSE)
 
 \S4method{dbFetch}{SQLServerResult,numeric}(res, n = -1, ...)
 
@@ -47,6 +47,14 @@
 \S4method{dbGetRowsAffected}{SQLServerUpdateResult}(res, ...)
 
 \S4method{dbHasCompleted}{SQLServerResult}(res, ...)
+}
+\arguments{
+\item{batch}{logical, indicates whether uploads (e.g., 'INSERT' or
+'UPDATE') should be uploaded in batches, potentially much faster
+than by individual rows (the default). (Setting it here enabled
+binding the variables in batches, the actual batched upload is
+done in \code{\link{dbSendStatement}} or
+\code{\link{dbExecute}}.)}
 }
 \description{
 The \code{SQLServerPreResult} class extends the \code{DBIResult} class, the

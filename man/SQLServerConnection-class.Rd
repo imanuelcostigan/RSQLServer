@@ -31,7 +31,7 @@
   params = NULL, ...)
 
 \S4method{dbSendStatement}{SQLServerConnection,character}(conn, statement,
-  params = NULL, ...)
+  params = NULL, ..., batch = FALSE)
 
 dbSendUpdate(conn, statement, ...)
 
@@ -56,6 +56,11 @@ dbSendUpdate(conn, statement, ...)
 
 \S4method{sqlCreateTable}{SQLServerConnection}(con, table, fields,
   row.names = NA, temporary = FALSE, ...)
+}
+\arguments{
+\item{batch}{logical, indicates whether uploads (e.g., 'INSERT' or
+'UPDATE') should be uploaded in batches, potentially much faster
+than by individual rows (the default).}
 }
 \description{
 SQL Server Connection class
