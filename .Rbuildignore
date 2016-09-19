@@ -7,5 +7,11 @@
 ^\.github$
 ^CONTRIBUTING\.md$
 ^\.travis\.yml$
+^appveyor\.yml$
+^secure-file$
+^\.vs$
+^.*\.tss$
+^.*\.rxproj$
+^.*\.sln$
 ^codecov\.yml$
 ^buildMSSQLResultPull\.sh$
