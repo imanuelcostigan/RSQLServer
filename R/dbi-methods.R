@@ -168,7 +168,7 @@ setMethod("dbSendQuery", c("SQLServerConnection", "character"),
       return(pre_res)
     } else {
       if (is_parameterised(ps) && !is.null(params)) {
-        dbBind(pre_res, params)
+        dbBind(pre_res, params, batch = FALSE)
       }
       jr <- execute_query(pre_res@stat)
       catch_exception(jr, "Unable to retrieve result set for ", statement)
@@ -183,22 +183,49 @@ setMethod("dbSendQuery", c("SQLServerConnection", "character"),
 #' @export
 
 setMethod("dbSendStatement", c("SQLServerConnection", "character"),
-  function(conn, statement, params = NULL, ...) {
+  function(conn, statement, params = NULL, ..., batch = FALSE) {
     assertthat::assert_that(assertthat::is.string(statement),
       is.null(params) || is.list(params))
-    if(!is.null(params)) {
-      s <- create_prepared_statement(conn, statement)
-      catch_exception(s, "Unable to create prepared statement ", statement)
-      on.exit(close_statement(s))
-      ps_bind_all(params, s)
-      res <- execute_update(s, check = TRUE)
+    ps <- create_prepared_statement(conn, statement)
+    catch_exception(ps, "Unable to create statement ", statement)
+    pre_res <- new("SQLServerPreResult", stat = ps)
+    qry_nparams <- num_parameters(ps)
+    no_params <- is.null(params)
+    if (qry_nparams > 0) {
+      if (no_params) {
+        return(pre_res)
+      } else {
+        # parameterized and params supplied
+        if (length(params) != qry_nparams) {
+          stop("length of 'params' (", length(params), ") ",
+            "different than statement parameter count (", qry_nparams, "): ",
+            statement, call. = FALSE)
+        }
+        ac <- is_autocommit(conn)
+        if (ac) {
+          dbBegin(conn)
+          on.exit(dbRollback(conn))
+        }
+        params <- expand_args(params = params)
+        maxlen <- length(params[[1L]])
+        if (batch) {
+          dbBind(pre_res, params, batch = TRUE)
+          num <- sum(execute_batch(ps, check = TRUE))
+        } else {
+          jrs <- lapply(seq_len(maxlen), function(i) {
+            dbBind(pre_res, lapply(params, `[[`, i), batch = FALSE)
+            execute_update(ps, check = TRUE)
+          })
+          num <- sum(unlist(jrs))
+        }
+        if (ac) dbCommit(conn)
+        on.exit(NULL) # remove dbRollback
+      }
     } else {
-      s <- create_statement(conn)
-      catch_exception(s, "Unable to create statement ", statement)
-      on.exit(close_statement(s))
-      res <- execute_update(s, statement, check = TRUE)
+      # not parameterized
+      num <- execute_update(ps, check = TRUE)
     }
-    res <- dbSendQuery(conn, paste("SELECT", res, "AS ROWS_AFFECTED"))
+    res <- dbSendQuery(conn, paste("SELECT", num, "AS ROWS_AFFECTED"))
     new("SQLServerUpdateResult", res)
 })
 
@@ -294,6 +321,7 @@ setMethod("dbBegin", "SQLServerConnection", function (conn, ...) {
 #' @export
 setMethod("dbCommit", "SQLServerConnection", function (conn, ...) {
   rJava::.jcall(conn@jc, "V", "commit")
+  rJava::.jcall(conn@jc, "V", "setAutoCommit", TRUE)
   TRUE
 })
 
@@ -418,8 +446,8 @@ setMethod("fetch", c("SQLServerPreResult", "numeric"),
 
 #' @rdname SQLServerResult-class
 #' @export
-setMethod("dbBind", "SQLServerPreResult", function(res, params, ...) {
-  rs_bind_all(params, res)
+setMethod("dbBind", "SQLServerPreResult", function(res, params, ..., batch = FALSE) {
+  rs_bind_all(params, res, batch = batch)
 })
 
 #' @rdname SQLServerResult-class

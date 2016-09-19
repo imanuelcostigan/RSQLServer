@@ -15,7 +15,8 @@ Authors@R: c(person("Imanuel", "Costigan", role = c("aut", "cre"),
                     role = "ctb"),
              person("Romain", "Francois", email = "romain@r-enthusiasts.com",
                     role = "ctb"),
-             person("Bill", "Evans", email = "bill@8pawsexpress.com", role = "ctb"),
+             person("Bill", "Evans", email = "bill@8pawsexpress.com",
+                    role = "ctb"),
              person("RStudio", role = "cph"),
              person("The Legion Of The Bouncy Castle", role = c("cph", "ctb")))
 Description: Utilises The jTDS Project's JDBC 3.0 SQL Server

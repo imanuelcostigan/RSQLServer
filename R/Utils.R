@@ -186,37 +186,51 @@ create_empty_lst <- function (types, names, n = 0L) {
 
 # Bindings ----------------------------------------------------------------
 
-rs_bind_all <- function(params, rs) {
-  ps_bind_all(params, rs@stat)
+rs_bind_all <- function(params, rs, ..., batch = TRUE) {
+  ps_bind_all(params, rs@stat, batch = batch)
 }
 
-ps_bind_all <- function(params, ps) {
-  purrr::walk2(seq_along(params), params, ps_bind, ps)
-}
+ps_bind_all <- function(params, ps, batch = TRUE) {
+  if (! batch && any(lengths(params) > 1L)) {
+    warning("'batch' disabled with multi-row params, only first of each param applied")
+    params <- lapply(params, `[[`, 1L)
+  }
 
-ps_bind <- function(i, param, ps) {
-  if (is.na(param)) {
-    ps_bind_null(i, param, ps)
-  } else if (is.integer(param)) {
-    ps_bind_int(i, param, ps)
-  } else if (is.numeric(param)) {
-    ps_bind_dbl(i, param, ps)
-  } else if (is.logical(param)) {
-    ps_bind_bln(i, param, ps)
-  } else if (inherits(param, "Date")) {
-    ps_bind_dte(i, param, ps)
-  } else if (inherits(param, "POSIXct")) {
-    ps_bind_tme(i, param, ps)
-  } else if (is.raw(param)) {
-    ps_bind_raw(i, param, ps)
-  } else {
-    ps_bind_str(i, param, ps)
+  is_na <- lapply(params, is.na)
+  is_logical <- vapply(params, is.logical, logical(1))
+  is_integer <- vapply(params, is.integer, logical(1))
+  is_numeric <- vapply(params, is.numeric, logical(1))
+  is_date <- vapply(params, inherits, logical(1), "Date")
+  is_posix <- vapply(params, inherits, logical(1), "POSIXct")
+  is_other <- ! (is_logical | is_numeric | is_date | is_posix)
+
+  sqlTypes <- rToJdbcType(vapply(params, function(a) class(a)[1], character(1)))
+
+  for (j in seq_along(params[[1]])) {
+    for (i in seq_along(params)) {
+      if (is_na[[i]][[j]]) {
+        ps_bind_null(i, NULL, ps, jtype = sqlTypes[i])
+      } else if (is_integer[i]) {
+        ps_bind_int(i, params[[i]][[j]], ps)
+      } else if (is_numeric[i]) {
+        ps_bind_dbl(i, params[[i]][[j]], ps)
+      } else if (is_logical[i]) {
+        ps_bind_bln(i, params[[i]][[j]], ps)
+      } else if (is_date[i]) {
+        ps_bind_dte(i, params[[i]][[j]], ps)
+      } else if (is_posix[i]) {
+        ps_bind_tme(i, params[[i]][[j]], ps)
+      } else {
+        ps_bind_str(i, params[[i]][[j]], ps)
+      }
+    }
+    if (batch) rJava::.jcall(ps, "V", "addBatch")
   }
 }
 
-ps_bind_null <- function(i, param, ps) {
-  rJava::.jcall(ps, "V", "setNull", i,
-    as.integer(rToJdbcType(class(param))))
+ps_bind_null <- function(i, param, ps, jtype) {
+  if (missing(jtype)) jtype <- as.integer(rToJdbcType(class(param)))
+  rJava::.jcall(ps, "V", "setNull", i, jtype)
 }
 
 ps_bind_int <- function(i, param, ps) {
@@ -262,6 +276,11 @@ is_parameterised <- function(ps) {
   rJava::.jcall(md, "I", "getParameterCount") > 0
 }
 
+num_parameters <- function(ps) {
+  md <- rJava::.jcall(ps, "Ljava/sql/ParameterMetaData;", "getParameterMetaData")
+  rJava::.jcall(md, "I", "getParameterCount")
+}
+
 # SQL types --------------------------------------------------------------
 
 char_type <- function (x, con) {
@@ -301,4 +320,11 @@ date_type <- function (x, con) {
   } else {
     "DATE"
   }
+}
+
+# force recycling if elements are of different lengths
+expand_args <- function(..., params, maxlen) {
+  if (missing(params)) params <- list(...)
+  if (missing(maxlen)) maxlen <- max(vapply(params, length, integer(1L)))
+  lapply(params, rep, length.out = maxlen)
 }

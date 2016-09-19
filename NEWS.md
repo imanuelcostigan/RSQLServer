@@ -57,6 +57,7 @@ SQL Server (#75)
 - `dbIsValid()` implemented for `SQLServerDriver` and always returns `TRUE`.
 - Now rely on DBI supplied `show()` methods
 - Added Travis-CI (#83, #84) and Appveyor support (#80, @Hong-Revo)
+- added `dbSendStatement(..., batch = TRUE)` for insert/update speedup
 
 # Version 0.2.0
 
