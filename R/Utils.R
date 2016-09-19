@@ -177,6 +177,91 @@ rp_to_r_type_map <- function (ctypes) {
   names(rp_to_r)[match(ctypes, rp_to_r)]
 }
 
+create_empty_lst <- function (types, names, n = 0L) {
+  assertthat::assert_that(length(types) == length(names),
+    n == 0L || assertthat::is.count(n))
+  purrr::map(types, vector, length = n) %>%
+    purrr::set_names(names)
+}
+
+# Bindings ----------------------------------------------------------------
+
+rs_bind_all <- function(params, rs) {
+  ps_bind_all(params, rs@stat)
+}
+
+ps_bind_all <- function(params, ps) {
+  purrr::walk2(seq_along(params), params, ps_bind, ps)
+}
+
+ps_bind <- function(i, param, ps) {
+  if (is.na(param)) {
+    ps_bind_null(i, param, ps)
+  } else if (is.integer(param)) {
+    ps_bind_int(i, param, ps)
+  } else if (is.numeric(param)) {
+    ps_bind_dbl(i, param, ps)
+  } else if (is.logical(param)) {
+    ps_bind_bln(i, param, ps)
+  } else if (inherits(param, "Date")) {
+    ps_bind_dte(i, param, ps)
+  } else if (inherits(param, "POSIXct")) {
+    ps_bind_tme(i, param, ps)
+  } else if (is.raw(param)) {
+    ps_bind_raw(i, param, ps)
+  } else {
+    ps_bind_str(i, param, ps)
+  }
+}
+
+ps_bind_null <- function(i, param, ps) {
+  rJava::.jcall(ps, "V", "setNull", i,
+    as.integer(rToJdbcType(class(param))))
+}
+
+ps_bind_int <- function(i, param, ps) {
+  rJava::.jcall(ps, "V", "setInt", i, param)
+}
+
+ps_bind_dbl <- function(i, param, ps) {
+  rJava::.jcall(ps, "V", "setDouble", i, param)
+}
+
+ps_bind_bln <- function(i, param, ps) {
+  rJava::.jcall(ps, "V", "setBoolean", i, param)
+}
+
+ps_bind_dte <- function(i, param, ps) {
+  # as.POSIXlt sets time to midnight UTC whereas as.POSIXct sets time to
+  # local timezone. The tz argument is ignored when a Date is passed to
+  # either function
+  ms <- as.numeric(as.POSIXlt(param)) * 1000
+  rJava::.jcall(ps, "V", "setDate", i,
+    rJava::.jnew("java/sql/Date", rJava::.jlong(ms)))
+}
+
+ps_bind_tme <- function(i, param, ps) {
+  # as.integer converts POSIXct to seconds since epoch. Timestamp
+  # constructor needs milliseconds so multiply by 1000
+  # http://docs.oracle.com/javase/7/docs/api/java/sql/Timestamp.html
+  ms <- as.numeric(param) * 1000
+  rJava::.jcall(ps, "V", "setTimestamp", i,
+    rJava::.jnew("java/sql/Timestamp", rJava::.jlong(ms)))
+}
+
+ps_bind_raw <- function(i, param, ps) {
+  rJava::.jcall(ps, "V", "setByte", i, rJava::.jbyte(as.raw(param)))
+}
+
+ps_bind_str <- function(i, param, ps) {
+  rJava::.jcall(ps, "V", "setString", i, as.character(param))
+}
+
+is_parameterised <- function(ps) {
+  md <- rJava::.jcall(ps, "Ljava/sql/ParameterMetaData;", "getParameterMetaData")
+  rJava::.jcall(md, "I", "getParameterCount") > 0
+}
+
 # SQL types --------------------------------------------------------------
 
 char_type <- function (x, con) {

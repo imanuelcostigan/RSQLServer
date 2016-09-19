@@ -7,7 +7,6 @@
 \alias{dbCommit,SQLServerConnection-method}
 \alias{dbDataType,SQLServerConnection-method}
 \alias{dbDisconnect,SQLServerConnection-method}
-\alias{dbExecute,SQLServerConnection,character-method}
 \alias{dbExistsTable,SQLServerConnection-method}
 \alias{dbGetInfo,SQLServerConnection-method}
 \alias{dbIsValid,SQLServerConnection-method}
@@ -16,6 +15,7 @@
 \alias{dbRemoveTable,SQLServerConnection-method}
 \alias{dbRollback,SQLServerConnection-method}
 \alias{dbSendQuery,SQLServerConnection,character-method}
+\alias{dbSendStatement,SQLServerConnection,character-method}
 \alias{dbSendUpdate}
 \alias{dbWriteTable,SQLServerConnection-method}
 \alias{sqlCreateTable,SQLServerConnection-method}
@@ -27,10 +27,11 @@
 
 \S4method{dbDisconnect}{SQLServerConnection}(conn, ...)
 
-\S4method{dbSendQuery}{SQLServerConnection,character}(conn, statement, ...)
+\S4method{dbSendQuery}{SQLServerConnection,character}(conn, statement,
+  params = NULL, ...)
 
-\S4method{dbExecute}{SQLServerConnection,character}(conn, statement, ...,
-  list = NULL)
+\S4method{dbSendStatement}{SQLServerConnection,character}(conn, statement,
+  params = NULL, ...)
 
 dbSendUpdate(conn, statement, ...)
 

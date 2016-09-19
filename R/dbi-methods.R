@@ -19,11 +19,7 @@ NULL
 #' @export
 
 SQLServer <- function () {
-  rJava::.jaddClassPath(jtds_class_path())
-  drv <- rJava::.jnew("net.sourceforge.jtds.jdbc.Driver", check = FALSE)
-  rJava::.jcheck(TRUE)
-  if (rJava::is.jnull(drv)) drv <- rJava::.jnull()
-  new("SQLServerDriver", jdrv = drv)
+  new("SQLServerDriver", jdrv = start_driver())
 }
 
 
@@ -82,9 +78,7 @@ setMethod('dbConnect', "SQLServerDriver",
       properties <- sd
     }
     url <- jtds_url(server, type, port, database, properties)
-    jc <- rJava::.jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", url,
-      rJava::.jnew('java/util/Properties'))
-    new("SQLServerConnection", jc = jc)
+    new("SQLServerConnection", jc = new_connection(drv, url))
   }
 )
 
@@ -97,14 +91,19 @@ setMethod('dbGetInfo', 'SQLServerDriver', definition = function (dbObj, ...) {
     # getDriverVersion() method of the JtdsDatabaseMetaData class. But
     # this method isn't defined for Driver class - so hard coded.
     driver.version = numeric_version("3.0"),
-    client.version = rJava::.jcall(dbObj@jdrv, "S", "getVersion"),
+    client.version = driver_version(dbObj),
     # Max connection defined server side rather than by driver.
     max.connections = NA)
 })
 
-#' @export
 #' @rdname SQLServerDriver-class
+#' @export
 setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) TRUE)
+
+#' @rdname SQLServerDriver-class
+#' @export
+setMethod("dbIsValid", "SQLServerDriver", function(dbObj, ...) TRUE)
+
 
 # DBI methods inherited from DBI
 # dbDriver()
@@ -118,12 +117,11 @@ setMethod("dbUnloadDriver", "SQLServerDriver", function(drv, ...) TRUE)
 setMethod('dbGetInfo', 'SQLServerConnection',
   definition = function (dbObj, ...) {
     list(
-      username = rJava::.jfield(dbObj@jc, "S", "user"),
-      host = rJava::.jfield(dbObj@jc, "S", "serverName"),
-      port = rJava::.jfield(dbObj@jc, "I", "portNumber"),
-      dbname = rJava::.jfield(dbObj@jc, "S", "currentDatabase"),
-      db.version = numeric_version(
-        rJava::.jfield(dbObj@jc, "S", "databaseProductVersion"))
+      username   = connection_info(dbObj, "username"),
+      host       = connection_info(dbObj, "host"),
+      port       = connection_info(dbObj, "port"),
+      dbname     = connection_info(dbObj, "dbname"),
+      db.version = connection_info(dbObj, "db.version")
     )
   }
 )
@@ -139,11 +137,11 @@ setMethod('dbIsValid', 'SQLServerConnection', function (dbObj, ...) {
 #' @export
 
 setMethod("dbDisconnect", "SQLServerConnection", function (conn, ...) {
-  if (rJava::.jcall(conn@jc, "Z", "isClosed"))  {
+  if (!dbIsValid(conn))  {
     warning("The connection has already been closed")
     FALSE
   } else {
-    rJava::.jcall(conn@jc, "V", "close")
+    close_connection(conn)
     TRUE
   }
 })
@@ -152,7 +150,7 @@ setMethod("dbDisconnect", "SQLServerConnection", function (conn, ...) {
 #' @export
 
 setMethod("dbSendQuery", c("SQLServerConnection", "character"),
-  def = function (conn, statement, ...) {
+  def = function (conn, statement, params = NULL, ...) {
     # Notes:
     # 1. Unlike RJDBC, this method does **not** support executing stored procs
     # or precompiled statements as these do not appear to be explicitly
@@ -161,59 +159,48 @@ setMethod("dbSendQuery", c("SQLServerConnection", "character"),
     # to return ResultSet objects. To execute data definition or manipulation
     # commands such as CREATE TABLE or UPDATE, use dbExecute instead.
     assertthat::assert_that(assertthat::is.string(statement))
-    stat <- rJava::.jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
-    jdbc_exception(stat, "Unable to create simple JDBC statement ", statement)
-    jr <- rJava::.jcall(stat, "Ljava/sql/ResultSet;", "executeQuery",
-      statement, check = FALSE)
-    jdbc_exception(jr, "Unable to retrieve JDBC result set for ", statement)
-    md <- rJava::.jcall(jr, "Ljava/sql/ResultSetMetaData;", "getMetaData",
-      check = FALSE)
-    jdbc_exception(md, "Unable to retrieve JDBC result set meta data for ",
-      statement, " in dbSendQuery")
-    new("SQLServerResult", jr = jr, md = md, stat = stat, pull = rJava::.jnull())
+    ps <- create_prepared_statement(conn, statement)
+    catch_exception(ps, "Unable to create prepared statement ", statement)
+    pre_res <- new("SQLServerPreResult", stat = ps)
+    # If parameterised and don't have params supplied, create a skeleton
+    # Result otherwise, create full thing
+    if (is_parameterised(ps) && is.null(params)) {
+      return(pre_res)
+    } else {
+      if (is_parameterised(ps) && !is.null(params)) {
+        dbBind(pre_res, params)
+      }
+      jr <- execute_query(pre_res@stat)
+      catch_exception(jr, "Unable to retrieve result set for ", statement)
+      md <- rs_metadata(jr, FALSE)
+      catch_exception(md, "Unable to retrieve result set meta data for ",
+        statement, " in dbSendQuery")
+      return(new("SQLServerResult", pre_res, jr = jr, md = md))
+    }
 })
 
 #' @rdname SQLServerConnection-class
 #' @export
 
-setMethod("dbExecute", c("SQLServerConnection", "character"),
-  def = function (conn, statement, ..., list = NULL) {
-    # Modified from RJDBC
-    # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L108
-    # See comments to dbSendQuery. dbExecute doesn't support calling stored
-    # procedures that do not return results.
-    assertthat::assert_that(assertthat::is.string(statement))
-    if (length(list(...)) || length(list)) {
-      stat <- rJava::.jcall(conn@jc, "Ljava/sql/PreparedStatement;",
-        "prepareStatement", statement, check = FALSE)
-      on.exit(rJava::.jcall(stat, "V", "close"))
-      jdbc_exception(stat, "Unable to execute JDBC prepared statement ",
-        statement)
-      # this will fix issue #4 and http://stackoverflow.com/q/21603660/2161065
-      if (length(list(...))) {
-        .fillStatementParameters(stat, list(...))
-      }
-      if (!is.null(list)) {
-        .fillStatementParameters(stat, list)
-      }
-      res <- rJava::.jcall(stat, "I", "executeUpdate", check = FALSE)
+setMethod("dbSendStatement", c("SQLServerConnection", "character"),
+  function(conn, statement, params = NULL, ...) {
+    assertthat::assert_that(assertthat::is.string(statement),
+      is.null(params) || is.list(params))
+    if(!is.null(params)) {
+      s <- create_prepared_statement(conn, statement)
+      catch_exception(s, "Unable to create prepared statement ", statement)
+      on.exit(close_statement(s))
+      ps_bind_all(params, s)
+      res <- execute_update(s, check = TRUE)
     } else {
-      stat <- rJava::.jcall(conn@jc, "Ljava/sql/Statement;", "createStatement")
-      on.exit(rJava::.jcall(stat, "V", "close"))
-      jdbc_exception(stat, "Unable to create JDBC statement ", statement)
-      # In theory following is not necesary since 'stat' will go away and be
-      # collected, but apparently it may be too late for Oracle (ORA-01000)
-      res <- rJava::.jcall(stat, "I", "executeUpdate", statement, check = FALSE)
+      s <- create_statement(conn)
+      catch_exception(s, "Unable to create statement ", statement)
+      on.exit(close_statement(s))
+      res <- execute_update(s, statement, check = TRUE)
     }
-    x <- rJava::.jgetEx(TRUE)
-    if (!rJava::is.jnull(x)) {
-      stop("execute JDBC update query failed in dbExecute: ",
-        rJava::.jcall(x, "S", "getMessage"), call. = FALSE)
-    } else {
-      res
-    }
-  }
-)
+    res <- dbSendQuery(conn, paste("SELECT", res, "AS ROWS_AFFECTED"))
+    new("SQLServerUpdateResult", res)
+})
 
 #' @rdname SQLServerConnection-class
 #' @export
@@ -264,13 +251,13 @@ setMethod("dbListTables", "SQLServerConnection",
   # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L161
   md <- rJava::.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData",
     check = FALSE)
-  jdbc_exception(md, "Unable to retrieve JDBC database metadata")
+  catch_exception(md, "Unable to retrieve JDBC database metadata")
   # Create arguments for call to getTables
   jns <- rJava::.jnull("java/lang/String")
   table_types <- rJava::.jarray(c("TABLE", "VIEW"))
   rs <- rJava::.jcall(md, "Ljava/sql/ResultSet;", "getTables",
     jns, jns, pattern, table_types, check = FALSE)
-  jdbc_exception(rs, "Unable to retrieve JDBC tables list")
+  catch_exception(rs, "Unable to retrieve JDBC tables list")
   on.exit(rJava::.jcall(rs, "V", "close"))
   tbls <- character()
   while (rJava::.jcall(rs, "Z", "next")) {
@@ -363,7 +350,7 @@ setMethod("dbWriteTable", "SQLServerConnection",
     if (nrow(value) > 0) {
       sql <- sqlAppendTableTemplate(conn, name, value)
       for (j in seq_along(value[[1]])) {
-        dbExecute(conn, sql, list = as.list(value[j, ]))
+        dbExecute(conn, sql, params = as.list(value[j, ]))
       }
     }
 
@@ -412,6 +399,31 @@ setMethod ('dbIsValid', 'SQLServerResult', function (dbObj) {
 
 #' @rdname SQLServerResult-class
 #' @export
+setMethod("dbFetch", c("SQLServerPreResult", "numeric"),
+  def = function (res, n, ...) {
+    fetch(res, n, ...)
+})
+
+#' @rdname SQLServerResult-class
+#' @export
+setMethod("fetch", c("SQLServerPreResult", "numeric"),
+  function(res, n, ...) {
+    jr <- execute_query(res@stat)
+    catch_exception(jr, "Unable to retrieve result set for ", res@stat)
+    md <- rs_metadata(jr, FALSE)
+    catch_exception(md, "Unable to retrieve result set meta data for ",
+      res@stat, " in dbSendQuery")
+    fetch(new("SQLServerResult", res, jr = jr, md = md), n)
+})
+
+#' @rdname SQLServerResult-class
+#' @export
+setMethod("dbBind", "SQLServerPreResult", function(res, params, ...) {
+  rs_bind_all(params, res)
+})
+
+#' @rdname SQLServerResult-class
+#' @export
 setMethod("dbFetch", c("SQLServerResult", "numeric"),
   def = function (res, n, ...) {
     fetch(res, n, ...)
@@ -431,7 +443,7 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
     if (rJava::is.jnull(rp)) {
       rp <- rJava::.jnew("com/github/RSQLServer/MSSQLResultPull",
         rJava::.jcast(res@jr, "java/sql/ResultSet"))
-      jdbc_exception(rp, "cannot instantiate MSSQLResultPull helper class")
+      catch_exception(rp, "cannot instantiate MSSQLResultPull helper class")
     }
 
     ###### Build list that will store data and be coerced into data frame
@@ -476,30 +488,25 @@ setMethod("fetch", c("SQLServerResult", "numeric"),
     out
 })
 
-create_empty_lst <- function (types, names, n = 0L) {
-  assertthat::assert_that(length(types) == length(names),
-    n == 0L || assertthat::is.count(n))
-  purrr::map(types, vector, length = n) %>%
-    purrr::set_names(names)
-}
-
-
 #' @rdname SQLServerResult-class
-#' @importFrom dplyr data_frame
+#' @importFrom dplyr bind_rows data_frame
 #' @export
 setMethod("dbColumnInfo", "SQLServerResult", def = function (res, ...) {
   # Inspired by RJDBC method for JDBCResult
   # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R
   cols <- rJava::.jcall(res@md, "I", "getColumnCount")
-  df <- data_frame(field.name = character(),
-    field.type = character(),
-    data.type = character())
-  if (cols < 1) return(df)
-  for (i in 1:cols) {
-    df$field.name[i] <- rJava::.jcall(res@md, "S", "getColumnName", i)
-    df$field.type[i] <- rJava::.jcall(res@md, "S", "getColumnTypeName", i)
-    ct <- rJava::.jcall(res@md, "I", "getColumnType", i)
-    df$data.type[i] <- jdbcToRType(ct)
+  if (cols < 1L) {
+    df <- data_frame(field.name = character(),
+                     field.type = character(),
+                     data.type = character())
+  } else {
+    df <- dplyr::bind_rows(
+      lapply(seq_len(cols), function(i) {
+        list(field.name = rJava::.jcall(res@md, "S", "getColumnName", i),
+             field.type = rJava::.jcall(res@md, "S", "getColumnTypeName", i),
+             data.type = jdbcToRType(rJava::.jcall(res@md, "I", "getColumnType", i)))
+      })
+    )
   }
   df
 })
@@ -516,7 +523,7 @@ setMethod("dbHasCompleted", "SQLServerResult", def = function (res, ...) {
 setMethod("dbClearResult", "SQLServerResult", function (res, ...) {
   # Need to overwrite RJDBC supplied method to pass DBItest. Needs to throw
   # warning if calling this method on cleared resultset
-  if (rJava::.jcall(res@jr, "Z", "isClosed")) {
+  if (!dbIsValid(res)) {
     warning("ResultSet has already been cleared", call. = FALSE)
   } else {
     rJava::.jcall(res@jr, "V", "close")
@@ -524,7 +531,7 @@ setMethod("dbClearResult", "SQLServerResult", function (res, ...) {
   if (rJava::.jcall(res@stat, "Z", "isClosed")) {
     warning("Statement has already been cleared", call. = FALSE)
   } else {
-    rJava::.jcall(res@stat, "V", "close")
+    close_statement(res@stat)
   }
   TRUE
 })
@@ -532,7 +539,7 @@ setMethod("dbClearResult", "SQLServerResult", function (res, ...) {
 #' @rdname SQLServerResult-class
 #' @export
 setMethod("dbGetStatement", "SQLServerResult", function(res, ...) {
-  res@stat
+  rJava::.jcall(res@stat, "S", "toString")
 })
 
 #' @rdname SQLServerResult-class
@@ -549,6 +556,12 @@ setMethod("dbGetRowsAffected", "SQLServerResult", function(res, ...) {
 
 #' @rdname SQLServerResult-class
 #' @export
+setMethod("dbGetRowsAffected", "SQLServerUpdateResult", function(res, ...) {
+  fetch(res, -1)$ROWS_AFFECTED
+})
+
+#' @rdname SQLServerResult-class
+#' @export
 setMethod("dbHasCompleted", "SQLServerResult", function(res, ...) {
   # http://docs.oracle.com/javase/7/docs/api/java/sql/ResultSet.html#isAfterLast()
   # If res is empty (row = 0), isAfterLast() will return FALSE, but
@@ -559,54 +572,3 @@ setMethod("dbHasCompleted", "SQLServerResult", function(res, ...) {
 # Inherited from DBI:
 # show()
 # dbGetInfo()
-
-# Other ----------------------------------------------------------------
-
-.fillStatementParameters <- function(s, l) {
-  # Modified from RJDBC
-  # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L63
-  for (i in seq_along(l)) {
-    v <- l[[i]]
-    if (is.na(v)) { # map NAs to NULLs (courtesy of Axel Klenk)
-      sqlType <- rToJdbcType(class(v))
-      rJava::.jcall(s, "V", "setNull", i, as.integer(sqlType))
-    } else if (is.integer(v)) {
-      rJava::.jcall(s, "V", "setInt", i, v[1])
-    } else if (is.numeric(v)) {
-      rJava::.jcall(s, "V", "setDouble", i, as.double(v)[1])
-    } else if (is.logical(v)) {
-      rJava::.jcall(s, "V", "setBoolean", i, as.logical(v)[1])
-    } else if (inherits(v, "Date")) {
-      # as.POSIXlt sets time to midnight UTC whereas as.POSIXct sets time to
-      # local timezone. The tz argument is ignored when a Date is passed to
-      # either function
-      milliseconds <- as.numeric(as.POSIXlt(v)[1]) * 1000
-      vdate <- rJava::.jnew("java/sql/Date", rJava::.jlong(milliseconds))
-      rJava::.jcall(s, "V", "setDate", i, vdate)
-    } else if (inherits(v, "POSIXct")) {
-      # as.integer converts POSIXct to seconds since epoch. Timestamp
-      # constructor needs milliseconds so multiply by 1000
-      # http://docs.oracle.com/javase/7/docs/api/java/sql/Timestamp.html
-      milliseconds <- as.numeric(v)[1] * 1000
-      vtimestamp <- rJava::.jnew("java/sql/Timestamp",
-        rJava::.jlong(milliseconds))
-      rJava::.jcall(s, "V", "setTimestamp", i, vtimestamp)
-    } else if (is.raw(v)) {
-      rJava::.jcall(s, "V", "setByte", i, rJava::.jbyte(as.raw(v)[1]))
-    } else {
-      rJava::.jcall(s, "V", "setString", i, as.character(v)[1])
-    }
-  }
-}
-
-jdbc_exception <- function (object, ...) {
-  # Based on RJDBC .verify.JDBC.result()
-  # https://github.com/s-u/RJDBC/blob/1b7ccd4677ea49a93d909d476acf34330275b9ad/R/class.R#L18
-  if (rJava::is.jnull(object)) {
-    x <- rJava::.jgetEx(TRUE)
-    if (rJava::is.jnull(x))
-      stop(..., call. = FALSE)
-    else
-      stop(..., ": ", rJava::.jcall(x, "S", "getMessage"), call. = FALSE)
-  }
-}

@@ -4,8 +4,10 @@
 
 This package no longer depends on RJDBC. As such a number of user visible changes have been made:
 
-- `dbSendQuery()` only executes `SELECT` commands (queries) which return a result and not other arbitrary SQL code. See [rstats-db/DBI#20](https://github.com/rstats-db/DBI/issues/20). It also no longer supports calling stored procedures (callable statements) or prepared statements as these do not seem to be explicitly supported by any other DBI backend.
-- `dbSendUpdate()` which was based on RJDBC's method and which executes SQL commands that do not return a result will be deprecated in favour of the more descriptive `dbExecute()` which has been implemented upstream in DBI. See [rstats-db/DBI#20](https://github.com/rstats-db/DBI/issues/20). Unlike RJDBC's `dbSendUpdate()`, `dbExecute()` does not yet support calling stored procedures as these do not seem to be explicitly supported by any other DBI backend.
+- `dbSendQuery()` only executes queries rather than other arbitrary SQL statements. See [rstats-db/DBI#20](https://github.com/rstats-db/DBI/issues/20). It also no longer supports calling stored procedures (callable statements).
+- `dbSendQuery()` can execute parameterised queries. See `?DBI:dbBind` for more details on parameterised queries.
+- `dbSendUpdate()` which was based on RJDBC's method and which executes non-query SQL statements will be deprecated in favour of the more descriptive `dbExecute()` which has been implemented upstream in DBI (the latter of which calls `dbSendStatement()`. See [rstats-db/DBI#20](https://github.com/rstats-db/DBI/issues/20). Unlike RJDBC's `dbSendUpdate()`, `dbExecute()` does not yet support calling stored procedures as these do not seem to be explicitly supported by any other DBI backend. 
+- `dbExecute()` arguments have been changed to reflect the DBI generic.
 - Implemented `dbUnloadDriver()` which returns `TRUE` in all instances rather than `FALSE` as was the case in RJDBC.
 
 A number of previously imported RJDBC methods have now been reimplemented in this package with no user visible changes.
@@ -42,13 +44,17 @@ SQL Server (#75)
 
 - Implemented `dbBegin()`, `dbCommit()`, `dbRollback()` methods and use these in `dbWriteTable()`
 - `dbWriteTable()` now fails when attempting to append to a temporary table (#75)
+- Implemented `dbSendStatement()` method which required the extension of `SQLServerResult` to `SQLServerUpdateResult` the latter of which is used to dispatch the `dbGetRowsAffected()` method. (#95)
+- Implemented `dbBind()` method to replace the internal `.fillStatementParameter()` method which required the extension of `SQLServerResult` to `SQLServerPreResult` the latter of which allows statements with bindings to present a ResultSet interface to DBI (ResultSets are only created after values are bound to parameterised statements in JDBC). (#88)
 - Implemented `sqlCreateTable()` for `SQLServerConnection` which is called by `db_create_table()`. (#76)
 - `dbDataType` maps R character objects of sufficiently long length to `VARCHAR(MAX)` on newer version of MSSQL rather than `TEXT` as the latter is being deprecated.
 - Arguments of `dbConnect()` are now `NULL` where other default values were assigned. This does not change the behaviour of the method.
 - Introduced `pattern` argument to `dbListTables()` which allows you to list all tables matching a pattern.
 - `dbExistsTable()` now passed table name to `dbListTables()` as a pattern to be matched which should improve its performance.
+- `dbColumnInfo()` succeeds in running (#96, @r2evans)
 - `dbGetInfo()` for `SQLServerResult` has been deprecated and calls the DBI default method which calls `dbHasCompleted()`, `dbGetRowCount()` etc. The latter methods have been implemented for `SQLServerResult` and are exported.
 - `as.numeric()` and `as.character()` calls now cast scalar input values to SQL types `FLOAT` and `NVARCHAR(4000)` respectively rather than `NUMERIC` and `TEXT` respectively (default in dplyr). 
+- `dbIsValid()` implemented for `SQLServerDriver` and always returns `TRUE`.
 - Now rely on DBI supplied `show()` methods
 - Added Travis-CI support
 

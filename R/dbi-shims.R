@@ -99,8 +99,8 @@ db_explain.SQLServerConnection <- function (con, sql, ...) {
   # https://technet.microsoft.com/en-us/library/aa259203(v=sql.80).aspx
   # http://msdn.microsoft.com/en-us/library/ms187735.aspx
   # http://stackoverflow.com/a/7359705/1193481
-  dbExecute(con, "SET SHOWPLAN_ALL ON")
-  on.exit(dbExecute(con, "SET SHOWPLAN_ALL OFF"))
+  dbSendStatement(con, "SET SHOWPLAN_ALL ON")
+  on.exit(dbSendStatement(con, "SET SHOWPLAN_ALL OFF"))
   res <- dbGetQuery(con, sql) %>%
     dplyr::select_("StmtId", "NodeId", "Parent", "PhysicalOp", "LogicalOp",
       "Argument", "TotalSubtreeCost")
