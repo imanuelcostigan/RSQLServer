@@ -189,46 +189,47 @@ setMethod("dbSendStatement", c("SQLServerConnection", "character"),
   function(conn, statement, params = NULL, ..., batch = FALSE) {
     assertthat::assert_that(assertthat::is.string(statement),
       is.null(params) || is.list(params))
-    ps <- create_prepared_statement(conn, statement)
-    catch_exception(ps, "Unable to create statement ", statement)
-    pre_res <- new("SQLServerPreResult", stat = ps)
-    qry_nparams <- num_parameters(ps)
-    no_params <- is.null(params)
-    if (qry_nparams > 0) {
-      if (no_params) {
-        return(pre_res)
-      } else {
-        # parameterized and params supplied
-        if (length(params) != qry_nparams) {
-          stop("length of 'params' (", length(params), ") ",
-            "different than statement parameter count (", qry_nparams, "): ",
-            statement, call. = FALSE)
-        }
-        ac <- is_autocommit(conn)
-        if (ac) {
-          dbBegin(conn)
-          on.exit(dbRollback(conn))
-        }
-        params <- expand_args(params = params)
-        maxlen <- length(params[[1L]])
-        if (batch) {
-          dbBind(pre_res, params, batch = TRUE)
-          num <- sum(execute_batch(ps, check = TRUE))
-        } else {
-          jrs <- lapply(seq_len(maxlen), function(i) {
-            dbBind(pre_res, lapply(params, `[[`, i), batch = FALSE)
-            execute_update(ps, check = TRUE)
-          })
-          num <- sum(unlist(jrs))
-        }
-        if (ac) dbCommit(conn)
-        on.exit(NULL) # remove dbRollback
-      }
+    nparams <- length(params)
+    if (nparams == 0L) {
+      # assume "simple", no need to compile this statement
+      s <- create_statement(conn)
+      catch_exception(s, "Unable to create statement: ", statement)
+      on.exit(close_statement(s))
+      res <- execute_update(s, statement, check = TRUE)
     } else {
-      # not parameterized
-      num <- execute_update(ps, check = TRUE)
+      ps <- create_prepared_statement(conn, statement)
+      catch_exception(ps, "Unable to create statement: ", statement)
+      pre_res <- new("SQLServerPreResult", stat = ps)
+      num_qry_params <- num_parameters(ps)
+      if (nparams < num_qry_params) {
+        stop("length of 'params' (", length(params), ") ",
+          "less than statement parameter count (", qry_nparams, "): ",
+          statement, call. = FALSE)
+      } else if (nparams > num_qry_params) {
+        warning("length of 'params' (", length(params), ") ",
+          "greater than statement parameter count (", qry_nparams, "),",
+          "extra params ignored: ", statement, call. = FALSE)
+      }
+      # should probably be using `dbWithTransaction` ...
+      ac <- is_autocommit(conn)
+      if (ac) {
+        dbBegin(conn)
+        on.exit(dbRollback(conn))
+      }
+      if (batch) {
+        dbBind(pre_res, params, batch = TRUE)
+        res <- sum(execute_batch(ps, check = TRUE))
+      } else {
+        jrs <- lapply(seq_along(params[[1]]), function(i) {
+          dbBind(pre_res, lapply(params, `[[`, i), batch = FALSE)
+          execute_update(ps, check = TRUE)
+        })
+        res <- sum(unlist(jrs))
+      }
+      if (ac) dbCommit(conn)
+      on.exit(NULL) # remove dbRollBack
     }
-    res <- dbSendQuery(conn, paste("SELECT", num, "AS ROWS_AFFECTED"))
+    res <- dbSendQuery(conn, paste("SELECT", res, "AS ROWS_AFFECTED"))
     new("SQLServerUpdateResult", res)
 })
 
