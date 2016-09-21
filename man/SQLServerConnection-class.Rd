@@ -28,7 +28,7 @@
 \S4method{dbDisconnect}{SQLServerConnection}(conn, ...)
 
 \S4method{dbSendQuery}{SQLServerConnection,character}(conn, statement,
-  params = NULL, ...)
+  params = NULL, ..., batch = FALSE)
 
 \S4method{dbSendStatement}{SQLServerConnection,character}(conn, statement,
   params = NULL, ..., batch = FALSE)
@@ -52,7 +52,7 @@ dbSendUpdate(conn, statement, ...)
 \S4method{dbRollback}{SQLServerConnection}(conn, ...)
 
 \S4method{dbWriteTable}{SQLServerConnection}(conn, name, value,
-  overwrite = TRUE, append = FALSE)
+  overwrite = TRUE, append = FALSE, batch = FALSE)
 
 \S4method{sqlCreateTable}{SQLServerConnection}(con, table, fields,
   row.names = NA, temporary = FALSE, ...)

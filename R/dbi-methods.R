@@ -153,7 +153,7 @@ setMethod("dbDisconnect", "SQLServerConnection", function (conn, ...) {
 #' @export
 
 setMethod("dbSendQuery", c("SQLServerConnection", "character"),
-  def = function (conn, statement, params = NULL, ...) {
+  def = function (conn, statement, params = NULL, ..., batch = FALSE) {
     # Notes:
     # 1. Unlike RJDBC, this method does **not** support executing stored procs
     # or precompiled statements as these do not appear to be explicitly
@@ -170,8 +170,13 @@ setMethod("dbSendQuery", c("SQLServerConnection", "character"),
     if (is_parameterised(ps) && is.null(params)) {
       return(pre_res)
     } else {
-      if (is_parameterised(ps) && !is.null(params)) {
-        dbBind(pre_res, params, batch = FALSE)
+      qry_nparams <- num_parameters(ps)
+      nparams <- length(params)
+      if (qry_nparams > 0 && nparams > 0L) {
+        if (nparams > qry_nparams) {
+          params <- params[1:qry_nparams]
+        }
+        dbBind(pre_res, params, batch = batch)
       }
       jr <- execute_query(pre_res@stat)
       catch_exception(jr, "Unable to retrieve result set for ", statement)
@@ -189,45 +194,29 @@ setMethod("dbSendStatement", c("SQLServerConnection", "character"),
   function(conn, statement, params = NULL, ..., batch = FALSE) {
     assertthat::assert_that(assertthat::is.string(statement),
       is.null(params) || is.list(params))
-    nparams <- length(params)
-    if (nparams == 0L) {
-      # assume "simple", no need to compile this statement
-      s <- create_statement(conn)
-      catch_exception(s, "Unable to create statement: ", statement)
-      on.exit(close_statement(s))
-      res <- execute_update(s, statement, check = TRUE)
-    } else {
+    if (length(params)) {
       ps <- create_prepared_statement(conn, statement)
       catch_exception(ps, "Unable to create statement: ", statement)
       pre_res <- new("SQLServerPreResult", stat = ps)
-      num_qry_params <- num_parameters(ps)
-      if (nparams < num_qry_params) {
-        stop("length of 'params' (", length(params), ") ",
-          "less than statement parameter count (", qry_nparams, "): ",
-          statement, call. = FALSE)
-      } else if (nparams > num_qry_params) {
-        warning("length of 'params' (", length(params), ") ",
-          "greater than statement parameter count (", qry_nparams, "),",
-          "extra params ignored: ", statement, call. = FALSE)
-      }
-      # should probably be using `dbWithTransaction` ...
-      ac <- is_autocommit(conn)
-      if (ac) {
-        dbBegin(conn)
-        on.exit(dbRollback(conn))
-      }
       if (batch) {
         dbBind(pre_res, params, batch = TRUE)
         res <- sum(execute_batch(ps, check = TRUE))
       } else {
-        jrs <- lapply(seq_along(params[[1]]), function(i) {
-          dbBind(pre_res, lapply(params, `[[`, i), batch = FALSE)
+        # may benefit from 'batch=TRUE' or at least `dbWithTransaction(conn, ...)`
+        paramlen <- length(params[[1L]])
+        rets <- lapply(seq_len(paramlen), function(j) {
+          dbBind(pre_res, params = lapply(params, `[[`, j), batch = FALSE)
           execute_update(ps, check = TRUE)
         })
-        res <- sum(unlist(jrs))
+        res <- sum(unlist(rets))
       }
-      if (ac) dbCommit(conn)
       on.exit(NULL) # remove dbRollBack
+    } else {
+      # assume "simple", no need to compile this statement
+      s <- create_statement(conn)
+      catch_exception(s, "Unable to create statement ", statement)
+      on.exit(close_statement(s))
+      res <- execute_update(s, statement, check = TRUE)
     }
     res <- dbSendQuery(conn, paste("SELECT", res, "AS ROWS_AFFECTED"))
     new("SQLServerUpdateResult", res)
@@ -340,7 +329,7 @@ setMethod("dbRollback", "SQLServerConnection", function (conn, ...) {
 #' @rdname SQLServerConnection-class
 #' @export
 setMethod("dbWriteTable", "SQLServerConnection",
-  function (conn, name, value, overwrite = TRUE, append = FALSE) {
+  function (conn, name, value, overwrite = TRUE, append = FALSE, batch = FALSE) {
 
     assertthat::assert_that(is.data.frame(value), ncol(value) > 0,
       !(overwrite && append))
@@ -381,15 +370,13 @@ setMethod("dbWriteTable", "SQLServerConnection",
 
     if (nrow(value) > 0) {
       sql <- sqlAppendTableTemplate(conn, name, value)
-      for (j in seq_along(value[[1]])) {
-        dbExecute(conn, sql, params = as.list(value[j, ]))
-      }
+      # looping is now done within dbExecute
+      dbWithTransaction(conn, dbExecute(conn, sql, params = value, batch = batch))
     }
 
     # Overwrite on.exist(dbRollback(conn)) call above as now guaranteed
     # commit success
     on.exit(NULL)
-    dbCommit(conn)
     TRUE
 })
 

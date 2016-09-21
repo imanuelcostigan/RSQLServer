@@ -186,14 +186,15 @@ create_empty_lst <- function (types, names, n = 0L) {
 
 # Bindings ----------------------------------------------------------------
 
-rs_bind_all <- function(params, rs, ..., batch = TRUE) {
+rs_bind_all <- function(params, rs, batch = TRUE) {
   ps_bind_all(params, rs@stat, batch = batch)
 }
 
 ps_bind_all <- function(params, ps, batch = TRUE) {
-  if (! batch && any(lengths(params) > 1L)) {
-    warning("'batch' disabled with multi-row params, only first of each param applied")
-    params <- lapply(params, `[[`, 1L)
+  paramlengths <- vapply(params, length, integer(1L))
+  if (! batch && any(paramlengths > 1L)) {
+    warning("'batch' disabled with multi-row params, only first of each param applied",
+      call. = FALSE)
   }
 
   is_na <- lapply(params, is.na)
@@ -204,24 +205,24 @@ ps_bind_all <- function(params, ps, batch = TRUE) {
   is_posix <- vapply(params, inherits, logical(1), "POSIXct")
   is_other <- ! (is_logical | is_numeric | is_date | is_posix)
 
-  sqlTypes <- rToJdbcType(vapply(params, function(a) class(a)[1], character(1)))
+  jtypes <- rToJdbcType(vapply(params, function(a) class(a)[1], character(1)))
 
-  for (j in seq_along(params[[1]])) {
+  for (j in seq_len(max(1L, batch * max(paramlengths)))) {
     for (i in seq_along(params)) {
       if (is_na[[i]][[j]]) {
-        ps_bind_null(i, NULL, ps, jtype = sqlTypes[i])
+        ps_bind_null(i, NULL, ps, jtype = jtypes[i])
       } else if (is_integer[i]) {
         ps_bind_int(i, params[[i]][[j]], ps)
       } else if (is_numeric[i]) {
         ps_bind_dbl(i, params[[i]][[j]], ps)
       } else if (is_logical[i]) {
         ps_bind_bln(i, params[[i]][[j]], ps)
-      } else if (is_date[i]) {
-        ps_bind_dte(i, params[[i]][[j]], ps)
+      } else if (is_other[i]) {
+        ps_bind_str(i, params[[i]][[j]], ps)
       } else if (is_posix[i]) {
         ps_bind_tme(i, params[[i]][[j]], ps)
-      } else {
-        ps_bind_str(i, params[[i]][[j]], ps)
+      } else if (is_date[i]) {
+        ps_bind_dte(i, params[[i]][[j]], ps)
       }
     }
     if (batch) rJava::.jcall(ps, "V", "addBatch")
@@ -320,11 +321,4 @@ date_type <- function (x, con) {
   } else {
     "DATE"
   }
-}
-
-# force recycling if elements are of different lengths
-expand_args <- function(..., params, maxlen) {
-  if (missing(params)) params <- list(...)
-  if (missing(maxlen)) maxlen <- max(vapply(params, length, integer(1L)))
-  lapply(params, rep, length.out = maxlen)
 }
