@@ -192,7 +192,7 @@ rs_bind_all <- function(params, rs, batch = TRUE) {
 
 ps_bind_all <- function(params, ps, batch = TRUE) {
   paramlengths <- vapply(params, length, integer(1L))
-  if (! batch && any(paramlengths > 1L)) {
+  if (!batch && any(paramlengths > 1L)) {
     warning("'batch' disabled with multi-row params, only first of each param applied",
       call. = FALSE)
   }
@@ -203,7 +203,7 @@ ps_bind_all <- function(params, ps, batch = TRUE) {
   is_numeric <- vapply(params, is.numeric, logical(1))
   is_date <- vapply(params, inherits, logical(1), "Date")
   is_posix <- vapply(params, inherits, logical(1), "POSIXct")
-  is_other <- ! (is_logical | is_numeric | is_date | is_posix)
+  is_other <- !(is_logical | is_numeric | is_date | is_posix)
 
   jtypes <- rToJdbcType(vapply(params, function(a) class(a)[1], character(1)))
 
