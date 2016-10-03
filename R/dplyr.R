@@ -74,22 +74,18 @@ copy_to.src_sqlserver <- function (dest, df, name = NULL, types = NULL,
   types <- types %||% db_data_type(dest$con, df)
   names(types) <- names(df)
   con <- dest$con
-  db_begin(con)
-  on.exit(db_rollback(con))
   name <- db_create_table(con, name, types, temporary = temporary)
   db_insert_into(con, name, df, temporary = temporary)
   db_create_indexes(con, name, unique_indexes, unique = TRUE)
   db_create_indexes(con, name, indexes, unique = FALSE)
   # SQL Server doesn't have ANALYZE TABLE support so this part of
   # copy_to.src_sql has been dropped
-  db_commit(con)
-  on.exit(NULL)
   tbl(dest, name)
 }
 
 
 #' @importFrom dplyr compute op_vars select_ sql_render tbl group_by_ groups
-#' @importFrom dplyr db_create_indexes %>% db_begin db_rollback db_commit
+#' @importFrom dplyr db_create_indexes %>%
 #' @export
 compute.tbl_sqlserver <- function(x, name = random_table_name(), temporary = TRUE,
   unique_indexes = list(), indexes = list(), ...) {

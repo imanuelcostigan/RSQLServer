@@ -191,6 +191,10 @@ rs_bind_all <- function(params, rs, batch = TRUE) {
 }
 
 ps_bind_all <- function(params, ps, batch = TRUE) {
+  nparams <- length(params)
+  if (is.null(params) || nparams == 0L) return()
+  qry_nparams <- num_parameters(ps)
+  if (qry_nparams == 0L) return()
   paramlengths <- vapply(params, length, integer(1L))
   if (!batch && any(paramlengths > 1L)) {
     warning("'batch' disabled with multi-row params, only first of each param applied",
@@ -208,7 +212,7 @@ ps_bind_all <- function(params, ps, batch = TRUE) {
   jtypes <- rToJdbcType(vapply(params, function(a) class(a)[1], character(1)))
 
   for (j in seq_len(max(1L, batch * max(paramlengths)))) {
-    for (i in seq_along(params)) {
+    for (i in seq_len(min(nparams, qry_nparams))) {
       if (is_na[[i]][[j]]) {
         ps_bind_null(i, NULL, ps, jtype = jtypes[i])
       } else if (is_integer[i]) {
@@ -229,8 +233,8 @@ ps_bind_all <- function(params, ps, batch = TRUE) {
   }
 }
 
-ps_bind_null <- function(i, param, ps, jtype) {
-  if (missing(jtype)) jtype <- as.integer(rToJdbcType(class(param)))
+ps_bind_null <- function(i, param, ps, jtype = NULL) {
+  if (is.null(jtype)) jtype <- as.integer(rToJdbcType(class(param)))
   rJava::.jcall(ps, "V", "setNull", i, jtype)
 }
 
@@ -273,8 +277,7 @@ ps_bind_str <- function(i, param, ps) {
 }
 
 is_parameterised <- function(ps) {
-  md <- rJava::.jcall(ps, "Ljava/sql/ParameterMetaData;", "getParameterMetaData")
-  rJava::.jcall(md, "I", "getParameterCount") > 0
+  num_parameters(ps) > 0
 }
 
 num_parameters <- function(ps) {

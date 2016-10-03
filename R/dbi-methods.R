@@ -170,14 +170,7 @@ setMethod("dbSendQuery", c("SQLServerConnection", "character"),
     if (is_parameterised(ps) && is.null(params)) {
       return(pre_res)
     } else {
-      qry_nparams <- num_parameters(ps)
-      nparams <- length(params)
-      if (qry_nparams > 0 && nparams > 0L) {
-        if (nparams > qry_nparams) {
-          params <- params[1:qry_nparams]
-        }
-        dbBind(pre_res, params, batch = batch)
-      }
+      dbBind(pre_res, params, batch = batch)
       jr <- execute_query(pre_res@stat)
       catch_exception(jr, "Unable to retrieve result set for ", statement)
       md <- rs_metadata(jr, FALSE)
