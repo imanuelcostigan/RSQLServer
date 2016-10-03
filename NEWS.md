@@ -28,8 +28,8 @@ A number of changes have been made to improve DBI compliance as specified by tes
 A number of changes were made to dplyr backend. As a result, dplyr >= 0.5 is required. Most changes are not visible to users. However, the following are of note:
 
 - Implemented `db_create_table()`, `db_insert_into()` and `db_create_index()` for SQLServerConnection
-- Updated `db_drop_table()` to support `IF EXISTS` SQL clause if supported by 
-SQL Server (#75)
+- Updated `db_drop_table()` to support `IF EXISTS` SQL clause if supported by SQL Server (#75)
+- `copy_to()` is now much faster due to the `batch` and transaction changes, listed below in "Other changes"
 - New `temporary` argument to `db_insert_into()` which overwrites existing table if set to `TRUE` and if necessary. 
 - `db_query_fields()` method for SQLServerConnection removed in favour of default dplyr method. The latter better handles sub-queries.
 - `sql_select()` method supports the `DISTINCT` keyword and includes `TOP` keyword when query results are ordered.
@@ -45,7 +45,9 @@ SQL Server (#75)
 - Implemented `dbBegin()`, `dbCommit()`, `dbRollback()` methods and use these in `dbWriteTable()`
 - `dbWriteTable()` now fails when attempting to append to a temporary table (#75)
 - Implemented `dbSendStatement()` method which required the extension of `SQLServerResult` to `SQLServerUpdateResult` the latter of which is used to dispatch the `dbGetRowsAffected()` method (#95). Added `batch` option to both `dbSendStatement()` and `dbSendQuery` for insert/update speedup (#69, #90, #106, @r2evans).
+- `dbWriteTable()` is faster by always using transactions (`BEGIN` before and `COMMIT` after), and optionally much faster by way of the `batch` option.
 - Implemented `dbBind()` method to replace the internal `.fillStatementParameter()` method which required the extension of `SQLServerResult` to `SQLServerPreResult` the latter of which allows statements with bindings to present a ResultSet interface to DBI (ResultSets are only created after values are bound to parameterised statements in JDBC). (#88)
+- `dbBind()` now supports multi-row binding (e.g., for `INSERT` and `UPDATE`)
 - Implemented `sqlCreateTable()` for `SQLServerConnection` which is called by `db_create_table()`. (#76)
 - `dbDataType` maps R character objects of sufficiently long length to `VARCHAR(MAX)` on newer version of MSSQL rather than `TEXT` as the latter is being deprecated.
 - Arguments of `dbConnect()` are now `NULL` where other default values were assigned. This does not change the behaviour of the method.
