@@ -107,7 +107,7 @@ mssql_top <- function (con, n, is_percent = NULL) {
   # https://msdn.microsoft.com/en-us/library/ms189463(v=sql.90).aspx
   assertthat::assert_that(assertthat::is.number(n), n >= 0)
   n <- as.integer(n)
-  is_mssql_2000 <- dbGetInfo(con)$db.version == 8
+  is_mssql_2000 <- dbGetInfo(con)$db.version[1,1] == 8
   if (is.null(is_percent) || !isTRUE(is_percent)) {
     if (!is_mssql_2000) n <- escape(n, parens = TRUE)
     return(build_sql("TOP ", n))
