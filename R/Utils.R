@@ -325,3 +325,7 @@ date_type <- function (x, con) {
     "DATE"
   }
 }
+
+data_frame_data_type <- function(x, con) {
+  vapply(x, dbDataType, FUN.VALUE = character(1), dbObj = con, ..., USE.NAMES = TRUE)
+}

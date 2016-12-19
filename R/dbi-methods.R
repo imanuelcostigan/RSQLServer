@@ -240,6 +240,8 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
     # https://msdn.microsoft.com/en-us/library/ms187752.aspx
     # https://msdn.microsoft.com/en-us/library/ms187752(v=sql.90).aspx
 
+    if (is(obj, "data.frame")) return(data_frame_data_type(dbObj, obj))
+    if (is(obj, "AsIs")) return(unclass(dbDataType(dbObj, obj, ...)))
     if (is.factor(obj)) return(char_type(obj, dbObj))
     if (inherits(obj, "POSIXct")) return("DATETIME")
     if (inherits(obj, "Date")) return(date_type(obj, dbObj))
