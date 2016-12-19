@@ -59,6 +59,7 @@ A number of changes were made to dplyr backend. As a result, dplyr >= 0.5 is req
 - `dbIsValid()` implemented for `SQLServerDriver` and always returns `TRUE`.
 - Now rely on DBI supplied `show()` methods
 - Added Travis-CI (#83, #84) and Appveyor support (#80, @Hong-Revo)
+- Correctly determine major version of SQL Server DB backend (#122)
 
 # Version 0.2.0
 
