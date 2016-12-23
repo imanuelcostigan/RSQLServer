@@ -25,7 +25,7 @@ A number of changes have been made to improve DBI compliance as specified by tes
 
 ## dplyr
 
-A number of changes were made to dplyr backend. As a result, dplyr >= 0.5 is required. Most changes are not visible to users. However, the following are of note:
+A number of changes were made to dplyr backend. As a result, dplyr >= 0.5.1 is required. Most changes are not visible to users. However, the following are of note:
 
 - Implemented `db_create_table()`, `db_insert_into()` and `db_create_index()` for SQLServerConnection
 - Updated `db_drop_table()` to support `IF EXISTS` SQL clause if supported by SQL Server (#75)
@@ -38,6 +38,7 @@ A number of changes were made to dplyr backend. As a result, dplyr >= 0.5 is req
 - `db_analyze()` unsupported and simply returns `TRUE`.
 - `src_sqlserver` has a nicer print
 - `intersect()` and `setdiff()` methods are deprecated and default `tbl_sql` methods from `dplyr` are called instead.
+- Removed calls to the `$con` accessor in favour of `con_acquire()` as former is deprecated. The use of former is also coupled with the sue of `con_release()` which presently (in dplyr) does nothing (#127)
 - Added basic testing of dplyr backend (#81)
 
 ## Other changes
@@ -60,6 +61,8 @@ A number of changes were made to dplyr backend. As a result, dplyr >= 0.5 is req
 - Now rely on DBI supplied `show()` methods
 - Added Travis-CI (#83, #84) and Appveyor support (#80, @Hong-Revo)
 - Correctly determine major version of SQL Server DB backend (#122)
+- dplyr's `arrange()` method now returns whole result rather than top 100 rows (#124). This was implemented by change default behaviour of `sql_select()` method
+and may result in backward breaks existing code.
 
 # Version 0.2.0
 

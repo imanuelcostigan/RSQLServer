@@ -10,18 +10,18 @@ df1 <- data_frame(a = c(1, 2), b = c("a", "b"))
 
 test_that("src creation works", {
   expect_s3_class(ss, "src_sqlserver")
-  expect_s4_class(ss$con, "SQLServerConnection")
+  expect_s4_class(con_acquire(ss), "SQLServerConnection")
   expect_named(ss$info, c("username", "host", "port", "dbname", "db.version"))
 })
 
 # Remove tables from last run of tests. This prevents tests failing in case
 # previous invocation of tests failed before df could be dropped
-dbExecute(ss$con, "DROP TABLE IF EXISTS DF")
-dbExecute(ss$con, "DROP TABLE IF EXISTS DF1")
+dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF")
+dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF1")
 
 test_that("copy_to works", {
   expect_error(copy_to(ss, df1, temporary = FALSE), NA)
-  dbExecute(ss$con, "DROP TABLE IF EXISTS DF1")
+  dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF1")
   expect_error(copy_to(ss, df1, "df1", temporary = FALSE), NA)
   expect_error(copy_to(ss, df1, random_table_name(temp = TRUE)), NA)
   expect_error(copy_to(ss, df1, random_table_name(temp = TRUE),
@@ -55,6 +55,8 @@ test_that("filter verb works", {
 test_that("arrange verb works", {
   expect_equal(arrange(df_tbl, -a) %>% collect(),
     data_frame(a = c(2, 1), b = c("b", "a")))
+  ap <- tbl(ss, "airports")
+  expect_equal(arrange(ap, name) %>% collect() %>% nrow(), 1396)
 })
 
 test_that("mutate verb works", {
