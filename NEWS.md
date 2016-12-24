@@ -38,14 +38,14 @@ A number of changes were made to dplyr backend. As a result, dplyr >= 0.5.1 is r
 - `db_analyze()` unsupported and simply returns `TRUE`.
 - `src_sqlserver` has a nicer print
 - `intersect()` and `setdiff()` methods are deprecated and default `tbl_sql` methods from `dplyr` are called instead.
-- Removed calls to the `$con` accessor in favour of `con_acquire()` as former is deprecated. The use of former is also coupled with the sue of `con_release()` which presently (in dplyr) does nothing (#127)
+- Removed calls to the `$con` accessor in favour of `con_acquire()` as former is deprecated. The use of former is also coupled with the use of `con_release()` which presently (in dplyr) does nothing (#127)
 - Added basic testing of dplyr backend (#81)
 
 ## Other changes
 
 - Implemented `dbBegin()`, `dbCommit()`, `dbRollback()` methods and use these in `dbWriteTable()`
 - `dbWriteTable()` now fails when attempting to append to a temporary table (#75)
-- Implemented `dbSendStatement()` method which required the extension of `SQLServerResult` to `SQLServerUpdateResult` the latter of which is used to dispatch the `dbGetRowsAffected()` method (#95). Added `batch` option to both `dbSendStatement()` and `dbSendQuery` for insert/update speedup (#69, #90, #106, @r2evans).
+- Implemented `dbSendStatement()` method which required the extension of `SQLServerResult` to `SQLServerUpdateResult` the latter of which is used to dispatch the `dbGetRowsAffected()` method (#95). Added `batch` option to both `dbSendStatement()` and `dbSendQuery()` for insert/update speedup (#69, #90, #106, @r2evans).
 - `dbWriteTable()` is faster by always using transactions (`BEGIN` before and `COMMIT` after), and optionally much faster by way of the `batch` option.
 - Implemented `dbBind()` method to replace the internal `.fillStatementParameter()` method which required the extension of `SQLServerResult` to `SQLServerPreResult` the latter of which allows statements with bindings to present a ResultSet interface to DBI (ResultSets are only created after values are bound to parameterised statements in JDBC). (#88)
 - `dbBind()` now supports multi-row binding (e.g., for `INSERT` and `UPDATE`)

@@ -1,5 +1,3 @@
-context("DBI tests")
-
 DBItest::make_context(SQLServer(), list(server = "TEST", database = "DBITest"))
 DBItest::test_getting_started()
 # dbDataType requires knowledge of SQL Server version which SQLServerDriver
