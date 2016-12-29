@@ -51,11 +51,15 @@ setClass ("SQLServerPreResult", contains = 'DBIResult',
 #' @export
 
 setClass ("SQLServerResult", contains = 'SQLServerPreResult',
-  slots = c(jr = "jobjRef", md = "jobjRef", pull = "jobjRef"))
+  slots = c(jr = "jobjRef", md = "jobjRef", pull = "jobjRef",
+    # Use RC so we can keep track of records fetched within fetch() even
+    # is calling multiple times.
+    rows_fetched = "RowCounter"))
 
 #' @keywords internal
 #' @rdname SQLServerResult-class
 #' @export
 
-setClass ("SQLServerUpdateResult", contains = 'SQLServerResult')
+setClass ("SQLServerUpdateResult", contains = 'SQLServerResult',
+  slots = c(rows_affected = "numeric"))
 

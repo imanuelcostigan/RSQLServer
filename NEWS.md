@@ -16,10 +16,14 @@ A number of previously imported RJDBC methods have now been reimplemented in thi
 
 A number of changes have been made to improve DBI compliance as specified by tests in the `DBItest` package (#60):
 
+- `dbHasCompleted()` returns `TRUE` for empty ResultSets 
+- `fetch()` on non-query statements return an empty data frame
+- `dbDataType()` works for `AsIs` objects and returns `NVARCHAR` and `VARBINARY` SQL types with lengths of at least one
 - `dbDisconnect()` returns a warning if called on a connection that is already closed and otherwise closes the connection and return `TRUE`.
 - `dbGetInfo()` for `SQLServerDriver` returns the JDBC driver version (3.0) as `driver.version` and jTDS verion as `client.version` instead of the jTDS client version and `NA` respectively. Also complies with `DBItest` expectations.
 - `dbGetInfo()` for `SQLServerConnection` now complies with `DBItest` expectations
 - `SQLServer()` no longer accepts arguments
+- Nested transactions throw errors with related change of all of `dbWriteTable()` code now being wrapped in `dbWithTransaction()`
 - Bumped DBI requirement
 - NB: that more changes should be expected as the DBItest package matures.
 

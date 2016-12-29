@@ -15,9 +15,11 @@
 \alias{dbGetRowsAffected,SQLServerUpdateResult-method}
 \alias{dbGetStatement,SQLServerResult-method}
 \alias{dbHasCompleted,SQLServerResult-method}
+\alias{dbHasCompleted,SQLServerUpdateResult-method}
 \alias{dbIsValid,SQLServerResult-method}
 \alias{fetch,SQLServerPreResult,numeric-method}
 \alias{fetch,SQLServerResult,numeric-method}
+\alias{fetch,SQLServerUpdateResult,numeric-method}
 \title{SQL Server Result classes}
 \usage{
 \S4method{dbIsValid}{SQLServerResult}(dbObj)
@@ -26,6 +28,8 @@
 
 \S4method{fetch}{SQLServerPreResult,numeric}(res, n = -1, ...)
 
+\S4method{fetch}{SQLServerUpdateResult,numeric}(res, n = -1, ...)
+
 \S4method{dbBind}{SQLServerPreResult}(res, params, ..., batch = FALSE)
 
 \S4method{dbFetch}{SQLServerResult,numeric}(res, n = -1, ...)
@@ -33,8 +37,6 @@
 \S4method{fetch}{SQLServerResult,numeric}(res, n = -1, block = 2048L, ...)
 
 \S4method{dbColumnInfo}{SQLServerResult}(res, ...)
-
-\S4method{dbHasCompleted}{SQLServerResult}(res, ...)
 
 \S4method{dbClearResult}{SQLServerResult}(res, ...)
 
@@ -47,6 +49,8 @@
 \S4method{dbGetRowsAffected}{SQLServerUpdateResult}(res, ...)
 
 \S4method{dbHasCompleted}{SQLServerResult}(res, ...)
+
+\S4method{dbHasCompleted}{SQLServerUpdateResult}(res, ...)
 }
 \arguments{
 \item{batch}{logical, indicates whether uploads (e.g., 'INSERT' or

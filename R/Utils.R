@@ -292,7 +292,7 @@ char_type <- function (x, con) {
   # TEXT is being deprecated. Make sure SQL types are UNICODE variants
   # (prefixed by N).
   # https://technet.microsoft.com/en-us/library/aa258271(v=sql.80).aspx
-  n <- max(nchar(as.character(x), keepNA = FALSE))
+  n <- max(max(nchar(as.character(x), keepNA = FALSE)), 1)
   if (n > 4000) {
     if (dbGetInfo(con)$db.version < 9) {
       n <- "4000"
@@ -305,7 +305,7 @@ char_type <- function (x, con) {
 
 binary_type <- function (x, con) {
   # SQL Server 2000 does not support varbinary(max) type.
-  n <- max(nchar(x, keepNA = FALSE))
+  n <- max(max(nchar(x, keepNA = FALSE)), 1)
   if (n > 8000) {
     if (dbGetInfo(con)$db.version < 9) {
       # https://technet.microsoft.com/en-us/library/aa225972(v=sql.80).aspx
@@ -326,6 +326,27 @@ date_type <- function (x, con) {
   }
 }
 
+as_is_type <- function(x, con) {
+  class(x) <- class(x)[-1]
+  dbDataType(con, x)
+}
+
 data_frame_data_type <- function(x, con) {
   vapply(x, dbDataType, FUN.VALUE = character(1), dbObj = con, USE.NAMES = TRUE)
 }
+
+# Needed to keep track of number of rows that have been fetched for
+# dbGetRowCount as JDBC ResultSet class's getRow() method returns 0 when the
+# fetch is completed.
+RowCounter <- setRefClass(
+  Class   = "RowCounter",
+  fields  = list(count = "integer"),
+  methods = list(
+    add = function(increment) {
+      count <<- count + increment
+    },
+    show = function() {
+      cat("<RowCounter>:", count, "\n")
+    }
+  )
+)
