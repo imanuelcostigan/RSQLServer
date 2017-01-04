@@ -34,9 +34,3 @@ random_table_name <- function (n = 10, temp = FALSE) {
 
 compact <- function(x) Filter(Negate(is.null), x)
 
-con_acquire.src_sql <- function(src) {
-  src$obj
-}
-
-con_release.src_sql <- function(src, con) {
-}
