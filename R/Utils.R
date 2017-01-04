@@ -63,10 +63,12 @@ jtds_url <- function (server, type = "sqlserver", port = "", database = "",
 #' the \code{file} does not contain the \code{server} key
 #' @examples
 #' # See link below
+#' \dontrun{
 #' aw <- dbConnect(RSQLServer::SQLServer(), server = "mhknbn2kdz.database.windows.net",
 #'  database = 'AdventureWorks2012',
 #'  properties = list(user = "sqlfamily", password = "sqlf@@m1ly"))
 #' dbListTables(aw)
+#' }
 #' @seealso
 #' \href{https://github.com/imanuelcostigan/RSQLServer/blob/master/README.md}{RSQLServer README}
 #' \href{https://github.com/yaml/yaml}{YAML}

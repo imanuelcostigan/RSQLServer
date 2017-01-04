@@ -30,10 +30,12 @@ with each aspect of the server documented in an associative array.
 }
 \examples{
 # See link below
+\dontrun{
 aw <- dbConnect(RSQLServer::SQLServer(), server = "mhknbn2kdz.database.windows.net",
  database = 'AdventureWorks2012',
  properties = list(user = "sqlfamily", password = "sqlf@m1ly"))
 dbListTables(aw)
+}
 }
 \seealso{
 \href{https://github.com/imanuelcostigan/RSQLServer/blob/master/README.md}{RSQLServer README}
