@@ -216,7 +216,7 @@ ps_bind_all <- function(params, ps, batch = TRUE) {
   for (j in seq_len(max(1L, batch * max(paramlengths)))) {
     for (i in seq_len(min(nparams, qry_nparams))) {
       if (is_na[[i]][[j]]) {
-        ps_bind_null(i, NULL, ps, jtype = jtypes[i])
+        ps_bind_null(i, NULL, ps, jtype = as.integer(jtypes[i]))
       } else if (is_integer[i]) {
         ps_bind_int(i, params[[i]][[j]], ps)
       } else if (is_numeric[i]) {
