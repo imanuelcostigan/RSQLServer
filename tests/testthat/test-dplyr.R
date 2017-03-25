@@ -7,6 +7,15 @@ suppressPackageStartupMessages({
 
 ss <- src_sqlserver("TEST", database = "DBItest")
 
+# Remove tables from last run of tests. This prevents tests failing in case
+# previous invocation of tests failed before df could be dropped
+on.exit({
+  dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF1")
+  dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF2")
+  dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF3")
+  dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF4")
+})
+
 df1 <- data_frame(a = c(1, 2), b = c("a", "b"))
 df2 <- data_frame(a = letters, b = 1:26)
 df3 <- data_frame(a = letters, c = rev(letters))
@@ -18,12 +27,6 @@ test_that("src creation works", {
   expect_named(ss$info, c("username", "host", "port", "dbname", "db.version"))
 })
 
-# Remove tables from last run of tests. This prevents tests failing in case
-# previous invocation of tests failed before df could be dropped
-dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF1")
-dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF2")
-dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF3")
-dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF4")
 
 test_that("copy_to works", {
   expect_error(copy_to(ss, df1, temporary = FALSE), NA)
@@ -98,10 +101,3 @@ test_that("join works", {
   expect_error(df2_tbl %>% semi_join(df3_tbl), NA)
   expect_error(df2_tbl %>% anti_join(df3_tbl), NA)
 })
-
-# Remove tables from last run of tests. This prevents tests failing in case
-# previous invocation of tests failed before df could be dropped
-dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF1")
-dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF2")
-dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF3")
-dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF4")
