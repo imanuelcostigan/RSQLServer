@@ -85,4 +85,3 @@ dbConnect(RSQLServer::SQLServer(), server="11.1.111.11", port=1434,
 \references{
 \href{http://jtds.sourceforge.net/doc/net/sourceforge/jtds/jdbc/Driver.html}{jTDS API doc for Driver class}
 }
-

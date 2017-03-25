@@ -78,4 +78,3 @@ by_field \%>\% summarise(ave = mean(numeric.field))
 # See dplyr documentation for further information on data operations
 }
 }
-

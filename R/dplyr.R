@@ -56,8 +56,8 @@ tbl.src_sqlserver <- function (src, from, ...) {
 #' @importFrom dplyr copy_to db_data_type con_acquire con_release
 #' @export
 
-copy_to.src_sqlserver <- function (dest, df, name = NULL, types = NULL,
-  temporary = TRUE, unique_indexes = NULL, indexes = NULL, ...) {
+copy_to.src_sqlserver <- function (dest, df, name = NULL, overwrite = FALSE,
+  types = NULL, temporary = TRUE, unique_indexes = NULL, indexes = NULL, ...) {
   # Modified version of dplyr method:
   # https://github.com/hadley/dplyr/blob/36687792b349bfeca24c69177cfb74b7fee341c6/R/tbl-sql.r#L329
   # Modification necessary because temporary tables in SQL Server are
@@ -72,8 +72,10 @@ copy_to.src_sqlserver <- function (dest, df, name = NULL, types = NULL,
 
   con <- con_acquire(dest)
   tryCatch({
-    if (isTRUE(db_has_table(con, name))) {
-      stop("Table ", name, " already exists.", call. = FALSE)
+    types <- types %||% db_data_type(con, df)
+    names(types) <- names(df)
+    if (overwrite) {
+      db_drop_table(con, name, force = TRUE)
     }
     types <- types %||% db_data_type(con, df)
     names(types) <- names(df)
@@ -86,8 +88,7 @@ copy_to.src_sqlserver <- function (dest, df, name = NULL, types = NULL,
   }, finally = {
     con_release(dest, con)
   })
-
-  tbl(dest, name)
+  invisible(tbl(dest, name))
 }
 
 

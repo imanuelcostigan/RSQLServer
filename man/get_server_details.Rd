@@ -43,4 +43,3 @@ dbListTables(aw)
 \href{http://sqlblog.com/blogs/jamie_thomson/archive/2012/03/27/adventureworks2012-now-available-to-all-on-sql-azure.aspx}{Example SQL Server instance}
 }
 \keyword{internal}
-

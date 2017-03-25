@@ -25,4 +25,3 @@ have_test_server()
 \seealso{
 \code{\link{get_server_details}} \code{\link{dbConnect,SQLServerDriver-method}}
 }
-

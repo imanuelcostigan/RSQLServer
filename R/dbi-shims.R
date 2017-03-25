@@ -66,24 +66,6 @@ db_drop_table.SQLServerConnection <- function(con, table, force = FALSE, ...) {
   assertthat::is.number(dbExecute(con, qry))
 }
 
-#' @importFrom dplyr db_create_index
-#' @export
-db_create_index.SQLServerConnection <- function(con, table, columns,
-  name = NULL, unique = FALSE, ...) {
-  # Modified from:
-  # https://github.com/hadley/dplyr/blob/053a996cb12aeb8c0ac305cbe268c5590a4ea3e5/R/dbi-s3.r#L151
-  # Work around: https://github.com/hadley/dplyr/issues/1912
-  # SQL Server index creation does not return result set so dbGetQuery fails.
-  assertthat::assert_that(assertthat::is.string(table), is.character(columns))
-  name <- name %||% paste0(c(table, columns), collapse = "_")
-  fields <- escape(ident(columns), parens = TRUE, con = con)
-  sql <- build_sql(
-    "CREATE ", if (unique) sql("UNIQUE "), "INDEX ", ident(name),
-    " ON ", ident(table), " ", fields,
-    con = con)
-  assertthat::is.number(dbExecute(con, sql))
-}
-
 #' @importFrom dplyr db_analyze ident build_sql
 #' @export
 db_analyze.SQLServerConnection <- function (con, table, ...) {

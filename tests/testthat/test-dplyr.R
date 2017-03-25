@@ -27,6 +27,7 @@ dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF4")
 
 test_that("copy_to works", {
   expect_error(copy_to(ss, df1, temporary = FALSE), NA)
+  expect_error(copy_to(ss, df1, temporary = FALSE, overwrite = TRUE), NA)
   expect_error(copy_to(ss, df2, temporary = FALSE), NA)
   expect_error(copy_to(ss, df3, temporary = FALSE), NA)
   expect_error(copy_to(ss, df4, temporary = FALSE), NA)

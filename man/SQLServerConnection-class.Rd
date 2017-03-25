@@ -3,20 +3,20 @@
 \docType{class}
 \name{SQLServerConnection-class}
 \alias{SQLServerConnection-class}
-\alias{dbBegin,SQLServerConnection-method}
-\alias{dbCommit,SQLServerConnection-method}
-\alias{dbDataType,SQLServerConnection-method}
-\alias{dbDisconnect,SQLServerConnection-method}
-\alias{dbExistsTable,SQLServerConnection-method}
 \alias{dbGetInfo,SQLServerConnection-method}
 \alias{dbIsValid,SQLServerConnection-method}
-\alias{dbListTables,SQLServerConnection-method}
-\alias{dbReadTable,SQLServerConnection,character-method}
-\alias{dbRemoveTable,SQLServerConnection-method}
-\alias{dbRollback,SQLServerConnection-method}
+\alias{dbDisconnect,SQLServerConnection-method}
 \alias{dbSendQuery,SQLServerConnection,character-method}
 \alias{dbSendStatement,SQLServerConnection,character-method}
 \alias{dbSendUpdate}
+\alias{dbReadTable,SQLServerConnection,character-method}
+\alias{dbDataType,SQLServerConnection-method}
+\alias{dbListTables,SQLServerConnection-method}
+\alias{dbExistsTable,SQLServerConnection-method}
+\alias{dbRemoveTable,SQLServerConnection-method}
+\alias{dbBegin,SQLServerConnection-method}
+\alias{dbCommit,SQLServerConnection-method}
+\alias{dbRollback,SQLServerConnection-method}
 \alias{dbWriteTable,SQLServerConnection-method}
 \alias{sqlCreateTable,SQLServerConnection-method}
 \title{SQL Server Connection class}
@@ -66,4 +66,3 @@ than by individual rows (the default).}
 SQL Server Connection class
 }
 \keyword{internal}
-

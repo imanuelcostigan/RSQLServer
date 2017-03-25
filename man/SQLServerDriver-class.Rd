@@ -4,8 +4,8 @@
 \name{SQLServerDriver-class}
 \alias{SQLServerDriver-class}
 \alias{dbGetInfo,SQLServerDriver-method}
-\alias{dbIsValid,SQLServerDriver-method}
 \alias{dbUnloadDriver,SQLServerDriver-method}
+\alias{dbIsValid,SQLServerDriver-method}
 \title{SQL Server Driver class}
 \usage{
 \S4method{dbGetInfo}{SQLServerDriver}(dbObj, ...)
@@ -21,4 +21,3 @@ SQL Server Driver class
 \code{\link{SQLServer}}
 }
 \keyword{internal}
-

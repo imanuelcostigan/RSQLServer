@@ -5,21 +5,21 @@
 \alias{SQLServerPreResult-class}
 \alias{SQLServerResult-class}
 \alias{SQLServerUpdateResult-class}
-\alias{dbBind,SQLServerPreResult-method}
-\alias{dbClearResult,SQLServerResult-method}
-\alias{dbColumnInfo,SQLServerResult-method}
+\alias{dbIsValid,SQLServerResult-method}
 \alias{dbFetch,SQLServerPreResult,numeric-method}
+\alias{fetch,SQLServerPreResult,numeric-method}
+\alias{fetch,SQLServerUpdateResult,numeric-method}
+\alias{dbBind,SQLServerPreResult-method}
 \alias{dbFetch,SQLServerResult,numeric-method}
+\alias{fetch,SQLServerResult,numeric-method}
+\alias{dbColumnInfo,SQLServerResult-method}
+\alias{dbClearResult,SQLServerResult-method}
+\alias{dbGetStatement,SQLServerResult-method}
 \alias{dbGetRowCount,SQLServerResult-method}
 \alias{dbGetRowsAffected,SQLServerResult-method}
 \alias{dbGetRowsAffected,SQLServerUpdateResult-method}
-\alias{dbGetStatement,SQLServerResult-method}
 \alias{dbHasCompleted,SQLServerResult-method}
 \alias{dbHasCompleted,SQLServerUpdateResult-method}
-\alias{dbIsValid,SQLServerResult-method}
-\alias{fetch,SQLServerPreResult,numeric-method}
-\alias{fetch,SQLServerResult,numeric-method}
-\alias{fetch,SQLServerUpdateResult,numeric-method}
 \title{SQL Server Result classes}
 \usage{
 \S4method{dbIsValid}{SQLServerResult}(dbObj)
@@ -75,4 +75,3 @@ and returning another as output). This contrasts to the JDBC interface where
 binding occurs on Statement classes and not on ResultSet classes.
 }
 \keyword{internal}
-

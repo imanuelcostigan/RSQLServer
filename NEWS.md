@@ -34,6 +34,7 @@ A number of changes were made to dplyr backend. As a result, dplyr >= 0.5.1 is r
 - Implemented `db_create_table()`, `db_insert_into()` and `db_create_index()` for SQLServerConnection
 - Updated `db_drop_table()` to support `IF EXISTS` SQL clause if supported by SQL Server (#75)
 - `copy_to()` is now much faster due to the `batch` and transaction changes, listed below in "Other changes"
+- `copy_to()` method returns its `tbl` invisibily per `dplyr` spec change and gains an `overwrite` argument per `dplyr` interface change. When `overwrite` is `TRUE` an existing table with the same `name` is dropped before the new tanle is copied to the server. Previously if a table with the same name existed, `copy_to()` would always return an error.
 - New `temporary` argument to `db_insert_into()` which overwrites existing table if set to `TRUE` and if necessary. 
 - `db_query_fields()` method for SQLServerConnection removed in favour of default dplyr method. The latter better handles sub-queries.
 - `sql_select()` method supports the `DISTINCT` keyword and includes `TOP` keyword when query results are ordered.

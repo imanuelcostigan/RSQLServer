@@ -22,4 +22,3 @@ you fully specify your server and login credentials in the \code{~/sql.yaml}
 file rather than using the single sign on library. See the example provided:
 \code{system.file("extdata", "sql.yaml", package = "RSQLServer")}
 }
-
