@@ -1,4 +1,5 @@
-#' @importFrom dplyr sql_select sql
+#' @importFrom dplyr sql_select
+#' @importFrom dbplyr sql
 #' @export
 
 sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
@@ -107,7 +108,7 @@ sql_select.SQLServerConnection <- function (con, select, from, where = NULL,
 }
 
 
-#' @importFrom dplyr escape
+#' @importFrom dbplyr escape
 mssql_top <- function (con, n, is_percent = NULL) {
   # https://technet.microsoft.com/en-us/library/aa259187(v=sql.80).aspx
   # https://msdn.microsoft.com/en-us/library/ms189463(v=sql.90).aspx
@@ -138,8 +139,8 @@ mssql_top <- function (con, n, is_percent = NULL) {
 # MSSQL 2008r2*: https://technet.microsoft.com/en-US/library/ms173454(v=sql.100).aspx
 # MSSQL 2012*: https://technet.microsoft.com/en-US/library/ms173454(v=sql.110).aspx
 # MSSQL 2014: https://technet.microsoft.com/en-US/library/ms173454(v=sql.120).aspx
-#' @importFrom dplyr sql_translate_env sql_variant sql_translator base_scalar
-#' @importFrom dplyr base_agg sql_prefix base_win
+#' @importFrom dplyr sql_translate_env
+#' @importFrom dbplyr base_agg base_scalar sql_prefix base_win sql_variant sql_translator
 #' @export
 sql_translate_env.SQLServerConnection <- function (con) {
   sql_variant(

@@ -52,7 +52,8 @@ dbSendUpdate(conn, statement, ...)
 \S4method{dbRollback}{SQLServerConnection}(conn, ...)
 
 \S4method{dbWriteTable}{SQLServerConnection}(conn, name, value,
-  overwrite = TRUE, append = FALSE, batch = FALSE)
+  row.names = NA, overwrite = FALSE, append = FALSE, field.types = NULL,
+  temporary = FALSE, batch = FALSE)
 
 \S4method{sqlCreateTable}{SQLServerConnection}(con, table, fields,
   row.names = NA, temporary = FALSE, ...)

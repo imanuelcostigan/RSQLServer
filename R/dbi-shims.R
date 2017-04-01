@@ -26,7 +26,8 @@ db_save_query.SQLServerConnection <- function (con, sql, name, temporary = TRUE,
   name
 }
 
-#' @importFrom dplyr db_create_table escape ident sql_vector build_sql
+#' @importFrom dplyr db_create_table
+#' @importFrom dbplyr build_sql ident sql_vector
 #' @export
 
 db_create_table.SQLServerConnection <- function(con, table, types,
@@ -66,7 +67,7 @@ db_drop_table.SQLServerConnection <- function(con, table, force = FALSE, ...) {
   assertthat::is.number(dbExecute(con, qry))
 }
 
-#' @importFrom dplyr db_analyze ident build_sql
+#' @importFrom dplyr db_analyze
 #' @export
 db_analyze.SQLServerConnection <- function (con, table, ...) {
   TRUE
@@ -74,7 +75,7 @@ db_analyze.SQLServerConnection <- function (con, table, ...) {
 
 # Inherited db_create_index.DBIConnection method from dplyr
 
-#' @importFrom dplyr db_explain
+#' @importFrom dplyr db_explain %>%
 #' @export
 db_explain.SQLServerConnection <- function (con, sql, ...) {
   # SET SHOWPLAN_ALL available from SQL Server 2000 on.
@@ -88,3 +89,49 @@ db_explain.SQLServerConnection <- function (con, sql, ...) {
       "Argument", "TotalSubtreeCost")
   paste(utils::capture.output(print(res)), collapse = "\n")
 }
+
+#' @export
+#' @importFrom dbplyr db_copy_to
+#' @importFrom dplyr db_write_table db_data_type
+db_copy_to.SQLServerConnection <- function(con, table, values,
+  overwrite = FALSE, types = NULL, temporary = TRUE,
+  unique_indexes = NULL, indexes = NULL,
+  analyze = TRUE, ...) {
+
+  # Modified version of dbplyr method.
+  # SQL Server doesn't have ANALYZE TABLE support so this part of
+  # db_copy_to() has been dropped
+
+  types <- types %||% db_data_type(con, values)
+  names(types) <- names(values)
+  if (overwrite) {
+    db_drop_table(con, table, force = TRUE)
+  }
+  db_write_table(con, table, types = types, values = values,
+    temporary = temporary)
+  db_create_indexes(con, table, unique_indexes, unique = TRUE)
+  db_create_indexes(con, table, indexes, unique = FALSE)
+  table
+}
+
+#' @importFrom dplyr db_create_indexes
+#' @importFrom dbplyr db_compute
+#' @export
+db_compute.SQLServerConnection <- function(con, table, sql, temporary = TRUE,
+  unique_indexes = list(), indexes = list(), ...) {
+  # Modified from dbplyr because db_save_query returns a temp table name which
+  # must be used by subsequent method calls.
+  if (!is.list(indexes)) {
+    indexes <- as.list(indexes)
+  }
+  if (!is.list(unique_indexes)) {
+    unique_indexes <- as.list(unique_indexes)
+  }
+
+  table <- db_save_query(con, sql, table, temporary = temporary)
+  db_create_indexes(con, table, unique_indexes, unique = TRUE)
+  db_create_indexes(con, table, indexes, unique = FALSE)
+
+  table
+}
+

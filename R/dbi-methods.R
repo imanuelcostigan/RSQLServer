@@ -330,7 +330,8 @@ setMethod("dbRollback", "SQLServerConnection", function (conn, ...) {
 #' @rdname SQLServerConnection-class
 #' @export
 setMethod("dbWriteTable", "SQLServerConnection",
-  function (conn, name, value, overwrite = TRUE, append = FALSE, batch = FALSE) {
+  function (conn, name, value, row.names = NA, overwrite = FALSE, append = FALSE,
+    field.types = NULL, temporary = FALSE, batch = FALSE) {
 
     assertthat::assert_that(is.data.frame(value), ncol(value) > 0,
       !(overwrite && append))
@@ -373,7 +374,7 @@ setMethod("dbWriteTable", "SQLServerConnection",
         dbExecute(conn, sql, params = value, batch = batch)
       }
     })
-    TRUE
+    invisible(TRUE)
 })
 
 setMethod("dbListFields", "SQLServerConnection", function(conn, name, ...) {

@@ -5,15 +5,15 @@ suppressPackageStartupMessages({
   library(dplyr)
 })
 
-ss <- src_sqlserver("TEST", database = "DBItest")
+ss <- dbConnect(SQLServer(), server = "TEST", database = "DBItest")
 
 # Remove tables from last run of tests. This prevents tests failing in case
 # previous invocation of tests failed before df could be dropped
 on.exit({
-  dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF1")
-  dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF2")
-  dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF3")
-  dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF4")
+  dbExecute(ss, "DROP TABLE IF EXISTS DF1")
+  dbExecute(ss, "DROP TABLE IF EXISTS DF2")
+  dbExecute(ss, "DROP TABLE IF EXISTS DF3")
+  dbExecute(ss, "DROP TABLE IF EXISTS DF4")
 })
 
 df1 <- data_frame(a = c(1, 2), b = c("a", "b"))
@@ -21,20 +21,13 @@ df2 <- data_frame(a = letters, b = 1:26)
 df3 <- data_frame(a = letters, c = rev(letters))
 df4 <- data_frame(a = rep_len(letters, 200), b = 1:200)
 
-test_that("src creation works", {
-  expect_s3_class(ss, "src_sqlserver")
-  expect_s4_class(con_acquire(ss), "SQLServerConnection")
-  expect_named(ss$info, c("username", "host", "port", "dbname", "db.version"))
-})
-
-
 test_that("copy_to works", {
   expect_error(copy_to(ss, df1, temporary = FALSE), NA)
   expect_error(copy_to(ss, df1, temporary = FALSE, overwrite = TRUE), NA)
   expect_error(copy_to(ss, df2, temporary = FALSE), NA)
   expect_error(copy_to(ss, df3, temporary = FALSE), NA)
   expect_error(copy_to(ss, df4, temporary = FALSE), NA)
-  dbExecute(con_acquire(ss), "DROP TABLE IF EXISTS DF1")
+  dbExecute(ss, "DROP TABLE IF EXISTS DF1")
   expect_error(copy_to(ss, df1, "df1", temporary = FALSE), NA)
   expect_error(copy_to(ss, df1, random_table_name(temp = TRUE)), NA)
   expect_error(copy_to(ss, df1, random_table_name(temp = TRUE),
@@ -49,10 +42,6 @@ df1_tbl <- tbl(ss, "df1")
 df2_tbl <- tbl(ss, "df2")
 df3_tbl <- tbl(ss, "df3")
 df4_tbl <- tbl(ss, "df4")
-
-test_that("tbl creation works", {
-  expect_s3_class(df1_tbl, "tbl_sqlserver")
-})
 
 test_that("collect works", {
   expect_equal(df1_tbl %>% collect(), df1)
@@ -85,7 +74,8 @@ test_that("summarise verb works", {
 })
 
 test_that("explain works", {
-  expect_message(explain(df1_tbl))
+  # Waiting closure of https://github.com/hadley/dplyr/issues/2609
+  # expect_message(explain(df1_tbl))
 })
 
 test_that("setops works", {

@@ -1,17 +1,5 @@
 # Version 0.2.099
 
-## RJDBC
-
-This package no longer depends on RJDBC. As such a number of user visible changes have been made:
-
-- `dbSendQuery()` only executes queries rather than other arbitrary SQL statements. See [rstats-db/DBI#20](https://github.com/rstats-db/DBI/issues/20). It also no longer supports calling stored procedures (callable statements).
-- `dbSendQuery()` can execute parameterised queries. See `?DBI:dbBind` for more details on parameterised queries.
-- `dbSendUpdate()` which was based on RJDBC's method and which executes non-query SQL statements will be deprecated in favour of the more descriptive `dbExecute()` which has been implemented upstream in DBI (the latter of which calls `dbSendStatement()`. See [rstats-db/DBI#20](https://github.com/rstats-db/DBI/issues/20). Unlike RJDBC's `dbSendUpdate()`, `dbExecute()` does not yet support calling stored procedures as these do not seem to be explicitly supported by any other DBI backend. 
-- `dbExecute()` arguments have been changed to reflect the DBI generic.
-- Implemented `dbUnloadDriver()` which returns `TRUE` in all instances rather than `FALSE` as was the case in RJDBC.
-
-A number of previously imported RJDBC methods have now been reimplemented in this package with no user visible changes.
-
 ## DBItest
 
 A number of changes have been made to improve DBI compliance as specified by tests in the `DBItest` package (#60):
@@ -27,29 +15,40 @@ A number of changes have been made to improve DBI compliance as specified by tes
 - Bumped DBI requirement
 - NB: that more changes should be expected as the DBItest package matures.
 
-## dplyr
+## dplyr/dbplyr
 
-A number of changes were made to dplyr backend. As a result, dplyr >= 0.5.1 is required. Most changes are not visible to users. However, the following are of note:
+A number of changes were made to dplyr backend. As a result, dplyr >= 0.6.0 is required:
 
+- `src_desc()` deprecated in favour of `db_desc()` per upstream changes
 - Implemented `db_create_table()`, `db_insert_into()` and `db_create_index()` for SQLServerConnection
 - Updated `db_drop_table()` to support `IF EXISTS` SQL clause if supported by SQL Server (#75)
-- `copy_to()` is now much faster due to the `batch` and transaction changes, listed below in "Other changes"
-- `copy_to()` method returns its `tbl` invisibily per `dplyr` spec change and gains an `overwrite` argument per `dplyr` interface change. When `overwrite` is `TRUE` an existing table with the same `name` is dropped before the new tanle is copied to the server. Previously if a table with the same name existed, `copy_to()` would always return an error.
 - New `temporary` argument to `db_insert_into()` which overwrites existing table if set to `TRUE` and if necessary. 
 - `db_query_fields()` method for SQLServerConnection removed in favour of default dplyr method. The latter better handles sub-queries.
 - `sql_select()` method supports the `DISTINCT` keyword and includes `TOP` keyword when query results are ordered.
-- `compute()` is now modified version of dplyr default method
+- `compute()` and `copy_to()` implementations are replaced by `db_compute()` and `db_copy_to()` implementations
 - `db_explain()` is more informative (e.g. prints relative cost of operations)
 - `db_analyze()` unsupported and simply returns `TRUE`.
 - `src_sqlserver` has a nicer print
 - `intersect()` and `setdiff()` methods are deprecated and default `tbl_sql` methods from `dplyr` are called instead.
-- Removed calls to the `$con` accessor in favour of `con_acquire()` as former is deprecated. The use of former is also coupled with the use of `con_release()` which presently (in dplyr) does nothing (#127)
 - Added basic testing of dplyr backend (#81)
+
+## RJDBC
+
+This package no longer depends on RJDBC. As such a number of user visible changes have been made:
+
+- `dbSendQuery()` only executes queries rather than other arbitrary SQL statements. See [rstats-db/DBI#20](https://github.com/rstats-db/DBI/issues/20). It also no longer supports calling stored procedures (callable statements).
+- `dbSendQuery()` can execute parameterised queries. See `?DBI:dbBind` for more details on parameterised queries.
+- `dbSendUpdate()` which was based on RJDBC's method and which executes non-query SQL statements will be deprecated in favour of the more descriptive `dbExecute()` which has been implemented upstream in DBI (the latter of which calls `dbSendStatement()`. See [rstats-db/DBI#20](https://github.com/rstats-db/DBI/issues/20). Unlike RJDBC's `dbSendUpdate()`, `dbExecute()` does not yet support calling stored procedures as these do not seem to be explicitly supported by any other DBI backend. 
+- `dbExecute()` arguments have been changed to reflect the DBI generic.
+- Implemented `dbUnloadDriver()` which returns `TRUE` in all instances rather than `FALSE` as was the case in RJDBC.
+
+A number of previously imported RJDBC methods have now been reimplemented in this package with no user visible changes.
 
 ## Other changes
 
 - Implemented `dbBegin()`, `dbCommit()`, `dbRollback()` methods and use these in `dbWriteTable()`
 - `dbWriteTable()` now fails when attempting to append to a temporary table (#75)
+- Changed API for `dbWriteTable()` to match generic documented in DBI package. It also returns `TRUE` invisibly.
 - Implemented `dbSendStatement()` method which required the extension of `SQLServerResult` to `SQLServerUpdateResult` the latter of which is used to dispatch the `dbGetRowsAffected()` method (#95). Added `batch` option to both `dbSendStatement()` and `dbSendQuery()` for insert/update speedup (#69, #90, #106, @r2evans).
 - `dbWriteTable()` is faster by always using transactions (`BEGIN` before and `COMMIT` after), and optionally much faster by way of the `batch` option.
 - Implemented `dbBind()` method to replace the internal `.fillStatementParameter()` method which required the extension of `SQLServerResult` to `SQLServerPreResult` the latter of which allows statements with bindings to present a ResultSet interface to DBI (ResultSets are only created after values are bound to parameterised statements in JDBC). (#88)
