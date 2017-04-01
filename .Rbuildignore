@@ -15,3 +15,5 @@
 ^.*\.sln$
 ^codecov\.yml$
 ^buildMSSQLResultPull\.sh$
+^README\.Rmd$
+^README-.*\.png$

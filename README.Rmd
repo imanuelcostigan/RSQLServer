@@ -1,0 +1,97 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# RSQLServer
+
+[![CRAN](http://www.r-pkg.org/badges/version/RSQLServer)](http://cran.r-project.org/package=RSQLServer)
+[![Travis-CI build status](https://travis-ci.org/imanuelcostigan/RSQLServer.svg?branch=master)](https://travis-ci.org/imanuelcostigan/RSQLServer)
+[![Appveyor build status](https://ci.appveyor.com/api/projects/status/i2oedybuqi2o5crg/branch/master?svg=true)](https://ci.appveyor.com/project/imanuelcostigan/rsqlserver/branch/master)
+[![Coverage status](https://codecov.io/gh/imanuelcostigan/RSQLServer/branch/master/graph/badge.svg)](https://codecov.io/gh/imanuelcostigan/RSQLServer)
+
+An R package that provides a SQL Server R Database Interface ([DBI](https://github.com/rstats-db/DBI)), based on the cross-platform [jTDS JDBC driver](http://jtds.sourceforge.net/index.html).
+
+## Installation
+
+You can't install the package from CRAN yet. But you install the development version from GitHub:
+
+```{r, eval=FALSE}
+# install.packages('devtools')
+devtools::install_github('imanuelcostigan/RSQLServer')
+```
+
+## Config file
+
+We recommend that you store server details and credentials in `~/sql.yaml`. This is partly so that you do not need to specify a username and password in calls to `dbConnect()`. But it is also because in testing, we've found that the jTDS single sign-on (SSO) library is a bit flaky. The contents of this file should look something like this:
+
+```yaml
+SQL_PROD:
+    server: 11.1.111.11
+    type: &type sqlserver
+    port: &port 1433
+    domain: &domain companyname
+    user: &user winusername
+    password: &pass winpassword
+    useNTLMv2: &ntlm true
+SQL_DEV:
+    server: 11.1.111.15
+    type: *type
+    port: *port
+    domain: *domain
+    user: *user
+    password: *pass
+    useNTLMv2: *ntlm
+```
+
+## Usage
+
+Ensure that your `~/sql.yaml` file contains a valid SQL Server entry named `TEST`. In the following, the `TEST` server, generously provided by Microsoft for the purposes of this package's development, has a database containing the `nycflights13` package data sets.
+
+### DBI usage
+
+The following illustrates how you can make use of the DBI interface. Note that we **do not** attach the `RSQLServer` package.
+
+```{r}
+library(DBI)
+nycflights <- dbConnect(RSQLServer::SQLServer(), server = "TEST", database = 'DBItest')
+# RSQLServer only returns tables with type TABLE and VIEW.
+dbListTables(nycflights)
+dbListFields(nycflights, 'airlines')
+dbReadTable(nycflights, 'airlines')
+
+# Fetch all results
+res <- dbSendQuery(nycflights, 'SELECT TOP 10 * FROM airlines')
+dbFetch(res)
+dbClearResult(res)
+
+```
+
+### dplyr usage
+
+The following illustrates how you can make use of the dplyr interface. Again, we **do not** attach the `RSQLServer` package.
+
+```{r}
+library(dplyr, warn.conflicts = FALSE)
+flights <- tbl(nycflights, "flights")
+flights %>% 
+  filter(carrier == "UA") %>% 
+  arrange(-year, -month, -day, -dep_time)
+collect(flights)
+```
+
+Then close the connection
+
+```{r}
+dbDisconnect(nycflights)
+```
+
