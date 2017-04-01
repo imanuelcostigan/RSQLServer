@@ -75,7 +75,7 @@ test_that("summarise verb works", {
 
 test_that("explain works", {
   # Waiting closure of https://github.com/hadley/dplyr/issues/2609
-  # expect_message(explain(df1_tbl))
+  expect_message(explain(df1_tbl))
 })
 
 test_that("setops works", {
