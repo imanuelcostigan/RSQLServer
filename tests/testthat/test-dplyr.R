@@ -50,6 +50,13 @@ test_that("collect works", {
 test_that("select verb works", {
   expect_equal(select(df1_tbl, a) %>% collect(),
     data_frame(a = c(1, 2)))
+  expect_equal(select(df1_tbl, c = a) %>% collect(),
+    data_frame(c = c(1, 2)))
+})
+
+test_that("rename verb works", {
+  expect_equal(rename(df1_tbl, c = a) %>% collect(),
+    data_frame(c = c(1, 2), b = c("a", "b")))
 })
 
 test_that("filter verb works", {
