@@ -17,6 +17,9 @@
 \description{
 SQL Server Driver class
 }
+\references{
+\href{https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverdriver-class}{Microsoft's implementation of JDBC SQLServerDriver class}
+}
 \seealso{
 \code{\link{SQLServer}}
 }

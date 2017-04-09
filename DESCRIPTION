@@ -40,6 +40,7 @@ Suggests:
 Remotes: hadley/dplyr@1b0ae134da1,
     hadley/dbplyr@ce94c1541ba
 SystemRequirements: Java (>= 8.0)
+Roxygen: list(markdown = TRUE)
 URL: https://github.com/imanuelcostigan/RSQLServer
 BugReports: https://github.com/imanuelcostigan/RSQLServer/issues
 Collate: 

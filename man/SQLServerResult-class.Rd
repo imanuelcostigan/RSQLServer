@@ -74,4 +74,7 @@ JDBC PreparedStatement that has yet to be executed and is necessary for
 and returning another as output). This contrasts to the JDBC interface where
 binding occurs on Statement classes and not on ResultSet classes.
 }
+\references{
+\href{https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverresultset-class}{Microsoft's implementation of JDBC SQLServerResultSet class}
+}
 \keyword{internal}

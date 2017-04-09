@@ -6,19 +6,11 @@
 \alias{RSQLServer-package}
 \title{RSQLServer}
 \description{
-Implements an R Database Interface (DBI) for SQL Server. Sybase may work,
-but to date hasn't been tested. You will need to have installed the
-\href{https://www.java.com/en/download/index.jsp}{Java Runtime Environment}.
+Implements an R Database Interface (DBI) for SQL Server using Microsoft's
+JDBC driver. While the necessary JDBC drivers are bundled with the package,
+you will need to have at least version 8 of the \href{https://www.java.com/en/download/index.jsp}{Java RuntimeEnvironment} installed. Only SQL
+Server 2008 and later are supported by the bundled driver.
 }
-\details{
-If you intend to use integrated security (Windows Authentication) to
-authenticate your server session, you will need to download \href{http://sourceforge.net/projects/jtds/files/}{jTDS}
-and copy the native single sign on library (\code{ntlmauth.dll}) to any location
-on your system's \code{PATH} (e.g. \code{Sys.getenv("PATH")}). Full
-installation instructions are available in the \code{README.SSO}
-file in the jTDS download bundle. This functionality is unreliable in
-my testing, but it could just be my setup. I would recommend that that
-you fully specify your server and login credentials in the \code{~/sql.yaml}
-file rather than using the single sign on library. See the example provided:
-\code{system.file("extdata", "sql.yaml", package = "RSQLServer")}
+\references{
+\href{https://docs.microsoft.com/en-us/sql/connect/jdbc/system-requirements-for-the-jdbc-driver}{System requirements for Microsoft JDBC drivers}
 }

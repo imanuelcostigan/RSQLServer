@@ -21,8 +21,7 @@ the \code{file} does not contain the \code{server} key
 }
 \description{
 The \code{sql.yaml} file in a user's \code{HOME} directory can store
-server details and login credentials (in plaintext). This works around
-the instability associated with jTDS's single-sign on functionality.
+server details and login credentials (in plaintext).
 The YAML file format is documented in this package's \code{README} file, while
 an example is provided in \code{extdata/sql.yaml} (see example). At a
 high level, each server should be documented in its own associative array

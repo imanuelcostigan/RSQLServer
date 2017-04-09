@@ -37,31 +37,22 @@ database on \code{server} is assumed.}
 \code{"sybase"}. Defaults to \code{"sqlserver"} when set to \code{NULL}.}
 
 \item{port}{the TCP/IP default port. This will be coerced to a string.
-Defaults to \code{1433} if set to \code{NULL} or an empty string (jTDS
-behaviour).}
+Defaults to \code{1433} if set to \code{NULL} or an empty string.}
 
-\item{properties}{One or more
-\href{http://jtds.sourceforge.net/faq.html}{optional connection
-properties.} in a named list (defaults to empty list). Note if you intend
-to set the \code{useNTLMv2} property to \code{'true'} from the default API
-value of \code{'false'}, you will need to make a specific authentication
-driver available to the SQL Server driver, although this hasn't worked
-particularly well in testing. See \code{\link{RSQLServer}} for more
-details. Should you wish to use Windows authentication to connect to the
-server, I recommend you set the following optional parameters: set
-\code{useNTLMv2} to \code{'true'}, \code{domain} to your domain and
-\code{user} and \code{password} to your username and password on
-\code{domain}. jTDS' SSO functionality is flaky.}
+\item{properties}{One or more [optional connection
+properties](https://docs.microsoft.com/en-us/sql/connect/jdbc/setting-the-connection-properties).
+in a named list (defaults to empty list).}
 }
 \value{
 \code{SQLServer()} returns an object of class
-  \code{SQLServerDriver}; \code{dbConnect()} returns a
-  \code{\linkS4class{SQLServerConnection}} object.
+\code{SQLServerDriver}; \code{dbConnect()} returns a
+\code{\linkS4class{SQLServerConnection}} object.
 }
 \description{
-\code{SQLServer()} creates a \code{SQLServerDriver} object and is based on
-the jTDS driver while \code{dbConnect()} provides a convenient interface to
-connecting to a SQL Server database using this driver.
+\code{SQLServer()} creates a \code{SQLServerDriver} object that is based on
+on Microsoft's SQL Server JDBC driver while \code{dbConnect()} provides a
+convenient interface to connecting to a SQL Server database using this
+driver.
 }
 \examples{
 \dontrun{
@@ -83,5 +74,5 @@ dbConnect(RSQLServer::SQLServer(), server="11.1.111.11", port=1434,
 }
 }
 \references{
-\href{http://jtds.sourceforge.net/doc/net/sourceforge/jtds/jdbc/Driver.html}{jTDS API doc for Driver class}
+\href{https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverdriver-class}{Microsoft SQLServerDriver class API doc}
 }
