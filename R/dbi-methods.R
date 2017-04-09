@@ -237,10 +237,8 @@ setMethod("dbReadTable", c("SQLServerConnection", "character"),
 #' @export
 setMethod("dbDataType", c("SQLServerConnection", "ANY"),
   def = function (dbObj, obj, ...) {
-    # GOING FROM R data type to SQL Server data type
-    # http://jtds.sourceforge.net/typemap.html
+    # MSFT T-SQL data types (applies to SQL Server >= 2008):
     # https://msdn.microsoft.com/en-us/library/ms187752.aspx
-    # https://msdn.microsoft.com/en-us/library/ms187752(v=sql.90).aspx
 
     if (is(obj, "data.frame")) return(data_frame_data_type(dbObj, obj))
     if (is(obj, "AsIs")) return(as_is_type(obj, dbObj))
