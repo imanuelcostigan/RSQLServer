@@ -1,6 +1,6 @@
 start_driver <- function() {
-  rJava::.jaddClassPath(jtds_class_path())
-  rJava::.jnew("net.sourceforge.jtds.jdbc.Driver")
+  rJava::.jaddClassPath(msft_class_path())
+  rJava::.jnew("com.microsoft.sqlserver.jdbc.SQLServerDriver")
 }
 
 driver_version <- function(driver, check = TRUE) {

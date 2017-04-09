@@ -1,11 +1,28 @@
+msft_url <- function(server = NULL, port = NULL, instance = NULL, properties = NULL) {
+  # General form:
+  # jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
+  # Source: https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url
+  if (is.null(server) && is.null(properties)) {
+    return(NA)
   }
+  # You can build URL completely as a set of properties. So lets do this to make
+  # the code easier to read
+  # https://docs.microsoft.com/en-us/sql/connect/jdbc/setting-the-connection-properties
+  url <- "jdbc:sqlserver://"
+  plist <- list(
+    serverName = server,
+    portNumber = port,
+    instanceName = instance)
+  plist <- purrr::compact(c(plist, properties))
+  pchar <- paste(names(plist), unlist(plist, use.names = FALSE), sep = "=")
+  pstr <- paste0(pchar, collapse = ";")
+  paste0(url, paste0(";", pstr))
 }
 
 #' Get server details from YAML file
 #'
 #' The \code{sql.yaml} file in a user's \code{HOME} directory can store
-#' server details and login credentials (in plaintext). This works around
-#' the instability associated with jTDS's single-sign on functionality.
+#' server details and login credentials (in plaintext).
 #' The YAML file format is documented in this package's \code{README} file, while
 #' an example is provided in \code{extdata/sql.yaml} (see example). At a
 #' high level, each server should be documented in its own associative array
@@ -72,8 +89,8 @@ have_test_server <- function (type = 'sqlserver') {
   }
 }
 
-jtds_class_path <- function () {
-  file.path(system.file('java', package = 'RSQLServer'), 'jtds-1.2.8.jar')
+msft_class_path <- function () {
+  file.path(system.file('java', package = 'RSQLServer'), 'sqljdbc42.jar')
 }
 
 pull_class_path <- function () {
@@ -310,3 +327,4 @@ RowCounter <- setRefClass(
     }
   )
 )
+

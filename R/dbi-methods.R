@@ -5,12 +5,13 @@ NULL
 
 #' SQLServerDriver class and methods
 #'
-#' \code{SQLServer()} creates a \code{SQLServerDriver} object and is based on
-#' the jTDS driver while \code{dbConnect()} provides a convenient interface to
-#' connecting to a SQL Server database using this driver.
+#' \code{SQLServer()} creates a \code{SQLServerDriver} object that is based on
+#' on Microsoft's SQL Server JDBC driver while \code{dbConnect()} provides a
+#' convenient interface to connecting to a SQL Server database using this
+#' driver.
 #'
 #' @references
-#' \href{http://jtds.sourceforge.net/doc/net/sourceforge/jtds/jdbc/Driver.html}{jTDS API doc for Driver class}
+#' [Microsoft SQLServerDriver class API doc](https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverdriver-class)
 #' @examples
 #' \dontrun{
 #' SQLServer()
@@ -52,12 +53,10 @@ setMethod('dbConnect', "SQLServerDriver",
   definition = function (drv, server, file = NULL, database = NULL,
     type = NULL, port = NULL, properties = NULL) {
 
+    message("The type argument is deprecated and will be removed")
+
     # Set default values for arguments
     file <- file %||% file.path(Sys.getenv("HOME"), "sql.yaml")
-    database <- database %||% ""
-    type <- type %||% "sqlserver"
-    port <- port %||% ""
-    properties <- properties %||% list()
 
     # Use sql.yaml file if file is not missing. If so, then the paramaters
     # type, port and connection properties will be ignored and the
@@ -69,15 +68,18 @@ setMethod('dbConnect', "SQLServerDriver",
     }
     # Server details must include type and port otherwise get_server_file fails
     if (!is.null(sd)) {
+      sd$type <- NULL # not supported by MSFT driver
       server <- sd$server
       sd$server <- NULL
-      type <- sd$type
-      sd$type <- NULL
+      instance <- sd$instance
+      sd$instance <- NULL
       port <- sd$port
       sd$port <- NULL
       properties <- sd
     }
-    url <- jtds_url(server, type, port, database, properties)
+    # database name can only be added as a property in MSFT's drivers
+    properties <- c(properties, database = database)
+    url <- msft_url(server, port, instance, properties)
     new("SQLServerConnection", jc = new_connection(drv, url))
   }
 )
@@ -86,11 +88,10 @@ setMethod('dbConnect', "SQLServerDriver",
 #' @export
 
 setMethod('dbGetInfo', 'SQLServerDriver', definition = function (dbObj, ...) {
-  list(name = 'RSQLServer (jTDS)',
-    # jTDS is a JDBC 3.0 driver. This can be determined by calling the
-    # getDriverVersion() method of the JtdsDatabaseMetaData class. But
-    # this method isn't defined for Driver class - so hard coded.
-    driver.version = numeric_version("3.0"),
+  list(name = 'Microsoft SQL Server JDBC Driver',
+    # Using the Microsoft SQL Server JDBC driver which is a JDBC 4.2 driver
+    # https://docs.microsoft.com/en-us/sql/connect/jdbc/system-requirements-for-the-jdbc-driver
+    driver.version = numeric_version("4.2"),
     client.version = driver_version(dbObj),
     # Max connection defined server side rather than by driver.
     max.connections = NA)
