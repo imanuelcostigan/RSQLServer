@@ -246,7 +246,7 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
     if (is(obj, "AsIs")) return(as_is_type(obj, dbObj))
     if (is.factor(obj)) return("NVARCHAR(MAX)")
     if (inherits(obj, "POSIXct")) return("DATETIME")
-    if (inherits(obj, "Date")) return(date_type(obj, dbObj))
+    if (inherits(obj, "Date")) return("DATE")
 
     switch(typeof(obj),
       logical = "BIT",

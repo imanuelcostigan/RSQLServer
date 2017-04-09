@@ -99,15 +99,6 @@ pull_class_path <- function () {
 
 # SQL types --------------------------------------------------------------
 
-date_type <- function (x, con) {
-  if (dbGetInfo(con)$db.version < 10) {
-    # DATE available in >= SQL Server 2008 (>= v.10)
-    "DATETIME"
-  } else {
-    "DATE"
-  }
-}
-
 as_is_type <- function(x, con) {
   class(x) <- class(x)[-1]
   dbDataType(con, x)
