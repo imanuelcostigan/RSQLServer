@@ -99,22 +99,6 @@ pull_class_path <- function () {
 
 # SQL types --------------------------------------------------------------
 
-char_type <- function (x, con) {
-  # SQL Server 2000 does not support nvarchar(max) type.
-  # TEXT is being deprecated. Make sure SQL types are UNICODE variants
-  # (prefixed by N).
-  # https://technet.microsoft.com/en-us/library/aa258271(v=sql.80).aspx
-  n <- max(max(nchar(as.character(x), keepNA = FALSE)), 1)
-  if (n > 4000) {
-    if (dbGetInfo(con)$db.version < 9) {
-      n <- "4000"
-    } else {
-      n <- "MAX"
-    }
-  }
-  paste0("NVARCHAR(", n, ")")
-}
-
 binary_type <- function (x, con) {
   # SQL Server 2000 does not support varbinary(max) type.
   n <- max(max(nchar(x, keepNA = FALSE)), 1)
