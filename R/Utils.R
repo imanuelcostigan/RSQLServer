@@ -99,20 +99,6 @@ pull_class_path <- function () {
 
 # SQL types --------------------------------------------------------------
 
-binary_type <- function (x, con) {
-  # SQL Server 2000 does not support varbinary(max) type.
-  n <- max(max(nchar(x, keepNA = FALSE)), 1)
-  if (n > 8000) {
-    if (dbGetInfo(con)$db.version < 9) {
-      # https://technet.microsoft.com/en-us/library/aa225972(v=sql.80).aspx
-      n <- "8000"
-    } else {
-      n <- "MAX"
-    }
-  }
-  paste0("VARBINARY(", n, ")")
-}
-
 date_type <- function (x, con) {
   if (dbGetInfo(con)$db.version < 10) {
     # DATE available in >= SQL Server 2008 (>= v.10)

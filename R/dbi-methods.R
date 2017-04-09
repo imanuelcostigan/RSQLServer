@@ -252,9 +252,9 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
       logical = "BIT",
       integer = "INT",
       double = "FLOAT",
-      raw = binary_type(obj, dbObj),
+      raw = "VARBINARY(MAX)",
       character = "NVARCHAR(MAX)",
-      list = binary_type(obj, dbObj),
+      list = "VARBINARY(MAX)",
       stop("Unsupported type", call. = FALSE)
     )
   }
