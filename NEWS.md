@@ -1,8 +1,17 @@
 # Version 0.3.099
 
-We have replaced the jTDS drivers with Microsoft's SQL Server JDBC driver. This has resulted in a number of interface changes:
+We have replaced the jTDS drivers with Microsoft's SQL Server JDBC driver. While this may result in a number of implicit behavioural changes (e.g. SSL connections are turned on by default), this has also resulted in a number of explicit changes.
+
+## External dependencies
+
+* Java Runtime Environment 8 or later is now required
+* Versions of SQL Server prior to SQL Server 2008 are unsupported
+
+## Interface changes
 
 * The `type` argument to `dbConnect()` is unsupported and has been soft-deprecated. This will become defunct at the next release.
+
+
 
 # Version 0.2.099
 
