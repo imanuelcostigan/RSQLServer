@@ -3,6 +3,8 @@
 #' SQL Server Driver class
 #'
 #' @seealso \code{\link{SQLServer}}
+#' @references
+#' [Microsoft's implementation of JDBC SQLServerDriver class](https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverdriver-class)
 #' @keywords internal
 #' @importClassesFrom rJava jobjRef
 #' @export
@@ -16,6 +18,8 @@ setClass("SQLServerDriver", contains = "DBIDriver",
 #' SQL Server Connection class
 #'
 #' @keywords internal
+#' @references
+#' [Microsoft's implementation of JDBC SQLServerConnection class](https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverconnection-class)
 #' @export
 
 setClass("SQLServerConnection", contains = 'DBIConnection',
@@ -48,6 +52,8 @@ setClass ("SQLServerPreResult", contains = 'DBIResult',
 
 #' @keywords internal
 #' @rdname SQLServerResult-class
+#' @references
+#' [Microsoft's implementation of JDBC SQLServerResultSet class](https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverresultset-class)
 #' @export
 
 setClass ("SQLServerResult", contains = 'SQLServerPreResult',
