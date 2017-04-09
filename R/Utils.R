@@ -1,46 +1,4 @@
-if(getRversion() >= "2.15.1") {
-  utils::globalVariables(c("REQUIRED_JTDS_FIELDS", "OPTIONAL_JTDS_FIELDS"))
-}
-
-# jTDS FAQ
-# http://jtds.sourceforge.net/faq.html
-# Accessed: 8 October 2014
-# General form:
-# jdbc:jtds:<server_type>://<server>[:<port>][/<database>][;<property>=<value>[;...]]
-# where:
-# <server_type> is one of either 'sqlserver' or 'sybase' (their meaning is
-#    quite obvious),
-# <port> is the port the database server is listening to (default is 1433 for
-#    SQL Server and 7100 for Sybase)
-# <database> is the database name -- JDBC term: catalog -- (if not specified,
-# the user's default database is used).
-# More on FAQ about available properties.
-
-REQUIRED_JTDS_FIELDS <- c("server")
-OPTIONAL_JTDS_FIELDS <-  c("port", "database", "appName", "autoCommit",
-  "batchSize", "bindAddress", "bufferDir", "bufferMaxMemory", "bufferMinPackets",
-  "cacheMetaData", "charset", "domain", "instance", "lastUpdateCount",
-  "lobBuffer", "loginTimeout", "macAddress", "maxStatements", "namedPipe",
-  "packetSize", "password", "prepareSQL", "progName", "processId",
-  "sendStringParametersAsUnicode", "socketTimeout", "socketKeepAlive",
-  "ssl", "tcpNoDelay", "TDS", "useCursors", "useJCIFS", "useLOBs",
-  "useNTLMv2", "user", "wsid", "xaEmulation")
-
-jtds_url <- function (server, type = "sqlserver", port = "", database = "",
-  properties = list()) {
-  assertthat::assert_that(type %in% c("sqlserver", "sybase"))
-  url <- paste0('jdbc:jtds:sqlserver://', server)
-  if (!identical(port, ""))
-    url <- paste0(url, ':', port)
-  if (!identical(database, ""))
-    url <- paste0(url, '/', database)
-  if (!identical(properties, list())) {
-    assertthat::assert_that(all(names(properties) %in% OPTIONAL_JTDS_FIELDS))
-    properties <- paste0(paste0(";", names(properties)), '=',
-      unlist(properties, use.names = FALSE), collapse='')
-    url <- paste0(url, properties)
   }
-  url
 }
 
 #' Get server details from YAML file
