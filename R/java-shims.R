@@ -4,7 +4,9 @@ start_driver <- function() {
 }
 
 driver_version <- function(driver, check = TRUE) {
-  rJava::.jcall(driver@jdrv, "S", "getVersion", check = check)
+  major <- rJava::.jcall(driver@jdrv, "I", "getMajorVersion", check = check)
+  minor <- rJava::.jcall(driver@jdrv, "I", "getMinorVersion", check = check)
+  numeric_version(paste0(major, ".", minor))
 }
 
 new_connection <- function(driver, url, properties = NULL, check = TRUE) {
