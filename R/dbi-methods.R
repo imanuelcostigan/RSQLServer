@@ -239,6 +239,8 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
   def = function (dbObj, obj, ...) {
     # MSFT T-SQL data types (applies to SQL Server >= 2008):
     # https://msdn.microsoft.com/en-us/library/ms187752.aspx
+    # See SQL Server R services SQL to R data type mapping:
+    # https://docs.microsoft.com/en-us/sql/advanced-analytics/r-services/working-with-r-data-types
 
     if (is(obj, "data.frame")) return(data_frame_data_type(dbObj, obj))
     if (is(obj, "AsIs")) return(as_is_type(obj, dbObj))
