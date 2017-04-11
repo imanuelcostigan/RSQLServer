@@ -19,11 +19,11 @@ setClass("SQLServerDriver", contains = "DBIDriver",
 #'
 #' @keywords internal
 #' @references
-#' [Microsoft's implementation of JDBC SQLServerConnection class](https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverconnection-class)
+#' [Microsoft's implementation of JDBC SQLServerDataSource class](https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverdatasource-class)
 #' @export
 
 setClass("SQLServerConnection", contains = 'DBIConnection',
-  slots = c(jc = "jobjRef"))
+  slots = c(jds = "jobjRef", jc = "jobjRef"))
 
 
 # Result -----------------------------------------------------------------

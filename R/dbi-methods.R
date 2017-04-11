@@ -80,7 +80,18 @@ setMethod('dbConnect', "SQLServerDriver",
     # database name can only be added as a property in MSFT's drivers
     properties <- c(properties, database = database)
     url <- msft_url(server, port, instance, properties)
-    new("SQLServerConnection", jc = new_connection(drv, url))
+    # Creating the connection using SQLServerDataSource as the
+    # SQLServerDataSource class has a much richer interface (and we can store
+    # this as part of the SQLServerConnection object).
+    # Guide: https://docs.microsoft.com/en-us/sql/connect/jdbc/working-with-a-connection
+    # API:   https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverdatasource-members
+    jds <- rJava::.jnew("com/microsoft/sqlserver/jdbc/SQLServerDataSource")
+    thrown_jds <- rJava::.jcall(jds, "V", "setURL", url, check = FALSE)
+    catch_exception(thrown_jds, "Unable to set the URL.")
+    jc <- rJava::.jcall(jds, "Ljava/sql/Connection;", "getConnection",
+      check = FALSE)
+    catch_exception(jc, "Unable create the connection")
+    new("SQLServerConnection", jds = jds, jc = jc)
   }
 )
 

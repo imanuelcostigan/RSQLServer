@@ -9,10 +9,12 @@ driver_version <- function(driver, check = TRUE) {
   numeric_version(paste0(major, ".", minor))
 }
 
-new_connection <- function(driver, url, properties = NULL, check = TRUE) {
-  properties <- properties %||%  rJava::.jnew('java/util/Properties')
-  rJava::.jcall(driver@jdrv, "Ljava/sql/Connection;", "connect", url,
-    properties, check = check)
+database_version <- function(conn, check = TRUE) {
+  jmd <- rJava::.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData",
+    check = check)
+  major <- rJava::.jcall(jmd, "I", "getDatabaseMajorVersion", check = check)
+  minor <- rJava::.jcall(jmd, "I", "getDatabaseMinorVersion", check = check)
+  numeric_version(paste0(major, ".", minor))
 }
 
 close_connection <- function (conn, check = TRUE) {
@@ -21,12 +23,12 @@ close_connection <- function (conn, check = TRUE) {
 
 connection_info <- function (conn, info) {
   switch(info,
-    username = rJava::.jfield(conn@jc, "S", "user"),
-    host = rJava::.jfield(conn@jc, "S", "serverName"),
-    port = rJava::.jfield(conn@jc, "I", "portNumber"),
-    dbname = rJava::.jfield(conn@jc, "S", "currentDatabase"),
-    db.version = numeric_version(rJava::.jfield(conn@jc, "S",
-      "databaseProductVersion")))
+    username = rJava::.jcall(conn@jds, "S", "getUser"),
+    host = rJava::.jcall(conn@jds, "S", "getServerName"),
+    port = rJava::.jcall(conn@jds, "I", "getPortNumber"),
+    dbname = rJava::.jcall(conn@jds, "S", "getDatabaseName"),
+    db.version = database_version(conn)
+  )
 }
 
 create_statement <- function(conn, check = FALSE) {
