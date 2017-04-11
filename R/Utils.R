@@ -33,9 +33,8 @@ msft_url <- function(server = NULL, port = NULL, instance = NULL, properties = N
 #' @param file defaults to \code{NULL} which means that it will use
 #' \code{$HOME/sql.yaml}.
 #' @return a named list of \code{server} details if this is specified in the
-#' \code{file}. It stops and returns an error if \code{port} and \code{type}
-#' keys are not specified for found \code{server}. \code{NULL} is returned if
-#' the \code{file} does not contain the \code{server} key
+#' \code{file}. \code{NULL} is returned if the \code{file} does not contain the
+#' \code{server} key
 #' @examples
 #' # See link below
 #' \dontrun{
@@ -52,15 +51,7 @@ msft_url <- function(server = NULL, port = NULL, instance = NULL, properties = N
 
 get_server_details <- function (server, file = NULL) {
   assertthat::assert_that(assertthat::is.string(server))
-  server_details <- yaml::yaml.load_file(file)
-  if (assertthat::has_name(server_details, server)) {
-    server_detail <- server_details[[server]]
-    assertthat::assert_that(!is.null(server_detail$port),
-      !is.null(server_detail$type))
-    return(server_detail)
-  } else {
-    return(NULL)
-  }
+  yaml::yaml.load_file(file)[[server]]
 }
 
 #' Checks availability of TEST server
