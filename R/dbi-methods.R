@@ -53,8 +53,6 @@ setMethod('dbConnect', "SQLServerDriver",
   definition = function (drv, server, file = NULL, database = NULL,
     type = NULL, port = NULL, properties = NULL) {
 
-    message("The type argument is deprecated and will be removed")
-
     # Set default values for arguments
     file <- file %||% file.path(Sys.getenv("HOME"), "sql.yaml")
 
