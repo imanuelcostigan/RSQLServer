@@ -21,6 +21,14 @@ close_connection <- function (conn, check = TRUE) {
   rJava::.jcall(conn@jc, "V", "close", check = check)
 }
 
+set_connection_property <- function(jds, key, value) {
+  if (!is.null(value)) {
+    setter <- sub("(^[[:alpha:]])", "\\U\\1", key, perl = TRUE)
+    ex <- rJava::.jcall(jds, "V", paste0("set", setter), value, check = FALSE)
+    catch_exception(ex, "Unable to set the ", key, " connection property.")
+  }
+}
+
 connection_info <- function (conn, info) {
   switch(info,
     username = rJava::.jcall(conn@jds, "S", "getUser"),

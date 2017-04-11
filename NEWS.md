@@ -9,9 +9,16 @@ We have replaced the jTDS drivers with Microsoft's SQL Server JDBC driver. While
 
 ## Interface changes
 
-* The `type` argument to `dbConnect()` is unsupported and has been soft-deprecated. This will become defunct at the next release.
-
-
+* There have been major backward incompatible changes to the `dbConnect()` method to improve consistency with the recommended DBI specification. This includes:
+  * changed argument ordering
+  * added `host`, `user` and `password` arguments
+  * renamed `database` argument name to `dbname` 
+  * renamed `server` argument name to `alias` (to better differentiate to the new `host` argument)
+  * removed `type` argument as Sybase is unlikely to be ever formally supported
+  * removed `file` so that it looks for `sql.yaml` in standard location (i.e. `~/sql.yaml`) rather than permitting this to be user specified - it simplifies the interface.
+  * removed `properties` as it will be assumed arguments passed to `...` will be list of properties.
+* `dbConnect()` now procures a connection through the `SQLServerDataSource` interface rather than through the driver. This means that the method doesn't attempt to build a connection URL, but rather sets connection properties via the relevant `setX()` methods and makes it possible to extract connection properties for use by `dbGetInfo()`.
+* Accordingly, the tag names in the YAML file must accord with the corresponding `SQLServerDataSource` setter stub. This means some commonly used tag names need to be renamed in the YAML file (e.g. `server` to `serverName`, `database` to `databaseName` and `port` to `portNumber`, etc)
 
 # Version 0.2.099
 

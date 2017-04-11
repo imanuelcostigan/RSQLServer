@@ -50,45 +50,71 @@ SQLServer <- function () {
 #' @export
 
 setMethod('dbConnect', "SQLServerDriver",
-  definition = function (drv, server, file = NULL, database = NULL,
-    type = NULL, port = NULL, properties = NULL) {
+  definition = function (drv, alias = NULL, user = NULL, password = NULL,
+    host = NULL, port = NULL, dbname = NULL, ...) {
 
-    # Set default values for arguments
-    file <- file %||% file.path(Sys.getenv("HOME"), "sql.yaml")
+    # If `alias` is not `NULL` then all other arguments will be ignored and the
+    # information in sql.yaml will be used instead. Key names should correspond
+    # to valid connection property names. Those which do not correspond to a
+    # SQLServerDataSource setter are ignored.
 
-    # Use sql.yaml file if file is not missing. If so, then the paramaters
-    # type, port and connection properties will be ignored and the
-    # information in sql.yaml will be used instead.
-    if (file.exists(file)) {
-      sd <- get_server_details(server, file)
-    } else {
-      sd <- NULL
-    }
-    # Server details must include type and port otherwise get_server_file fails
-    if (!is.null(sd)) {
-      sd$type <- NULL # not supported by MSFT driver
-      server <- sd$server
-      sd$server <- NULL
-      instance <- sd$instance
-      sd$instance <- NULL
-      port <- sd$port
-      sd$port <- NULL
-      properties <- sd
-    }
-    # database name can only be added as a property in MSFT's drivers
-    properties <- c(properties, database = database)
-    url <- msft_url(server, port, instance, properties)
+    # Connection props:
+    #  https://docs.microsoft.com/en-us/sql/connect/jdbc/setting-the-connection-properties
+    # SQLServerDataSource members (incl. setters):
+    #  https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverdatasource-members
+
     # Creating the connection using SQLServerDataSource as the
     # SQLServerDataSource class has a much richer interface (and we can store
     # this as part of the SQLServerConnection object).
-    # Guide: https://docs.microsoft.com/en-us/sql/connect/jdbc/working-with-a-connection
-    # API:   https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverdatasource-members
+    # Guide:
+    #  https://docs.microsoft.com/en-us/sql/connect/jdbc/working-with-a-connection
+
+    if (!is.null(alias)) {
+      sqlfile <- file.path(Sys.getenv("HOME"), "sql.yaml")
+      if (!file.exists(sqlfile)) stop("~/sql.yaml is missing", call. = FALSE)
+      p <- get_server_details(alias, sqlfile)
+    } else {
+      p <- list(
+        server = host,
+        port = port,
+        database = dbname,
+        user = user,
+        password = password,
+        ...
+      )
+    }
+
     jds <- rJava::.jnew("com/microsoft/sqlserver/jdbc/SQLServerDataSource")
-    thrown_jds <- rJava::.jcall(jds, "V", "setURL", url, check = FALSE)
-    catch_exception(thrown_jds, "Unable to set the URL.")
-    jc <- rJava::.jcall(jds, "Ljava/sql/Connection;", "getConnection",
-      check = FALSE)
-    catch_exception(jc, "Unable create the connection")
+    set_connection_property(jds, "applicationIntent", p[["applicationIntent"]])
+    set_connection_property(jds, "applicationName", p[["applicationName"]])
+    set_connection_property(jds, "authenticationScheme", p[["authenticationScheme"]])
+    set_connection_property(jds, "databaseName", p[["databaseName"]])
+    set_connection_property(jds, "description", p[["description"]])
+    set_connection_property(jds, "encrypt", p[["encrypt"]])
+    set_connection_property(jds, "failoverPartner", p[["failoverPartner"]])
+    set_connection_property(jds, "hostNameInCertificate", p[["hostNameInCertificate"]])
+    set_connection_property(jds, "instanceName", p[["instanceName"]])
+    set_connection_property(jds, "integratedSecurity", p[["integratedSecurity"]])
+    set_connection_property(jds, "lastUpdateCount", p[["lastUpdateCount"]])
+    set_connection_property(jds, "lockTimeout", p[["lockTimeout"]])
+    set_connection_property(jds, "loginTimeout", p[["loginTimeout"]])
+    set_connection_property(jds, "multiSubnetFailover", p[["multiSubnetFailover"]])
+    set_connection_property(jds, "packetSize", p[["packetSize"]])
+    set_connection_property(jds, "password", p[["password"]])
+    set_connection_property(jds, "portNumber", p[["portNumber"]])
+    set_connection_property(jds, "responseBuffering", p[["responseBuffering"]])
+    set_connection_property(jds, "selectMethod", p[["selectMethod"]])
+    set_connection_property(jds, "sendStringParametersAsUnicode", p[["sendStringParametersAsUnicode"]])
+    set_connection_property(jds, "sendTimeAsDatetime", p[["sendTimeAsDatetime"]])
+    set_connection_property(jds, "serverName", p[["serverName"]])
+    set_connection_property(jds, "trustServerCertificate", p[["trustServerCertificate"]])
+    set_connection_property(jds, "trustStore", p[["serverName"]])
+    set_connection_property(jds, "trustStorePassword", p[["trustStorePassword"]])
+    set_connection_property(jds, "user", p[["user"]])
+    set_connection_property(jds, "workstationID", p[["workstationID"]])
+    set_connection_property(jds, "xopenStates", p[["xopenStates"]])
+    jc <- rJava::.jcall(jds, "Ljava/sql/Connection;", "getConnection", check = FALSE)
+    catch_exception(jc, "Unable create the connection.")
     new("SQLServerConnection", jds = jds, jc = jc)
   }
 )
