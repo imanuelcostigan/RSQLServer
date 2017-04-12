@@ -27,7 +27,21 @@ SQLServer <- function () {
 #' @param drv An objected of class \code{\linkS4class{SQLServerDriver}}, or an
 #'   existing \code{\linkS4class{SQLServerConnection}}. If a connection, the
 #'   connection will be cloned.
-#' @template sqlserver-parameters
+#' @param alias the name of the server identified in the `~/sql.yaml` file. This
+#'   `alias` is described by a number of connection properties including the
+#'   `host` address, `portNumber`, `user`, `password` and `databaseName`.
+#'   Supported connection properties must have a corresponding setter in the
+#'   [`SQLServerDataSource`
+#'   class](https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverdatasource-members).
+#' @param user a string representing the user name
+#' @param password a string representing the password used to login as the
+#'   `user`
+#' @param host a string representing the address of the hosting server
+#' @param port an integer representing the port that the `host` is listening on
+#'   (default: `1433L`)
+#' @param dbname a string representing the database to connect to on the `host`
+#'   (default: the default database on the `host`)
+#' @param ... other supported connection properties
 #' @return \code{SQLServer()} returns an object of class
 #'   \code{SQLServerDriver}; \code{dbConnect()} returns a
 #'   \code{\linkS4class{SQLServerConnection}} object.
