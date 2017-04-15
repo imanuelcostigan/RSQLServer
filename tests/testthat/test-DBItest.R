@@ -1,4 +1,4 @@
-DBItest::make_context(SQLServer(), list(server = "TEST", database = "DBITest"),
+DBItest::make_context(SQLServer(), list(alias = "TEST"),
   tweaks = DBItest::tweaks(placeholder_pattern = "?"))
 DBItest::test_getting_started()
 DBItest::test_driver(skip = c(
