@@ -42,7 +42,7 @@ More changes should be expected as the DBItest package matures.
 A number of changes were made to `dplyr` backend including a refactoring of this code across to the newer `dbplyr` package. As a result, dplyr >= 0.6.0 is required:
 
 - `src_desc()` deprecated in favour of `db_desc()` 
-- Implemented `db_create_table()` and `db_insert_into()`for `SQLServerConnection`
+- Implemented `db_create_table()`, `db_write_table()` and `db_insert_into()`for `SQLServerConnection`
 - `db_drop_table()` supports the `IF EXISTS` SQL clause if supported by SQL Server (#75)
 - New `temporary` argument to `db_insert_into()` which overwrites existing table if set to `TRUE` and if necessary. 
 - `sql_select()` method supports the `DISTINCT` keyword and includes `TOP` keyword when query results are ordered.
