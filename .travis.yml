@@ -2,6 +2,7 @@ language: r
 cache: packages
 before_install:
   - openssl aes-256-cbc -K $encrypted_71b396cbdae4_key -iv $encrypted_71b396cbdae4_iv -in inst/extdata/sql.yaml.enc -out $HOME/sql.yaml -d
+  - if [ "${TRAVIS_OS_NAME}" == 'osx' ]; then ln -s  $(/usr/libexec/java_home)/jre/lib/server/libjvm.dylib /usr/local/lib; fi
 after_success:
   - if [[ "${R_CODECOV}" ]]; then R -e 'covr::codecov()'; fi
 
