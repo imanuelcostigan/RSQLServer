@@ -1,4 +1,4 @@
-# Version 0.2.099
+# Version 0.3.0
 
 RSQLServer was archived by CRAN after dplyr v0.4 irredeemably broke the dplyr SQL Server backend provided by this package. Well we are back on CRAN and there have been a lot of changes since you last saw this package including improvements to the DBI backend, compatibility with the latest iteration of the dplyr/dbplyr backend and removing the reliance on RJDBC's middleware.
 
