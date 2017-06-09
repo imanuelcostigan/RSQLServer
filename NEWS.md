@@ -39,7 +39,7 @@ A number of other changes have been made to the `DBI` backend:
 
 ## dplyr/dbplyr backend
 
-A number of changes were made to `dplyr` backend including a refactoring of this code across to the newer `dbplyr` package. As a result, dplyr >= 0.6.0 is required:
+A number of changes were made to `dplyr` backend including a refactoring of its code across to the newer `dbplyr` package. As a result, dplyr >= 0.7.0 is required:
 
 - `src_desc()` defunct in favour of `db_desc()` 
 - Implemented `db_create_table()`, `db_write_table()` and `db_insert_into()`for `SQLServerConnection`
