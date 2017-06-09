@@ -7,7 +7,7 @@
 \title{RSQLServer}
 \description{
 Implements an R Database Interface (DBI) for SQL Server. Sybase may work,
-but to date hasn't been tested. You will need to have installed the
+but to date has not been tested. You will need to have installed the
 \href{https://www.java.com/en/download/index.jsp}{Java Runtime Environment}.
 }
 \details{
