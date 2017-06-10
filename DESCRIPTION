@@ -19,37 +19,37 @@ Authors@R: c(person("Imanuel", "Costigan", role = c("aut", "cre"),
              person("RStudio", role = "cph"),
              person("The Legion Of The Bouncy Castle", role = c("cph", "ctb")))
 Description: Utilises The jTDS Project's JDBC 3.0 SQL Server
-    driver to extend DBI classes and methods. The package also
-    implements a SQL backend to the dplyr package.
+  driver to extend DBI classes and methods. The package also
+  implements a SQL backend to the dplyr package.
 License: GPL-2
 Depends:
-    R (>= 3.2.0)
+  R (>= 3.2.0)
 Imports:
-    methods (>= 3.2.0),
-    DBI (>= 0.5.0),
-    rJava (>= 0.9.6),
-    dplyr (>= 0.7.0),
-    dbplyr (>= 1.0.0),
-    assertthat (>= 0.1),
-    yaml (>= 2.1.13),
-    purrr (>= 0.2.1)
+  methods (>= 3.2.0),
+  DBI (>= 0.5.0),
+  rJava (>= 0.9.6),
+  dplyr (>= 0.7.0),
+  dbplyr (>= 1.0.0),
+  assertthat (>= 0.1),
+  yaml (>= 2.1.13),
+  purrr (>= 0.2.1)
 Suggests:
-    testthat,
-    DBItest (>= 1.4),
-    covr
+  testthat,
+  DBItest (>= 1.4),
+  covr
 SystemRequirements: Java (>= 1.3)
 URL: https://github.com/imanuelcostigan/RSQLServer
 BugReports: https://github.com/imanuelcostigan/RSQLServer/issues
 Collate: 
-    'RSQLServer.R'
-    'Utils.R'
-    'dbi-classes.R'
-    'dbi-methods.R'
-    'dbi-shims.R'
-    'dbi-tables.R'
-    'dplyr-imports.R'
-    'java-shims.R'
-    'jdbc-methods.R'
-    'onLoad.R'
-    'sql-backends.R'
+  'RSQLServer.R'
+  'Utils.R'
+  'dbi-classes.R'
+  'dbi-methods.R'
+  'dbi-shims.R'
+  'dbi-tables.R'
+  'dplyr-imports.R'
+  'java-shims.R'
+  'jdbc-methods.R'
+  'onLoad.R'
+  'sql-backends.R'
 RoxygenNote: 6.0.1
