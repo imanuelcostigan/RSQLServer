@@ -30,7 +30,7 @@ build_script:
   - secure-file\tools\secure-file -decrypt inst\extdata\sql.yamlwin.enc -secret %securepwd%
   - move inst\extdata\sql.yamlwin %USERPROFILE%\documents\sql.yaml
   - del inst\extdata\*.enc
-  - travis-tool.sh install_github r-pkgs/remotes@303db43 # https://github.com/tidyverse/dplyr/pull/2761
+  - travis-tool.sh install_github r-pkgs/remotes@9b38115c # https://github.com/tidyverse/dplyr/pull/2761
   - travis-tool.sh install_deps
 
 test_script:
