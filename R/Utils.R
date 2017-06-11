@@ -81,7 +81,8 @@ have_test_server <- function (type = 'sqlserver') {
 }
 
 msft_class_path <- function () {
-  file.path(system.file('java', package = 'RSQLServer'), 'sqljdbc42.jar')
+  file.path(system.file('java', package = 'RSQLServer'),
+    'mssql-jdbc-6.1.7.jre8.preview.jar')
 }
 
 pull_class_path <- function () {
