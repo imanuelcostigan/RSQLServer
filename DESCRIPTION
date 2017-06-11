@@ -4,8 +4,6 @@ Title: SQL Server R Database Interface (DBI) and dplyr SQL Backend
 Version: 0.3.99
 Authors@R: c(person("Imanuel", "Costigan", role = c("aut", "cre"),
                     email = "i.costigan@me.com"),
-             person("The jTDS Project (for MSSQL Server driver)",
-                    role = "aut"),
              person("Simon", "Urbanek", role = "ctb",
                     email = "Simon.Urbanek@r-project.org"),
              person("Hadley", "Wickham", email = "hadley@rstudio.com",
@@ -16,12 +14,11 @@ Authors@R: c(person("Imanuel", "Costigan", role = c("aut", "cre"),
                     role = "ctb"),
              person("Bill", "Evans", email = "bill@8pawsexpress.com",
                     role = "ctb"),
-             person("RStudio", role = "cph"),
-             person("The Legion Of The Bouncy Castle", role = c("cph", "ctb")))
-Description: Utilises The jTDS Project's JDBC 3.0 SQL Server
-  driver to extend DBI classes and methods. The package also
-  implements a SQL backend to the dplyr package.
-License: GPL-2
+             person("Microsoft Corporation", role = "cph"),
+             person("RStudio", role = "cph"))
+Description: Utilises Microsoft's JDBC SQL Server driver to extend DBI classes 
+  and methods. The package also implements a SQL backend to the dplyr package.
+License: MIT + file LICENSE
 Depends:
   R (>= 3.2.0)
 Imports:
