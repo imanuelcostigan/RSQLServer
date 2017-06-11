@@ -1,19 +1,8 @@
 language: r
 cache: packages
+sudo: false
+env: R_CODECOV=true
 before_install:
   - openssl aes-256-cbc -K $encrypted_71b396cbdae4_key -iv $encrypted_71b396cbdae4_iv -in inst/extdata/sql.yaml.enc -out $HOME/sql.yaml -d
 after_success:
   - if [[ "${R_CODECOV}" ]]; then R -e 'covr::codecov()'; fi
-
-matrix:
-  include:
-    - os: linux
-      r: release
-      sudo: false
-      env: R_CODECOV=true
-    - os: linux
-      r: oldrel
-      sudo: false
-    - os: linux
-      r: devel
-      sudo: false

@@ -28,3 +28,11 @@ SQL_PORT_ERROR:
     user: *user
     password: *pass
     useNTLMv2: *ntlm
+# https://www.appveyor.com/docs/services-databases/
+TEST:
+    serverName: localhost
+    instanceName: SQL2008R2SP2
+    portNumber: 1433
+    databaseName: master
+    user: sa
+    password: Password12!
