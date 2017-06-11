@@ -38,7 +38,7 @@ SystemRequirements: Java (>= 8.0)
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/imanuelcostigan/RSQLServer
 BugReports: https://github.com/imanuelcostigan/RSQLServer/issues
-Collate: 
+Collate:
   'RSQLServer.R'
   'Utils.R'
   'dbi-classes.R'
