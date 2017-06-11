@@ -17,3 +17,4 @@
 ^buildMSSQLResultPull\.sh$
 ^README\.Rmd$
 ^README-.*\.png$
+^java$
