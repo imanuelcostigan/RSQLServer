@@ -3,18 +3,24 @@
 RSQLServer
 ==========
 
-[![CRAN](http://www.r-pkg.org/badges/version/RSQLServer)](http://cran.r-project.org/package=RSQLServer) [![Travis-CI build status](https://travis-ci.org/imanuelcostigan/RSQLServer.svg?branch=master)](https://travis-ci.org/imanuelcostigan/RSQLServer) [![Appveyor build status](https://ci.appveyor.com/api/projects/status/i2oedybuqi2o5crg/branch/master?svg=true)](https://ci.appveyor.com/project/imanuelcostigan/rsqlserver/branch/master) [![Coverage status](https://codecov.io/gh/imanuelcostigan/RSQLServer/branch/master/graph/badge.svg)](https://codecov.io/gh/imanuelcostigan/RSQLServer)
+[![CRAN](http://www.r-pkg.org/badges/version-ago/RSQLServer)](https://cran.r-project.org/package=RSQLServer) [![Travis-CI build status](https://travis-ci.org/imanuelcostigan/RSQLServer.svg?branch=master)](https://travis-ci.org/imanuelcostigan/RSQLServer) [![Appveyor build status](https://ci.appveyor.com/api/projects/status/muw348v007ja7dqf?svg=true)](https://ci.appveyor.com/project/imanuelcostigan/rsqlserver) [![Coverage status](https://codecov.io/gh/imanuelcostigan/RSQLServer/branch/master/graph/badge.svg)](https://codecov.io/gh/imanuelcostigan/RSQLServer)
 
 An R package that provides a SQL Server R Database Interface ([DBI](https://github.com/rstats-db/DBI)), based on the cross-platform [jTDS JDBC driver](http://jtds.sourceforge.net/index.html).
 
 Installation
 ------------
 
-You can't install the package from CRAN yet. But you install the development version from GitHub:
+You can install the development version from GitHub:
 
 ``` r
 # install.packages('devtools')
 devtools::install_github('imanuelcostigan/RSQLServer')
+```
+
+And when the package is back on CRAN, you can install it the usual way:
+
+``` r
+install.packages("RSQLServer")
 ```
 
 Config file
@@ -44,7 +50,7 @@ SQL_DEV:
 Usage
 -----
 
-Ensure that your `~/sql.yaml` file contains a valid SQL Server entry named `TEST`. In the following, the `TEST` server, generously provided by Microsoft for the purposes of this package's development, has a database containing the `nycflights13` package data sets.
+Ensure that your `~/sql.yaml` file contains a valid SQL Server entry named `TEST`. In the following, the `TEST` server, generously provided by Microsoft for the purposes of this package's development, has a database containing band data sets.
 
 ### DBI usage
 
@@ -52,46 +58,26 @@ The following illustrates how you can make use of the DBI interface. Note that w
 
 ``` r
 library(DBI)
-nycflights <- dbConnect(RSQLServer::SQLServer(), server = "TEST", database = 'DBItest')
+con <- dbConnect(RSQLServer::SQLServer(), server = "TEST", database = 'DBItest')
+dbWriteTable(con, "band_members", dplyr::band_members)
+dbWriteTable(con, "band_instruments", dplyr::band_instruments)
 # RSQLServer only returns tables with type TABLE and VIEW.
-dbListTables(nycflights)
-#> [1] "airlines"   "airports"   "cars"       "flights"    "planes"    
-#> [6] "test_table" "weather"
-dbListFields(nycflights, 'airlines')
-#> [1] "carrier" "name"
-dbReadTable(nycflights, 'airlines')
-#>    carrier                        name
-#> 1       9E           Endeavor Air Inc.
-#> 2       AA      American Airlines Inc.
-#> 3       AS        Alaska Airlines Inc.
-#> 4       B6             JetBlue Airways
-#> 5       DL        Delta Air Lines Inc.
-#> 6       EV    ExpressJet Airlines Inc.
-#> 7       F9      Frontier Airlines Inc.
-#> 8       FL AirTran Airways Corporation
-#> 9       HA      Hawaiian Airlines Inc.
-#> 10      MQ                   Envoy Air
-#> 11      OO       SkyWest Airlines Inc.
-#> 12      UA       United Air Lines Inc.
-#> 13      US             US Airways Inc.
-#> 14      VX              Virgin America
-#> 15      WN      Southwest Airlines Co.
-#> 16      YV          Mesa Airlines Inc.
+dbListTables(con)
+#> [1] "band_instruments" "band_members"
+dbReadTable(con, 'band_members')
+#>   name    band
+#> 1 Mick  Stones
+#> 2 John Beatles
+#> 3 Paul Beatles
+dbListFields(con, 'band_instruments')
+#> [1] "name"  "plays"
 
 # Fetch all results
-res <- dbSendQuery(nycflights, 'SELECT TOP 10 * FROM airlines')
+res <- dbSendQuery(con, "SELECT * FROM band_members WHERE band = 'Beatles'")
 dbFetch(res)
-#>    carrier                        name
-#> 1       9E           Endeavor Air Inc.
-#> 2       AA      American Airlines Inc.
-#> 3       AS        Alaska Airlines Inc.
-#> 4       B6             JetBlue Airways
-#> 5       DL        Delta Air Lines Inc.
-#> 6       EV    ExpressJet Airlines Inc.
-#> 7       F9      Frontier Airlines Inc.
-#> 8       FL AirTran Airways Corporation
-#> 9       HA      Hawaiian Airlines Inc.
-#> 10      MQ                   Envoy Air
+#>   name    band
+#> 1 John Beatles
+#> 2 Paul Beatles
 dbClearResult(res)
 #> [1] TRUE
 ```
@@ -102,53 +88,34 @@ The following illustrates how you can make use of the dplyr interface. Again, we
 
 ``` r
 library(dplyr, warn.conflicts = FALSE)
-flights <- tbl(nycflights, "flights")
-flights %>% 
-  filter(carrier == "UA") %>% 
-  arrange(-year, -month, -day, -dep_time)
-#> Source:     lazy query [?? x 19]
-#> Database:   SQLServerConnection
-#> Ordered by: -year, -month, -day, -dep_time
-#> 
-#>     year month   day dep_time sched_dep_time dep_delay arr_time
-#>    <int> <int> <int>    <int>          <int>     <dbl>    <int>
-#> 1   2013    12    31       NA           1000        NA       NA
-#> 2   2013    12    31       NA            840        NA       NA
-#> 3   2013    12    31       NA            754        NA       NA
-#> 4   2013    12    31       NA           2000        NA       NA
-#> 5   2013    12    31       NA           1500        NA       NA
-#> 6   2013    12    31       NA           1430        NA       NA
-#> 7   2013    12    31       NA            855        NA       NA
-#> 8   2013    12    31       NA            705        NA       NA
-#> 9   2013    12    31       NA            600        NA       NA
-#> 10  2013    12    31       NA            830        NA       NA
-#> # ... with more rows, and 12 more variables: sched_arr_time <int>,
-#> #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
-#> #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
-#> #   minute <dbl>, time_hour <dttm>
-collect(flights)
-#> # A tibble: 336,776 × 19
-#>     year month   day dep_time sched_dep_time dep_delay arr_time
-#> *  <int> <int> <int>    <int>          <int>     <dbl>    <int>
-#> 1   2013     1     1      517            515         2      830
-#> 2   2013     1     1      533            529         4      850
-#> 3   2013     1     1      542            540         2      923
-#> 4   2013     1     1      544            545        -1     1004
-#> 5   2013     1     1      554            600        -6      812
-#> 6   2013     1     1      554            558        -4      740
-#> 7   2013     1     1      555            600        -5      913
-#> 8   2013     1     1      557            600        -3      709
-#> 9   2013     1     1      557            600        -3      838
-#> 10  2013     1     1      558            600        -2      753
-#> # ... with 336,766 more rows, and 12 more variables: sched_arr_time <int>,
-#> #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
-#> #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
-#> #   minute <dbl>, time_hour <dttm>
+members <- tbl(con, "band_members")
+instruments <- tbl(con, "band_instruments")
+members %>% 
+  left_join(instruments) %>% 
+  filter(band == "Beatles")
+#> Joining, by = "name"
+#> # Source:   lazy query [?? x 3]
+#> # Database: SQLServerConnection
+#>    name    band  plays
+#>   <chr>   <chr>  <chr>
+#> 1  John Beatles guitar
+#> 2  Paul Beatles   bass
+collect(members)
+#> # A tibble: 3 x 2
+#>    name    band
+#> * <chr>   <chr>
+#> 1  Mick  Stones
+#> 2  John Beatles
+#> 3  Paul Beatles
 ```
 
-Then close the connection
+Clean up
 
 ``` r
-dbDisconnect(nycflights)
+dbRemoveTable(con, "band_instruments")
+#> [1] TRUE
+dbRemoveTable(con, "band_members")
+#> [1] TRUE
+dbDisconnect(con)
 #> [1] TRUE
 ```
