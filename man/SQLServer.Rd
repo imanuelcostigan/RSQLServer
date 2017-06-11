@@ -8,40 +8,34 @@
 \usage{
 SQLServer()
 
-\S4method{dbConnect}{SQLServerDriver}(drv, server, file = NULL,
-  database = NULL, type = NULL, port = NULL, properties = NULL)
+\S4method{dbConnect}{SQLServerDriver}(drv, alias = NULL, user = NULL,
+  password = NULL, host = NULL, port = NULL, dbname = NULL, ...)
 }
 \arguments{
 \item{drv}{An objected of class \code{\linkS4class{SQLServerDriver}}, or an
 existing \code{\linkS4class{SQLServerConnection}}. If a connection, the
 connection will be cloned.}
 
-\item{server}{the server address or recognised alias thereof.}
+\item{alias}{the name of the server identified in the \code{~/sql.yaml} file. This
+\code{alias} is described by a number of connection properties including the
+\code{host} address, \code{portNumber}, \code{user}, \code{password} and \code{databaseName}.
+Supported connection properties must have a corresponding setter in the
+\href{https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverdatasource-members}{SQLServerDataSourceclass}.}
 
-\item{file}{defaults to using the server details file in
-\code{$HOME/sql.yaml}. The server details including \code{type},
-\code{port} and any optional \code{properties} can be sourced from this
-file. If the \code{server} name is found in \code{file}, the details
-therein are used (and in particular, those provided in other arguments to
-this function are ignored). The connection method prefers server details
-to be provided in a \code{"sql.yaml"} file rather than provided as
-arguments to this function. If you wish to specify the details as
-parameters, ensure that either the \code{file} does not exist or that the
-\code{server} details are not in the YAML file.}
+\item{user}{a string representing the user name}
 
-\item{database}{the name of the database hosted on the \code{server}. If an
-empty string or \code{NULL} (default), a connection to the default
-database on \code{server} is assumed.}
+\item{password}{a string representing the password used to login as the
+\code{user}}
 
-\item{type}{the server type. Must be either \code{"sqlserver"} or
-\code{"sybase"}. Defaults to \code{"sqlserver"} when set to \code{NULL}.}
+\item{host}{a string representing the address of the hosting server}
 
-\item{port}{the TCP/IP default port. This will be coerced to a string.
-Defaults to \code{1433} if set to \code{NULL} or an empty string.}
+\item{port}{an integer representing the port that the \code{host} is listening on
+(default: \code{1433L})}
 
-\item{properties}{One or more [optional connection
-properties](https://docs.microsoft.com/en-us/sql/connect/jdbc/setting-the-connection-properties).
-in a named list (defaults to empty list).}
+\item{dbname}{a string representing the database to connect to on the \code{host}
+(default: the default database on the \code{host})}
+
+\item{...}{other supported connection properties}
 }
 \value{
 \code{SQLServer()} returns an object of class

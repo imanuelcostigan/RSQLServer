@@ -20,9 +20,11 @@ We have replaced the jTDS drivers with Microsoft's SQL Server JDBC driver. While
 * `dbConnect()` now procures a connection through the `SQLServerDataSource` interface rather than through the driver. This means that the method doesn't attempt to build a connection URL, but rather sets connection properties via the relevant `setX()` methods and makes it possible to extract connection properties for use by `dbGetInfo()`.
 * Accordingly, the tag names in the YAML file must accord with the corresponding `SQLServerDataSource` setter stub. This means some commonly used tag names need to be renamed in the YAML file (e.g. `server` to `serverName`, `database` to `databaseName` and `port` to `portNumber`, etc)
 
-# Version 0.2.099
+# Version 0.3.0
 
 RSQLServer was archived by CRAN after dplyr v0.4 irredeemably broke the dplyr SQL Server backend provided by this package. Well we are back on CRAN and there have been a lot of changes since you last saw this package including improvements to the DBI backend, compatibility with the latest iteration of the dplyr/dbplyr backend and removing the reliance on RJDBC's middleware.
+
+The next version of this package will likely swap the jTDS driver for the official Microsoft JDBC driver and make further interface changes to better align with the more explicit interface specifications in the DBI package.
 
 ## DBI backend
 
@@ -57,14 +59,12 @@ A number of other changes have been made to the `DBI` backend:
 - `dbIsValid()` implemented for `SQLServerDriver` and always returns `TRUE`.
 - Now rely on DBI supplied `show()` methods
 
-More changes should be expected as the DBItest package matures.
-
 ## dplyr/dbplyr backend
 
-A number of changes were made to `dplyr` backend including a refactoring of this code across to the newer `dbplyr` package. As a result, dplyr >= 0.6.0 is required:
+A number of changes were made to `dplyr` backend including a refactoring of its code across to the newer `dbplyr` package. As a result, dplyr >= 0.7.0 is required:
 
-- `src_desc()` deprecated in favour of `db_desc()` 
-- Implemented `db_create_table()` and `db_insert_into()`for `SQLServerConnection`
+- `src_desc()` defunct in favour of `db_desc()` 
+- Implemented `db_create_table()`, `db_write_table()` and `db_insert_into()`for `SQLServerConnection`
 - `db_drop_table()` supports the `IF EXISTS` SQL clause if supported by SQL Server (#75)
 - New `temporary` argument to `db_insert_into()` which overwrites existing table if set to `TRUE` and if necessary. 
 - `sql_select()` method supports the `DISTINCT` keyword and includes `TOP` keyword when query results are ordered.

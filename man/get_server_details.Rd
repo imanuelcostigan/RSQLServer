@@ -15,17 +15,16 @@ should be a string.}
 }
 \value{
 a named list of \code{server} details if this is specified in the
-\code{file}. It stops and returns an error if \code{port} and \code{type}
-keys are not specified for found \code{server}. \code{NULL} is returned if
-the \code{file} does not contain the \code{server} key
+\code{file}. \code{NULL} is returned if the \code{file} does not contain the
+\code{server} key
 }
 \description{
-The \code{sql.yaml} file in a user's \code{HOME} directory can store
-server details and login credentials (in plaintext).
-The YAML file format is documented in this package's \code{README} file, while
-an example is provided in \code{extdata/sql.yaml} (see example). At a
-high level, each server should be documented in its own associative array
-with each aspect of the server documented in an associative array.
+The \code{sql.yaml} file in a user's \code{HOME} directory can store server
+details and login credentials (in plain text). The YAML file format is
+documented in this package's \code{README} file, while an example is provided
+in \code{extdata/sql.yaml} (see example). At a high level, each server should
+be documented in its own associative array with each aspect of the server
+documented in an associative array.
 }
 \examples{
 # See link below

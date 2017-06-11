@@ -1,38 +1,27 @@
+## Background
+
+RSQLServer was archived by CRAN after dplyr v0.4 irredeemably broke the dplyr SQL Server backend provided by this package. This submission is to get RSQLServer back onto CRAN following the release of v0.7 allowed us to correct these issues.
+
 ## Test environments
 
-* local OS X install, R 3.2.4
-* Win-builder R 3.2.4 and 3.3.0 alpha
+* R-3.3.3, 3.4.0, r72772 on Ubuntu 12.04 hosted by Travis CI
+* R-3.4.0 run locally on macOS 
+* R-3.4.0 on Windows hosted by Appveyor
 
 ## R CMD check results
 
-There were no ERRORs, WARNINGs but two NOTEs (but only via win-builder):
+1 WARNING and 1 NOTE
 
-First spelling issues related to package names and legitimate abbreviations:
+WARNING:
 
-> Possibly mis-spelled words in DESCRIPTION:
->   Backend (3:60)
->   DBI (3:41, 19:44, 21:58)
->   JDBC (18:42)
->   RJDBC (19:26, 21:23, 22:61)
->   RJDBC's (24:39)
->   SQL (3:8, 3:56, 18:51, 25:54)
->   SQLServerConnection (20:22)
->   SQLServerDriver (20:5)
->   SQLServerRsult (20:44)
->   backend (25:58)
->   dbConnect (23:18)
->   dbWriteTable (24:57)
->   dplyr (3:50, 25:73)
->   jTDS (18:27)
+* Getting an error locally regarding README conversion due to inability to retrieve a Travis CI badge. This is not an issue that occurs on Travis / Appveyor CI platforms and shouldn't prevent submission proceeding
 
-Second complaints about `dplyr`, a package name, not being title case in my 
-package's Title field. 
+NOTE regarding CRAN feasibility:
 
-> The Title field should be in title case, current version then in title case:
-> 'SQL Server R Database Interface (DBI) and dplyr SQL Backend'
-> 'SQL Server R Database Interface (DBI) and Dplyr SQL Backend'
+* "X-CRAN-Comment: Archived on 2016-12-01 as check problems were not corrected despite reminders" (see above explanation)
+* There were a number of spelling exceptions highlighted. However these represented package or application names.
+* Asking for the first letter of the dplyr package name to be capitalised in the Title field which shouldn't prevent submission proceeding.
 
-I don't think either of these aspects of the note should prevent submission.
 
 ## Downstream dependencies
 

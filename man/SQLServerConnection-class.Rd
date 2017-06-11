@@ -67,6 +67,6 @@ than by individual rows (the default).}
 SQL Server Connection class
 }
 \references{
-\href{https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverconnection-class}{Microsoft's implementation of JDBC SQLServerConnection class}
+\href{https://docs.microsoft.com/en-us/sql/connect/jdbc/reference/sqlserverdatasource-class}{Microsoft's implementation of JDBC SQLServerDataSource class}
 }
 \keyword{internal}

@@ -40,6 +40,24 @@ db_create_table.SQLServerConnection <- function(con, table, types,
   paste0(prefix, table)
 }
 
+#' @importFrom dplyr db_write_table
+#' @export
+db_write_table.SQLServerConnection <- function(con, table, types, values,
+  temporary = FALSE, ...) {
+  # Implementation in dbplyr escapes `table` using `dbi_quote` which returns the
+  # value `'<table>'` which causes MSSQL to throw an "Incorrect syntax near
+  # `'<tablename>'`" error.
+  dbWriteTable(
+    con,
+    name = dbQuoteIdentifier(con, table),
+    value = values,
+    field.types = types,
+    temporary = temporary,
+    row.names = FALSE
+  )
+}
+
+
 #' @importFrom dplyr db_insert_into
 #' @export
 

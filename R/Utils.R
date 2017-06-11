@@ -21,12 +21,12 @@ msft_url <- function(server = NULL, port = NULL, instance = NULL, properties = N
 
 #' Get server details from YAML file
 #'
-#' The \code{sql.yaml} file in a user's \code{HOME} directory can store
-#' server details and login credentials (in plaintext).
-#' The YAML file format is documented in this package's \code{README} file, while
-#' an example is provided in \code{extdata/sql.yaml} (see example). At a
-#' high level, each server should be documented in its own associative array
-#' with each aspect of the server documented in an associative array.
+#' The \code{sql.yaml} file in a user's \code{HOME} directory can store server
+#' details and login credentials (in plain text). The YAML file format is
+#' documented in this package's \code{README} file, while an example is provided
+#' in \code{extdata/sql.yaml} (see example). At a high level, each server should
+#' be documented in its own associative array with each aspect of the server
+#' documented in an associative array.
 #'
 #' @param server corresponds to the server name key in the YAML \code{file} and
 #' should be a string.

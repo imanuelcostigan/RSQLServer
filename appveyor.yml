@@ -13,18 +13,25 @@ install:
 cache:
   - C:\RLibrary
 
+max_jobs: 1
+
+
 # Adapt as necessary starting from here
+# Based on https://github.com/tidyverse/dplyr/blob/f12d245403de13866db6c11b0fdb91b1c38f9b05/appveyor.yml
 
 environment:
   global:
+    WARNINGS_ARE_ERRORS: 1
     R_ARCH: x64
     USE_RTOOLS: true
+    PKGTYPE: source
 
 build_script:
   - nuget install secure-file -ExcludeVersion
   - secure-file\tools\secure-file -decrypt inst\extdata\sql.yamlwin.enc -secret %securepwd%
   - move inst\extdata\sql.yamlwin %USERPROFILE%\documents\sql.yaml
   - del inst\extdata\*.enc
+  - travis-tool.sh install_github r-pkgs/remotes@9b38115c # https://github.com/tidyverse/dplyr/pull/2761
   - travis-tool.sh install_deps
 
 test_script:
