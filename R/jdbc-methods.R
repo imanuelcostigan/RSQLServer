@@ -36,18 +36,6 @@ r_to_j_type <- function (rtype) {
   names(mapping)[match(rtype, mapping, 1)]
 }
 
-jdbcToSqlServerType <- function (jtype) {
-  # http://jtds.sourceforge.net/typemap.html
-  mapping <- c("TINYINT" = "tinyint", "SMALLINT" = "smallint",
-    "INTEGER" = "int", "BIGINT" = "bigint", "DECIMAL" = "decimal",
-    "NUMERIC" = "numeric", "REAL" = "real", "DOUBLE" = "float", "BIT" = "bit",
-    "CHAR" = "char", "VARCHAR" = "varchar", "CLOB" = "text",
-    "BINARY" = "binary", "VARBINARY" = "varbinary", "BLOB" = "image",
-    "TIMESTAMP" = "datetime", "DATE" = "date", "TIME" = "time")
-  assertthat::assert_that(assertthat::has_name(mapping, jtype))
-  unname(mapping[jtype])
-}
-
 jdbcToRType <- function (type) {
   # http://docs.oracle.com/javase/7/docs/api/constant-values.html#java.sql.Types
   # BIGINT (-5) is -2^63 to 2^63-1 which corresponds to Java's long. However,
