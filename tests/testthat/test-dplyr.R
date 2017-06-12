@@ -6,7 +6,7 @@ if (has_test && is_not_cran) {
     library(dplyr)
   })
 
-  ss <- dbConnect(SQLServer(), server = "TEST", database = "DBItest")
+  ss <- dbConnect(SQLServer(), alias = "TEST", databaseName = "DBItest")
 
   # Remove tables from last run of tests. This prevents tests failing in case
   # previous invocation of tests failed before df could be dropped

@@ -73,8 +73,7 @@ have_test_server <- function (type = 'sqlserver') {
   yaml_file <- file.path(Sys.getenv("HOME"), "sql.yaml")
   if (file.exists(yaml_file)) {
     server_details <- yaml::yaml.load_file(yaml_file)
-    res <- assertthat::has_name(server_details, "TEST")
-    return(isTRUE(res & identical(server_details[["TEST"]]$type, type)))
+    return(assertthat::has_name(server_details, "TEST"))
   } else {
     return(FALSE)
   }

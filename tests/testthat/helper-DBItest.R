@@ -1,8 +1,8 @@
 DBItest::make_context(
   SQLServer(),
   list(
-    server = "TEST",
-    database = "DBITest"
+    alias = "TEST",
+    databaseName = "DBITest"
   ),
   tweaks = DBItest::tweaks(
     placeholder_pattern = "?"
