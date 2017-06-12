@@ -16,7 +16,7 @@ if (has_test && is_not_cran) {
     # https://github.com/rstats-db/DBItest/issues/77
     "data_character", "data_character_null_below", "data_character_null_above",
     "data_raw", "data_raw_null_above", "data_raw_null_below",
-    # See for skip reasons: https://github.com/rstats-db/DBI/issues/149
+    # https://github.com/rstats-db/DBItest/issues/76
     "data_date", "data_date_null_below", "data_date_null_above",
     "data_time", "data_time_null_below", "data_time_null_above",
     "data_time_parens", "data_time_parens_null_below", "data_time_parens_null_above",
