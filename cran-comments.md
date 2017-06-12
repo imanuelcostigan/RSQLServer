@@ -1,3 +1,6 @@
+
+RESUBMISSION AFTER PRE-TEST message...now test cases run conditional on them not being run on CRAN. Other reported exceptions are false-positives.
+
 ## Background
 
 RSQLServer was archived by CRAN after dplyr v0.4 irredeemably broke the dplyr SQL Server backend provided by this package. This submission is to get RSQLServer back onto CRAN following the release of v0.7 allowed us to correct these issues.
