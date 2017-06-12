@@ -1,10 +1,6 @@
 if (has_test && is_not_cran) {
   DBItest::test_getting_started()
-  DBItest::test_driver(skip = c(
-    # dbDataType requires knowledge of SQL Server version which SQLServerDriver
-    # class does not have knowledge of. So skip this test for Driver
-    "data_type_driver"
-  ))
+  DBItest::test_driver()
   DBItest::test_connection()
   DBItest::test_result(skip = c(
     # jTDS closes open statements when closing connections. Closing statements

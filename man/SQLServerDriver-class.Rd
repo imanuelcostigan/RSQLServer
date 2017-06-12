@@ -6,6 +6,7 @@
 \alias{dbGetInfo,SQLServerDriver-method}
 \alias{dbUnloadDriver,SQLServerDriver-method}
 \alias{dbIsValid,SQLServerDriver-method}
+\alias{dbDataType,SQLServerDriver-method}
 \title{SQL Server Driver class}
 \usage{
 \S4method{dbGetInfo}{SQLServerDriver}(dbObj, ...)
@@ -13,6 +14,8 @@
 \S4method{dbUnloadDriver}{SQLServerDriver}(drv, ...)
 
 \S4method{dbIsValid}{SQLServerDriver}(dbObj, ...)
+
+\S4method{dbDataType}{SQLServerDriver}(dbObj, obj, ...)
 }
 \description{
 SQL Server Driver class

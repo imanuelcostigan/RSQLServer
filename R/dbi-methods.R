@@ -282,9 +282,9 @@ setMethod("dbReadTable", c("SQLServerConnection", "character"),
     dbGetQuery(conn, sql)
 })
 
-#' @rdname SQLServerConnection-class
+#' @rdname SQLServerDriver-class
 #' @export
-setMethod("dbDataType", c("SQLServerConnection", "ANY"),
+setMethod("dbDataType", c("SQLServerDriver", "ANY"),
   def = function (dbObj, obj, ...) {
     # MSFT T-SQL data types (applies to SQL Server >= 2008):
     # https://msdn.microsoft.com/en-us/library/ms187752.aspx
@@ -306,6 +306,14 @@ setMethod("dbDataType", c("SQLServerConnection", "ANY"),
       list = "VARBINARY(MAX)",
       stop("Unsupported type", call. = FALSE)
     )
+  }
+)
+
+#' @rdname SQLServerConnection-class
+#' @export
+setMethod("dbDataType", c("SQLServerConnection", "ANY"),
+  def = function (dbObj, obj, ...) {
+    dbDataType(SQLServer(), obj, ...)
   }
 )
 
