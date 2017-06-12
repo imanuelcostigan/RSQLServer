@@ -13,7 +13,6 @@ install:
 cache:
   - C:\RLibrary
 
-
 # Adapt as necessary starting from here
 # Based on https://github.com/tidyverse/dplyr/blob/f12d245403de13866db6c11b0fdb91b1c38f9b05/appveyor.yml
 

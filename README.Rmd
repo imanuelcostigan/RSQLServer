@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 
 # RSQLServer
 
-[![CRAN](http://www.r-pkg.org/badges/version/RSQLServer)](http://cran.r-project.org/package=RSQLServer)
+[![CRAN](http://www.r-pkg.org/badges/version-ago/RSQLServer)](https://cran.r-project.org/package=RSQLServer)
 [![Travis-CI build status](https://travis-ci.org/imanuelcostigan/RSQLServer.svg?branch=master)](https://travis-ci.org/imanuelcostigan/RSQLServer)
 [![Appveyor build status](https://ci.appveyor.com/api/projects/status/muw348v007ja7dqf?svg=true)](https://ci.appveyor.com/project/imanuelcostigan/rsqlserver)
 [![Coverage status](https://codecov.io/gh/imanuelcostigan/RSQLServer/branch/master/graph/badge.svg)](https://codecov.io/gh/imanuelcostigan/RSQLServer)
@@ -36,6 +36,13 @@ You can install the master branch version from GitHub:
 # install.packages('devtools')
 devtools::install_github('imanuelcostigan/RSQLServer')
 ```
+
+And when the package is back on CRAN, you can install it the usual way:
+
+```{r, eval=FALSE}
+install.packages("RSQLServer")
+```
+
 
 ## Config file
 
@@ -62,7 +69,7 @@ SQL_DEV:
 
 ## Usage
 
-Ensure that your `~/sql.yaml` file contains a valid SQL Server entry named `TEST`. In the following, the `TEST` server, generously provided by Microsoft for the purposes of this package's development, has a database containing the `nycflights13` package data sets.
+Ensure that your `~/sql.yaml` file contains a valid SQL Server entry named `TEST`. In the following, the `TEST` server, generously provided by Microsoft for the purposes of this package's development, has a database containing band data sets.
 
 ### DBI usage
 
@@ -70,17 +77,18 @@ The following illustrates how you can make use of the DBI interface. Note that w
 
 ```{r}
 library(DBI)
-nycflights <- dbConnect(RSQLServer::SQLServer(), server = "TEST", database = 'DBItest')
+con <- dbConnect(RSQLServer::SQLServer(), server = "TEST", database = 'DBItest')
+dbWriteTable(con, "band_members", dplyr::band_members)
+dbWriteTable(con, "band_instruments", dplyr::band_instruments)
 # RSQLServer only returns tables with type TABLE and VIEW.
-dbListTables(nycflights)
-dbListFields(nycflights, 'airlines')
-dbReadTable(nycflights, 'airlines')
+dbListTables(con)
+dbReadTable(con, 'band_members')
+dbListFields(con, 'band_instruments')
 
 # Fetch all results
-res <- dbSendQuery(nycflights, 'SELECT TOP 10 * FROM airlines')
+res <- dbSendQuery(con, "SELECT * FROM band_members WHERE band = 'Beatles'")
 dbFetch(res)
 dbClearResult(res)
-
 ```
 
 ### dplyr usage
@@ -89,16 +97,19 @@ The following illustrates how you can make use of the dplyr interface. Again, we
 
 ```{r}
 library(dplyr, warn.conflicts = FALSE)
-flights <- tbl(nycflights, "flights")
-flights %>% 
-  filter(carrier == "UA") %>% 
-  arrange(-year, -month, -day, -dep_time)
-collect(flights)
+members <- tbl(con, "band_members")
+instruments <- tbl(con, "band_instruments")
+members %>% 
+  left_join(instruments) %>% 
+  filter(band == "Beatles")
+collect(members)
 ```
 
-Then close the connection
+Clean up
 
 ```{r}
-dbDisconnect(nycflights)
+dbRemoveTable(con, "band_instruments")
+dbRemoveTable(con, "band_members")
+dbDisconnect(con)
 ```
 

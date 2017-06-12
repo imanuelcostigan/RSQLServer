@@ -1,4 +1,4 @@
-# Version 0.3.099
+# Version 0.3.99
 
 We have replaced the jTDS drivers with Microsoft's SQL Server JDBC driver. While this may result in a number of implicit behavioural changes (e.g. SSL connections are turned on by default), this has also resulted in a number of explicit changes.
 
