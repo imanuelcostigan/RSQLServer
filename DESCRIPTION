@@ -1,6 +1,6 @@
 Package: RSQLServer
 Type: Package
-Title: SQL Server R Database Interface (DBI) and dplyr SQL Backend
+Title: SQL Server R Database Interface (DBI) and 'dplyr' SQL Backend
 Version: 0.3.0
 Authors@R: c(person("Imanuel", "Costigan", role = c("aut", "cre"),
                     email = "i.costigan@me.com"),

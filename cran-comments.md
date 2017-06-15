@@ -1,5 +1,5 @@
 
-RESUBMISSION AFTER PRE-TEST message...now test cases run conditional on them not being run on CRAN. Other reported exceptions are false-positives.
+RESUBMISSION AFTER ENQUOTING 'dplyr' in DESCRIPTION title
 
 ## Background
 
