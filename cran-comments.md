@@ -1,5 +1,5 @@
 
-RESUBMISSION AFTER ENQUOTING 'dplyr' in DESCRIPTION title
+RESUBMISSION AFTER ENQUOTING software names
 
 ## Background
 
