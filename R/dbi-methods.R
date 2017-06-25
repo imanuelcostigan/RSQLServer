@@ -89,9 +89,9 @@ setMethod('dbConnect', "SQLServerDriver",
       p <- get_server_details(alias, sqlfile)
     } else {
       p <- list(
-        server = host,
-        port = port,
-        database = dbname,
+        serverName = host,
+        portNumber = port,
+        databaseName = dbname,
         user = user,
         password = password,
         ...
@@ -122,7 +122,7 @@ setMethod('dbConnect', "SQLServerDriver",
     set_connection_property(jds, "sendTimeAsDatetime", p[["sendTimeAsDatetime"]])
     set_connection_property(jds, "serverName", p[["serverName"]])
     set_connection_property(jds, "trustServerCertificate", p[["trustServerCertificate"]])
-    set_connection_property(jds, "trustStore", p[["serverName"]])
+    set_connection_property(jds, "trustStore", p[["trustStore"]])
     set_connection_property(jds, "trustStorePassword", p[["trustStorePassword"]])
     set_connection_property(jds, "user", p[["user"]])
     set_connection_property(jds, "workstationID", p[["workstationID"]])
