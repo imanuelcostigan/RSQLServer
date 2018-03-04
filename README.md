@@ -10,7 +10,7 @@ An R package that provides a SQL Server R Database Interface ([DBI](https://gith
 Package status
 --------------
 
-This package is no longer being actively maintained as there is now an excellent, much better supported package [odbc](https://github.com/r-dbi/odbc). I will accept clean pull requests, but won't be implementing new features or fix bugs. Over time, this package will like be archived.
+This package is no longer being actively maintained as there is now an excellent, much better supported package [odbc](https://github.com/r-dbi/odbc). I will accept clean pull requests, but won't be implementing new features or fix bugs. Over time, this package will likely be archived.
 
 Installation
 ------------
