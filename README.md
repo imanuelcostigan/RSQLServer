@@ -3,9 +3,14 @@
 RSQLServer
 ==========
 
-[![CRAN](http://www.r-pkg.org/badges/version-ago/RSQLServer)](https://cran.r-project.org/package=RSQLServer) [![Travis-CI build status](https://travis-ci.org/imanuelcostigan/RSQLServer.svg?branch=master)](https://travis-ci.org/imanuelcostigan/RSQLServer) [![Appveyor build status](https://ci.appveyor.com/api/projects/status/muw348v007ja7dqf?svg=true)](https://ci.appveyor.com/project/imanuelcostigan/rsqlserver) [![Coverage status](https://codecov.io/gh/imanuelcostigan/RSQLServer/branch/master/graph/badge.svg)](https://codecov.io/gh/imanuelcostigan/RSQLServer)
+[![lifecycle](https://img.shields.io/badge/lifecycle-retired-orange.svg)](https://www.tidyverse.org/lifecycle/#retired) [![CRAN](http://www.r-pkg.org/badges/version-ago/RSQLServer)](https://cran.r-project.org/package=RSQLServer) [![Travis-CI build status](https://travis-ci.org/imanuelcostigan/RSQLServer.svg?branch=master)](https://travis-ci.org/imanuelcostigan/RSQLServer) [![Appveyor build status](https://ci.appveyor.com/api/projects/status/muw348v007ja7dqf?svg=true)](https://ci.appveyor.com/project/imanuelcostigan/rsqlserver) [![Coverage status](https://codecov.io/gh/imanuelcostigan/RSQLServer/branch/master/graph/badge.svg)](https://codecov.io/gh/imanuelcostigan/RSQLServer)
 
-An R package that provides a SQL Server R Database Interface ([DBI](https://github.com/rstats-db/DBI)), based on the cross-platform [jTDS JDBC driver](http://jtds.sourceforge.net/index.html).
+An R package that provides a SQL Server R Database Interface ([DBI](https://github.com/rstats-db/DBI)), based on the Microsoft's [JDBC driver](http://jtds.sourceforge.net/index.html).
+
+Package status
+--------------
+
+This package is no longer being actively maintained as there is now an excellent, much better supported package [odbc](https://github.com/r-dbi/odbc). I will accept clean pull requests, but won't be implementing new features or fix bugs. Over time, this package will like be archived.
 
 Installation
 ------------
@@ -58,7 +63,7 @@ The following illustrates how you can make use of the DBI interface. Note that w
 
 ``` r
 library(DBI)
-con <- dbConnect(RSQLServer::SQLServer(), server = "TEST", database = 'DBItest')
+con <- dbConnect(RSQLServer::SQLServer(), server = "TEST", database = "rsqlserver")
 dbWriteTable(con, "band_members", dplyr::band_members)
 dbWriteTable(con, "band_instruments", dplyr::band_instruments)
 # RSQLServer only returns tables with type TABLE and VIEW.
@@ -94,19 +99,28 @@ members %>%
   left_join(instruments) %>% 
   filter(band == "Beatles")
 #> Joining, by = "name"
+#> Warning: Translator is missing window variants of the following aggregate functions:
+#> * sd
+#> * sdp
+#> * varp
+
+#> Warning: Translator is missing window variants of the following aggregate functions:
+#> * sd
+#> * sdp
+#> * varp
 #> # Source:   lazy query [?? x 3]
 #> # Database: SQLServerConnection
-#>    name    band  plays
-#>   <chr>   <chr>  <chr>
-#> 1  John Beatles guitar
-#> 2  Paul Beatles   bass
+#>   name  band    plays 
+#>   <chr> <chr>   <chr> 
+#> 1 John  Beatles guitar
+#> 2 Paul  Beatles bass
 collect(members)
 #> # A tibble: 3 x 2
-#>    name    band
-#> * <chr>   <chr>
-#> 1  Mick  Stones
-#> 2  John Beatles
-#> 3  Paul Beatles
+#>   name  band   
+#> * <chr> <chr>  
+#> 1 Mick  Stones 
+#> 2 John  Beatles
+#> 3 Paul  Beatles
 ```
 
 Clean up
